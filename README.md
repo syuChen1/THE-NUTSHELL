@@ -8,7 +8,7 @@ make
 
 TODO:
 - [ ] Alias expansions should only be performed on the first word of each command. (right now is performing in every word)
-- [] Metacharacter
+- [ ] Metacharacter
     - [x] > < | &
     - [ ] Still need to work on \ and "
         - [ ] unable to access \
