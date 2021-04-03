@@ -54,9 +54,7 @@ extern int yydebug;
     SETENV = 264,
     PRINTENV = 265,
     UNSETENV = 266,
-    LS = 267,
-    ECHOO = 268,
-    META = 269
+    META = 267
   };
 #endif
 
@@ -65,10 +63,10 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 33 "nutshparser.y" /* yacc.c:1909  */
+#line 32 "nutshparser.y" /* yacc.c:1909  */
 char *string;
 
-#line 72 "nutshparser.tab.h" /* yacc.c:1909  */
+#line 70 "nutshparser.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

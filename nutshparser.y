@@ -71,6 +71,8 @@ int runCD(char* arg) {
     std::string temp = varTable["HOME"];
     std::string a = arg;
     temp += a.substr(1);
+    removeSubstrs(temp, "/..", 2);
+    removeSubstrs(temp, "/.", 1);
 		if(chdir(toCharArr(temp)) == 0) {
 			aliasTable["."] = temp;
       aliasTable[".."] = getPrevPath(temp);
@@ -104,9 +106,12 @@ int runCD(char* arg) {
 
 	else { // arg is absolute path
 		if(chdir(arg) == 0){
-			aliasTable["."] = arg;
-      aliasTable[".."] = arg;
-			varTable["PWD"] = arg;
+      std::string temp = arg;
+      removeSubstrs(temp, "/..", 2);
+      removeSubstrs(temp, "/.", 1);
+			aliasTable["."] = temp;
+      aliasTable[".."] = temp;
+			varTable["PWD"] = temp;
 			aliasTable[".."] = getPrevPath(varTable["PWD"]);
 		}
 		else {
@@ -205,6 +210,8 @@ void removeSubstrs(std::string &str, const std::string &substr, int dot){
         dot_count++;
         str.erase(i, n);
       }
+      for (auto i = str.find(toCharArr("/.")); i != std::string::npos; i = str.find(toCharArr("/.")))
+        str.erase(i, 1);
       //delete the corresponding path follow by ".." . 
       while(dot_count > 0){
         auto i = str.find_last_of("/");
@@ -213,9 +220,7 @@ void removeSubstrs(std::string &str, const std::string &substr, int dot){
       }
    }
    else{ // if there is one dot
-     for (auto i = str.find(substr);
-        i != std::string::npos;
-        i = str.find(substr))
+     for (auto i = str.find(substr); i != std::string::npos; i = str.find(substr))
       str.erase(i, n);
    }
 }
