@@ -26,7 +26,8 @@ bool isEnv(char* name){
 
 CHAR               [.A-Za-z0-9!/~_-][.A-Za-z0-9!/~_-]*
 STR_ANYCHAR        [)(*&%$#@!`;,\.a-zA-Z0-9'/*_><|=~ -][}{)(*&%$#@!`;,\.a-zA-Z0-9'/*_><|=~ -]*
-ENV_ANYCHAR        [)(*&%$#@!`;,\.a-zA-Z0-9'/*_><|=~ -][)(*&%$#@!`;,\.a-zA-Z0-9'/*_><|=~ -]*
+ENV_ANYCHAR        [)(*%$#@!`;,.a-zA-Z0-9'/*_=~ -][)(*%$#@!`;,.a-zA-Z0-9'/*_=~ -]*
+META               [><|\&]*
 
 %x string_condition env_condition tilde_condition
 %%
@@ -59,10 +60,15 @@ setenv              { return SETENV; }
 printenv            { return PRINTENV; }
 unsetenv            { return UNSETENV; }
 ls                  { return LS; }
-[:]           	      { return yytext[0]; }
+echo                { return ECHOO; }
+[:]           	     { return yytext[0]; }
 "\n"		           { return END; }
 [\"]                { BEGIN(string_condition); }
 [\$][\{]            { BEGIN(env_condition); }
+{META}              { printf("Invalid Metacharacter input.\n"); return META;}
+[\\]{META}          { yylval.string = strdup(yytext);
+                        return STRING;
+                    }
 
 {CHAR}+             {  if(ifAlias(yytext)) {
                         printf("yytext before alias_sub: %s\n", yytext);

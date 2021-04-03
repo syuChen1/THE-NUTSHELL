@@ -32,8 +32,8 @@ char* getUserHomeDir(char *user);
 %union {char *string;}
 
 %start cmd_line
-%token <string> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV LS 
-%type <string> LS_INPUT PATH_INPUT
+%token <string> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV LS ECHOO META 
+%type <string> COMBINE_INPUT PATH_INPUT
 
 %%
 cmd_line    :
@@ -46,11 +46,13 @@ cmd_line    :
   | SETENV STRING PATH_INPUT END  {updateEnv($2,$3); return 1;}
   | PRINTENV END              {printEnv(); return 1;}
   | UNSETENV STRING END       {unsetEnv($2); return 1;}
-  | LS LS_INPUT END              {system(combineCharArr(toCharArr("ls "), $2)); return 1;}
+  | LS COMBINE_INPUT END      {system(combineCharArr(toCharArr("ls "), $2)); return 1;}
+  | ECHOO COMBINE_INPUT END   {system(combineCharArr(combineCharArr(toCharArr("echo \""), $2), toCharArr("\""))); return 1;}
+  | META
 
-LS_INPUT   :
-                            {$$ = toCharArr(" ");}
-  | STRING LS_INPUT         {$$ = combineCharArr(toCharArr(" "), combineCharArr($1,$2));}
+COMBINE_INPUT   :
+                            {$$ = toCharArr("");}
+  | STRING COMBINE_INPUT    {$$ = combineCharArr(toCharArr(" "), combineCharArr($1,$2));}
 
 PATH_INPUT  :
     STRING                  {$$ = $1;}
@@ -219,6 +221,7 @@ void removeSubstrs(std::string &str, const std::string &substr, int dot){
    }
 }
 
+//TODO: EC Tilde expansion
 char* getUserHomeDir(char *user){
     struct passwd* pw;
     if( ( pw = getpwnam(user)) == NULL ) {
