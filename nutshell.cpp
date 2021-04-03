@@ -14,7 +14,7 @@ using namespace std;
 
 std::unordered_map<std::string, std::string> varTable;
 std::unordered_map<std::string, std::string> aliasTable;
-
+char* tilde;
 //function to copy string to char array
 char* toCharArr(std::string str){
     char *temp = new char [str.length()+1];
@@ -65,7 +65,8 @@ int main(){
     //set .. to prev path
     cwd = getPrevPath(cwd);
     aliasTable[".."] = cwd;
-    aliasTable["~"] = varTable["HOME"];
+
+    tilde = toCharArr(varTable["HOME"]);
 
     system("clear");
     while(1)

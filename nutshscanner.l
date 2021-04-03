@@ -29,7 +29,7 @@ STR_ANYCHAR        [)(*&%$#@!`;,\.a-zA-Z0-9'/*_><|=~ -][}{)(*&%$#@!`;,\.a-zA-Z0-
 ENV_ANYCHAR        [)(*%$#@!`;,.a-zA-Z0-9'/*_=~ -][)(*%$#@!`;,.a-zA-Z0-9'/*_=~ -]*
 META               [><|\&]*
 
-%x string_condition env_condition tilde_condition
+%x string_condition env_condition 
 %%
 
 <string_condition>{STR_ANYCHAR}+     { printf("yytext str_cond: %s\n", yytext);
@@ -62,6 +62,7 @@ unsetenv            { return UNSETENV; }
 ls                  { return LS; }
 echo                { return ECHOO; }
 [:]           	     { return yytext[0]; }
+[~]                 { yylval.string = strdup(tilde); return STRING; }
 "\n"		           { return END; }
 [\"]                { BEGIN(string_condition); }
 [\$][\{]            { BEGIN(env_condition); }

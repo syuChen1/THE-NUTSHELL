@@ -9,4 +9,5 @@ extern std::unordered_map<std::string, std::string> aliasTable;
 std::string getPrevPath(std::string cwd);
 char* toCharArr(std::string str);
 char* combineCharArr(char* first, char* second);
+extern char* tilde;
 #endif
