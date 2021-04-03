@@ -59,8 +59,6 @@ unalias             { return UNALIAS; }
 setenv              { return SETENV; }
 printenv            { return PRINTENV; }
 unsetenv            { return UNSETENV; }
-ls                  { return LS; }
-echo                { return ECHOO; }
 [:]           	     { return yytext[0]; }
 [~]                 { yylval.string = strdup(tilde); return STRING; }
 "\n"		           { return END; }

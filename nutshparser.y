@@ -32,7 +32,7 @@ char* getUserHomeDir(char *user);
 %union {char *string;}
 
 %start cmd_line
-%token <string> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV LS ECHOO META 
+%token <string> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  META
 %type <string> COMBINE_INPUT PATH_INPUT
 
 %%
@@ -46,8 +46,7 @@ cmd_line    :
   | SETENV STRING PATH_INPUT END  {updateEnv($2,$3); return 1;}
   | PRINTENV END              {printEnv(); return 1;}
   | UNSETENV STRING END       {unsetEnv($2); return 1;}
-  | LS COMBINE_INPUT END      {system(combineCharArr(toCharArr("ls "), $2)); return 1;}
-  | ECHOO COMBINE_INPUT END   {system(combineCharArr(combineCharArr(toCharArr("echo \""), $2), toCharArr("\""))); return 1;}
+  | STRING COMBINE_INPUT END  {system(combineCharArr($1, $2)); return 1;}
   | META
 
 COMBINE_INPUT   :
@@ -220,6 +219,7 @@ void removeSubstrs(std::string &str, const std::string &substr, int dot){
       str.erase(i, n);
    }
 }
+
 
 //TODO: EC Tilde expansion
 char* getUserHomeDir(char *user){

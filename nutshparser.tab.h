@@ -65,7 +65,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 32 "nutshparser.y" /* yacc.c:1909  */
+#line 33 "nutshparser.y" /* yacc.c:1909  */
 char *string;
 
 #line 72 "nutshparser.tab.h" /* yacc.c:1909  */
