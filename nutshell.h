@@ -10,4 +10,5 @@ std::string getPrevPath(std::string cwd);
 char* toCharArr(std::string str);
 char* combineCharArr(char* first, char* second);
 extern char* tilde;
+extern int tokenCount;
 #endif

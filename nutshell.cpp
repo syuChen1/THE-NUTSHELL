@@ -15,6 +15,7 @@ using namespace std;
 std::unordered_map<std::string, std::string> varTable;
 std::unordered_map<std::string, std::string> aliasTable;
 char* tilde;
+int tokenCount = 0;
 //function to copy string to char array
 char* toCharArr(std::string str){
     char *temp = new char [str.length()+1];
@@ -72,6 +73,7 @@ int main(){
     while(1)
     {
         printf(MAG "[%s]>> " RESET, toCharArr(varTable["PWD"]));
+        tokenCount = 0;
         yyparse();
     }
 
