@@ -15,7 +15,7 @@ TODO:
         - [ ] when do " , will mess out quote STRING unquote ( "STRING" )
 - [x] Other Commands
 - [ ] Wildcard Matching
-= [ ] test more complex pipelining. 
+- [ ] test more complex pipelining. 
 
 DEBUG:
 - [ ] quote STRING unquote
