@@ -20,6 +20,7 @@ char* subEnv(char* name){
 bool isEnv(char* name){
    return varTable.count(name);
 }
+/*
 char checkMeta(char* str){
     for ( int i = strlen(str) - 1; i >= 0; --i ){
        if(str[i] == '|' || str[i] == '&' || str[i] == '<' || str[i] == '>' ){
@@ -32,7 +33,6 @@ char checkMeta(char* str){
     }
     return '1';
 }
-
 char* reverseCharArr(char *str){
    char* r = (char*)malloc((strlen(str) + 1) * sizeof(char));
    r[strlen(str)] = '\0';
@@ -42,6 +42,7 @@ char* reverseCharArr(char *str){
   }
   return r;
 }
+*/
 %}
 %array
 %option noyywrap
@@ -83,6 +84,8 @@ printenv            { return PRINTENV; }
 unsetenv            { return UNSETENV; }
 [:]           	     { return yytext[0]; }
 [~]                 { yylval.string = strdup(tilde); return STRING; }
+[.]                 { yylval.string = strdup(dot); return STRING; }
+[.][.]              { yylval.string = strdup(dotdot); return STRING; }
 "\n"		           { return END; }
 [\"]                { BEGIN(string_condition); }
 [\$][\{]            { BEGIN(env_condition); }
@@ -105,7 +108,6 @@ unsetenv            { return UNSETENV; }
                          }
                         return META;
                      }*/
-                     printf("token count: %d \n", tokenCount);
                      if(tokenCount == 0 && ifAlias(yytext)) {
                         printf("yytext before alias_sub: %s\n", yytext);
                         // source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html

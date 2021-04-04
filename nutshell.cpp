@@ -15,6 +15,8 @@ using namespace std;
 std::unordered_map<std::string, std::string> varTable;
 std::unordered_map<std::string, std::string> aliasTable;
 char* tilde;
+char* dot;
+char* dotdot;
 int tokenCount = 0;
 //function to copy string to char array
 char* toCharArr(std::string str){
@@ -61,11 +63,11 @@ int main(){
     varTable["PATH"] = "~/bin";
 
     //set . to curr path
-    aliasTable["."] = cwd;
+    dot = toCharArr(cwd);
 
     //set .. to prev path
     cwd = getPrevPath(cwd);
-    aliasTable[".."] = cwd;
+    dotdot = toCharArr(cwd);
 
     tilde = toCharArr(varTable["HOME"]);
 

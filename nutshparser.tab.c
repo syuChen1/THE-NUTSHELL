@@ -1580,8 +1580,8 @@ int runCD(char* arg) {
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
 		if(chdir(toCharArr(temp)) == 0) {
-			aliasTable["."] = temp;
-      aliasTable[".."] = getPrevPath(temp);
+			dot = toCharArr(temp);
+      dotdot = toCharArr(getPrevPath(temp));
       varTable["PWD"] = temp;
 		}
 		else {
@@ -1599,8 +1599,8 @@ int runCD(char* arg) {
     removeSubstrs(temp, "/.", 1);
     std::cout<< temp << std::endl;
 		if(chdir(toCharArr(temp)) == 0) {
-			aliasTable["."] = temp;
-      aliasTable[".."] = getPrevPath(temp);
+			dot = toCharArr(temp);
+      dotdot = toCharArr(getPrevPath(temp));
       varTable["PWD"] = temp;
 		}
 		else {
@@ -1615,10 +1615,10 @@ int runCD(char* arg) {
       std::string temp = arg;
       removeSubstrs(temp, "/..", 2);
       removeSubstrs(temp, "/.", 1);
-			aliasTable["."] = temp;
-      aliasTable[".."] = temp;
+			dot = toCharArr(temp);
+      dotdot = toCharArr(temp);
 			varTable["PWD"] = temp;
-			aliasTable[".."] = getPrevPath(varTable["PWD"]);
+			dotdot = toCharArr(getPrevPath(varTable["PWD"]));
 		}
 		else {
 			printf("Directory not found\n");
