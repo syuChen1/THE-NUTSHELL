@@ -6,18 +6,30 @@
 #include <limits.h>
 #include <iostream>
 #include <cstdio>
+#include <dirent.h>
+#include <vector>
 #include "nutshparser.tab.h"
 
 #define MAG   "\x1B[35m"
 #define RESET "\x1B[0m"
 using namespace std;
 
+vector<char*> filenames;
 std::unordered_map<std::string, std::string> varTable;
 std::unordered_map<std::string, std::string> aliasTable;
 char* tilde;
 char* dot;
 char* dotdot;
 int tokenCount = 0;
+
+void removeChar(char* s, char c)
+{
+    int j, n = strlen(s);
+    for (int i = j = 0; i < n; i++)
+        if (s[i] != c)
+            s[j++] = s[i];
+    s[j] = '\0';
+}
 //function to copy string to char array
 char* toCharArr(std::string str){
     char *temp = new char [str.length()+1];
@@ -31,6 +43,20 @@ char* combineCharArr(char* first, char* second){
   strcpy(str, first);
   strcat(str, second);
   return str;
+}
+
+void getFileNames(){
+    filenames.clear();
+    struct dirent *de;
+    DIR *dr = opendir(".");
+    if (dr == NULL)  // opendir returns NULL if couldn't open directory
+    {
+        printf("Could not open current directory" );
+        return;
+    }
+    while ((de = readdir(dr)) != NULL)
+        filenames.push_back(de->d_name);
+    closedir(dr);
 }
 
 //function to get the current dir path

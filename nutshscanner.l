@@ -20,6 +20,7 @@ char* subEnv(char* name){
 bool isEnv(char* name){
    return varTable.count(name);
 }
+int quoteCount;
 /*
 char checkMeta(char* str){
     for ( int i = strlen(str) - 1; i >= 0; --i ){
@@ -48,9 +49,9 @@ char* reverseCharArr(char *str){
 %option noyywrap
 
 CHAR               [.A-Za-z0-9!\\><|&/~_-][.A-Za-z0-9!\\><|&/~_-]*
-STR_ANYCHAR        [)(*&%$#@!`;,\.a-zA-Z0-9'/*_><|=~ -][}{)(*&%$#@!`;,\.a-zA-Z0-9'/*_><|=~ -]*
+STR_ANYCHAR        [)(*&%$#@!`;,\\.a-zA-Z0-9'/*_><|=~ -][}{)(*&%$#@!`;,\\.a-zA-Z0-9'/*_><|=~ -]*
 ENV_ANYCHAR        [)(*%#@!`;,.a-zA-Z0-9'/*_=~ -][)(*%#@!`;,.a-zA-Z0-9'/*_=~ -]*
-META               [><|\&]*
+META               [><|\\&"]*
 
 %x string_condition env_condition 
 %%
@@ -71,7 +72,9 @@ META               [><|\&]*
                                        return STRING;
                                     };
                                  }
-<string_condition>[\"]           { BEGIN(INITIAL); }
+<string_condition>[\"]           { if(++quoteCount %2 == 0) {printf("if: count %d \n", quoteCount); BEGIN(INITIAL);}
+                                    else printf("else: count %d \n", quoteCount);
+                                     }
 <env_condition>[\}]              { BEGIN(INITIAL); }
 
 [ ]		           { tokenCount++;}
@@ -87,8 +90,15 @@ unsetenv            { return UNSETENV; }
 [.]                 { yylval.string = strdup(dot); return STRING; }
 [.][.]              { yylval.string = strdup(dotdot); return STRING; }
 "\n"		           { return END; }
-[\"]                { BEGIN(string_condition); }
+[\"]                { quoteCount = 1; BEGIN(string_condition); }
 [\$][\{]            { BEGIN(env_condition); }
+
+
+{CHAR}*[\\]{META}{CHAR}*   {
+                              removeChar(yytext, '\\');
+                              yylval.string = strdup(yytext);
+                              return STRING;
+                           }
 {META}              { yylval.string = strdup(yytext);
                         return STRING;
                     }
