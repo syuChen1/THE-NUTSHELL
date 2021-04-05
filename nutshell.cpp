@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <dirent.h>
 #include <vector>
+#include <algorithm>
 #include "nutshparser.tab.h"
 
 #define MAG   "\x1B[35m"
@@ -57,6 +58,7 @@ void getFileNames(){
     while ((de = readdir(dr)) != NULL)
         filenames.push_back(de->d_name);
     closedir(dr);
+    std::sort(filenames.begin(), filenames.end());
 }
 
 //function to get the current dir path

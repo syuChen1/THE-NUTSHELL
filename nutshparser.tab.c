@@ -1583,6 +1583,7 @@ int runCD(char* arg) {
 			dot = toCharArr(temp);
       dotdot = toCharArr(getPrevPath(temp));
       varTable["PWD"] = temp;
+      getFileNames();
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -1602,6 +1603,7 @@ int runCD(char* arg) {
 			dot = toCharArr(temp);
       dotdot = toCharArr(getPrevPath(temp));
       varTable["PWD"] = temp;
+      getFileNames();
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -1619,6 +1621,7 @@ int runCD(char* arg) {
       dotdot = toCharArr(temp);
 			varTable["PWD"] = temp;
 			dotdot = toCharArr(getPrevPath(varTable["PWD"]));
+      getFileNames();
 		}
 		else {
 			printf("Directory not found\n");

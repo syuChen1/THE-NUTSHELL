@@ -21,6 +21,35 @@ bool isEnv(char* name){
    return varTable.count(name);
 }
 int quoteCount;
+
+char* checkWC(char *pattern){
+   // source: https://www.geeksforgeeks.org/wildcard-pattern-matching/
+   char* result = "";
+   for(char* str : filenames){
+      int n = strlen(str);
+      int m = strlen(pattern);
+      bool lookup[n + 1][m + 1];
+      memset(lookup, false, sizeof(lookup));
+      lookup[0][0] = true;
+      for (int j = 1; j <= m; j++)
+        if (pattern[j - 1] == '*')
+            lookup[0][j] = lookup[0][j - 1];
+      for (int i = 1; i <= n; i++) {
+         for (int j = 1; j <= m; j++) {
+            if (pattern[j - 1] == '*')
+                lookup[i][j] = lookup[i][j - 1] || lookup[i - 1][j];
+            else if (pattern[j - 1] == '?' || str[i - 1] == pattern[j - 1])
+                lookup[i][j] = lookup[i - 1][j - 1];
+            else
+                lookup[i][j] = false;
+         }
+      }
+      if(lookup[n][m] == true)
+         result = combineCharArr(combineCharArr(result, toCharArr(" ")), str);
+   }
+   return result == ""? pattern:result;
+}
+
 /*
 char checkMeta(char* str){
     for ( int i = strlen(str) - 1; i >= 0; --i ){
@@ -48,8 +77,8 @@ char* reverseCharArr(char *str){
 %array
 %option noyywrap
 
-CHAR               [.A-Za-z0-9!\\><|&/~_-][.A-Za-z0-9!\\><|&/~_-]*
-STR_ANYCHAR        [)(*&%$#@!`;,\\.a-zA-Z0-9'/*_><|=~ -][}{)(*&%$#@!`;,\\.a-zA-Z0-9'/*_><|=~ -]*
+CHAR               [.A-Za-z0-9!\\><|?*&/~_-][.A-Za-z0-9!\\><|?*&/~_-]*
+STR_ANYCHAR        [)(*&%$#@!`;,\\.a-zA-Z0-9'*/_><|=~ -][}{)(*&%$#@!`;,\\.a-zA-Z0-9'*/_><|=~ -]*
 ENV_ANYCHAR        [)(*%#@!`;,.a-zA-Z0-9'/*_=~ -][)(*%#@!`;,.a-zA-Z0-9'/*_=~ -]*
 META               [><|\\&"]*
 
@@ -127,7 +156,8 @@ unsetenv            { return UNSETENV; }
                            free( yycopy );
                       } else {
                         printf("yytext char_cond: %s\n", yytext);
-                        yylval.string = strdup(yytext);
+                        yylval.string = strdup(checkWC(yytext));
+                        printf("yytext WC Matching: %s\n", yylval.string);
                         return STRING;
                       };
                      }

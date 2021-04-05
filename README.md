@@ -14,7 +14,7 @@ TODO:
         - [x] unable to access \
         - [ ] when do " , will mess out quote STRING unquote ( "STRING" )
 - [x] Other Commands
-- [ ] Wildcard Matching
+- [x] Wildcard Matching
 - [ ] test more complex pipelining. 
 
 DEBUG:
