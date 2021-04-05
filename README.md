@@ -25,5 +25,5 @@ DEBUG:
 - [ ] cd "test dir"/"nested dir"
 
 Extra Credit:
-- [ ] Tilde Expansion
+- [x] Tilde Expansion
 - [ ] File Name Completion
