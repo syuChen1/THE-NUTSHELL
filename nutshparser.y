@@ -38,7 +38,7 @@ char* getUserHomeDir(char *user);
 %%
 cmd_line    :
 	  BYE END 		              {exit(1); return 1; }
-	| CD STRING END        			{runCD($2); return 1;}
+	| CD STRING END        			{runCD($2); return 1; }
   | CD END                    {runCD(toCharArr("~")); return 1;}
 	| ALIAS STRING STRING END		{runSetAlias($2, $3); return 1;}
   | ALIAS END                 {printAlias(); return 1;}
@@ -68,16 +68,17 @@ int yyerror(char *s) {
 int runCD(char* arg) {
   //if the first argument is ~
   if (arg[0] == '~'){
-    std::string temp = varTable["HOME"];
+    std::string temp = tilde;
     std::string a = arg;
     temp += a.substr(1);
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-		if(chdir(toCharArr(temp)) == 0) {
+    printf("path: %s \n", toCharArr(temp));
+    char *c = strdup(toCharArr(temp));
+		if(chdir(toCharArr(c)) == 0) {
 			dot = toCharArr(temp);
       dotdot = toCharArr(getPrevPath(temp));
       varTable["PWD"] = temp;
-      getFileNames();
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -88,16 +89,23 @@ int runCD(char* arg) {
   // arg is relative path
 	else if (arg[0] != '/') {
     std::string temp = varTable["PWD"];
+    std::string a = arg;
 		temp += "/";
-    temp += arg;
+    temp += a;
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-    std::cout<< temp << std::endl;
-		if(chdir(toCharArr(temp)) == 0) {
-			dot = toCharArr(temp);
-      dotdot = toCharArr(getPrevPath(temp));
-      varTable["PWD"] = temp;
-      getFileNames();
+    char *c = strdup(toCharArr(temp));
+    if(c[strlen(c)-2] == ' '){
+      c[strlen(c)-2] = '\0';
+    }
+    if(c[strlen(c)-1] == ' '){
+      c[strlen(c)-1] = '\0';
+    }
+    printf("path relative: %s\n", toCharArr(c));
+		if(chdir(c) == 0) {
+			dot = toCharArr(c);
+      dotdot = toCharArr(getPrevPath(c));
+      varTable["PWD"] = c;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -115,7 +123,6 @@ int runCD(char* arg) {
       dotdot = toCharArr(temp);
 			varTable["PWD"] = temp;
 			dotdot = toCharArr(getPrevPath(varTable["PWD"]));
-      getFileNames();
 		}
 		else {
 			printf("Directory not found\n");
@@ -235,7 +242,5 @@ char* getUserHomeDir(char *user){
     if( ( pw = getpwnam(user)) == NULL ) {
       fprintf( stderr, "Unknown user\n");
     }
-    printf( "login name  %s\n", pw->pw_name );
-    printf( "home dir    %s\n", pw->pw_dir );
     return pw->pw_dir;
 }

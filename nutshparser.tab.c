@@ -1257,7 +1257,7 @@ yyreduce:
 
   case 3:
 #line 41 "nutshparser.y" /* yacc.c:1646  */
-    {runCD((yyvsp[-1].string)); return 1;}
+    {runCD((yyvsp[-1].string)); return 1; }
 #line 1262 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1574,16 +1574,17 @@ int yyerror(char *s) {
 int runCD(char* arg) {
   //if the first argument is ~
   if (arg[0] == '~'){
-    std::string temp = varTable["HOME"];
+    std::string temp = tilde;
     std::string a = arg;
     temp += a.substr(1);
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-		if(chdir(toCharArr(temp)) == 0) {
+    printf("path: %s \n", toCharArr(temp));
+    char *c = strdup(toCharArr(temp));
+		if(chdir(toCharArr(c)) == 0) {
 			dot = toCharArr(temp);
       dotdot = toCharArr(getPrevPath(temp));
       varTable["PWD"] = temp;
-      getFileNames();
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -1594,16 +1595,23 @@ int runCD(char* arg) {
   // arg is relative path
 	else if (arg[0] != '/') {
     std::string temp = varTable["PWD"];
+    std::string a = arg;
 		temp += "/";
-    temp += arg;
+    temp += a;
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-    std::cout<< temp << std::endl;
-		if(chdir(toCharArr(temp)) == 0) {
-			dot = toCharArr(temp);
-      dotdot = toCharArr(getPrevPath(temp));
-      varTable["PWD"] = temp;
-      getFileNames();
+    char *c = strdup(toCharArr(temp));
+    if(c[strlen(c)-2] == ' '){
+      c[strlen(c)-2] = '\0';
+    }
+    if(c[strlen(c)-1] == ' '){
+      c[strlen(c)-1] = '\0';
+    }
+    printf("path relative: %s\n", toCharArr(c));
+		if(chdir(c) == 0) {
+			dot = toCharArr(c);
+      dotdot = toCharArr(getPrevPath(c));
+      varTable["PWD"] = c;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -1621,7 +1629,6 @@ int runCD(char* arg) {
       dotdot = toCharArr(temp);
 			varTable["PWD"] = temp;
 			dotdot = toCharArr(getPrevPath(varTable["PWD"]));
-      getFileNames();
 		}
 		else {
 			printf("Directory not found\n");
@@ -1741,7 +1748,5 @@ char* getUserHomeDir(char *user){
     if( ( pw = getpwnam(user)) == NULL ) {
       fprintf( stderr, "Unknown user\n");
     }
-    printf( "login name  %s\n", pw->pw_name );
-    printf( "home dir    %s\n", pw->pw_dir );
     return pw->pw_dir;
 }

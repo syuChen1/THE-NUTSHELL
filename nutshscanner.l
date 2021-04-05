@@ -2,6 +2,7 @@
 #include "nutshparser.tab.h"
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "nutshell.h"
 
 char* subAliases(char* name){
@@ -22,7 +23,16 @@ bool isEnv(char* name){
 }
 int quoteCount;
 
-char* checkWC(char *pattern){
+bool checkWC(char *str){
+   for ( int i = strlen(str) - 1; i >= 0; --i ){
+       if(str[i] == '*' || str[i] == '?'){
+         return true;
+       }
+   }
+   return false;
+}
+
+char* WCcondition(char *pattern){
    // source: https://www.geeksforgeeks.org/wildcard-pattern-matching/
    char* result = "";
    for(char* str : filenames){
@@ -45,9 +55,26 @@ char* checkWC(char *pattern){
          }
       }
       if(lookup[n][m] == true)
-         result = combineCharArr(combineCharArr(result, toCharArr(" ")), str);
+         result = combineCharArr(combineCharArr(result, str), toCharArr(" "));
    }
-   return result == ""? pattern:result;
+   return result == ""? pattern : result;
+}
+
+char* tildeExpansion(char* str){
+   removeChar(str, '~');
+   char *pointer = &str[0];
+   char name[100];
+   int i = 0;
+   while(*pointer != ' ' && *pointer != '/' && *pointer != '\0'){
+      name[i] = *pointer;
+      pointer++;
+      i++;
+   }
+   name[i] = '\0';
+   //printf("name after search: %s \n", name);
+   //printf("path after search: %s \n", pointer);
+   char* dir = getUserHomeDir(name);
+   return combineCharArr(dir, pointer);
 }
 
 /*
@@ -115,7 +142,14 @@ setenv              { return SETENV; }
 printenv            { return PRINTENV; }
 unsetenv            { return UNSETENV; }
 [:]           	     { return yytext[0]; }
-[~]                 { yylval.string = strdup(tilde); return STRING; }
+[~]{CHAR}*          { if(strlen(yytext) > 1 && isalpha(yytext[1]) != 0){
+                        yylval.string = tildeExpansion(yytext);
+                      }
+                      else{
+                        yylval.string = strdup(tilde); 
+                      };
+                      return STRING; 
+                    }
 [.]                 { yylval.string = strdup(dot); return STRING; }
 [.][.]              { yylval.string = strdup(dotdot); return STRING; }
 "\n"		           { return END; }
@@ -156,8 +190,13 @@ unsetenv            { return UNSETENV; }
                            free( yycopy );
                       } else {
                         printf("yytext char_cond: %s\n", yytext);
-                        yylval.string = strdup(checkWC(yytext));
-                        printf("yytext WC Matching: %s\n", yylval.string);
+                        if(checkWC(yytext)){
+                           yylval.string = strdup(WCcondition(yytext));
+                        }
+                        else{
+                           yylval.string = strdup((yytext));
+                        }
+                        //printf("after WC natching: %s \n", yylval.string);
                         return STRING;
                       };
                      }

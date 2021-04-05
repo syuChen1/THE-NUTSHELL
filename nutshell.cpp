@@ -97,13 +97,14 @@ int main(){
     cwd = getPrevPath(cwd);
     dotdot = toCharArr(cwd);
 
-    tilde = toCharArr(varTable["HOME"]);
+    tilde = toCharArr("/root");
 
     system("clear");
     while(1)
     {
         printf(MAG "[%s]>> " RESET, toCharArr(varTable["PWD"]));
         tokenCount = 0;
+        getFileNames();
         yyparse();
     }
 

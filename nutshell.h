@@ -13,6 +13,7 @@ char* toCharArr(std::string str);
 char* combineCharArr(char* first, char* second);
 void removeChar(char* s, char c);
 void getFileNames();
+extern char* getUserHomeDir(char *user);
 
 extern char* tilde;
 extern int tokenCount;
