@@ -15,7 +15,15 @@ TODO:
         - [ ] when do " , will mess out quote STRING unquote ( "STRING" )
 - [x] Other Commands
 - [x] Wildcard Matching
-- [ ] test more complex pipelining. 
+- [x] Tilde Expansion
+- [ ] rework on the non-build in command
+    - [ ] execl() https://linux.die.net/man/3/execl https://man7.org/linux/man-pages/man3/exec.3.html
+    - [ ] fork a child process and run exec inside that
+- [ ] look into setenv lsthis "jj ${this}"
+- [ ] infinite loop detection
+    - [ ] possible recursion solution
+- [ ] test example code.
+- [ ] File Name Completion
 
 DEBUG:
 - [ ] quote STRING unquote
@@ -24,6 +32,4 @@ DEBUG:
 - [x] cd te?t can not work. will return correct path, but syscall can not go there?
 - [ ] cd "test dir"/"nested dir"
 
-Extra Credit:
-- [x] Tilde Expansion
-- [ ] File Name Completion
+
