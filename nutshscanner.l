@@ -36,6 +36,7 @@ char* WCcondition(char *pattern){
    // source: https://www.geeksforgeeks.org/wildcard-pattern-matching/
    char* result = "";
    for(char* str : cwdFiles){
+      printf("%s \n", str);
       int n = strlen(str);
       int m = strlen(pattern);
       bool lookup[n + 1][m + 1];
@@ -154,8 +155,8 @@ unsetenv            { return UNSETENV; }
                       };
                       return STRING; 
                     }
-[.]                 { yylval.string = strdup(dot); return STRING; }
-[.][.]              { yylval.string = strdup(dotdot); return STRING; }
+[.]                 { yylval.string = strdup(dot); printf("%s\n", dot); return STRING; }
+[.][.]              { yylval.string = strdup(dotdot); printf("%s\n", dotdot); return STRING; }
 "\n"		           { return END; }
 [\"]                { quoteCount = 1; BEGIN(string_condition); }
 [\$][\{]            { BEGIN(env_condition); }

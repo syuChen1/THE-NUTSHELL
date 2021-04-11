@@ -582,6 +582,7 @@ char* WCcondition(char *pattern){
    // source: https://www.geeksforgeeks.org/wildcard-pattern-matching/
    char* result = "";
    for(char* str : cwdFiles){
+      printf("%s \n", str);
       int n = strlen(str);
       int m = strlen(pattern);
       bool lookup[n + 1][m + 1];
@@ -649,9 +650,9 @@ char* reverseCharArr(char *str){
   return r;
 }
 */
-#line 653 "lex.yy.c"
+#line 654 "lex.yy.c"
  
-#line 655 "lex.yy.c"
+#line 656 "lex.yy.c"
 
 #define INITIAL 0
 #define string_condition 1
@@ -870,10 +871,10 @@ YY_DECL
 		}
 
 	{
-#line 116 "nutshscanner.l"
+#line 117 "nutshscanner.l"
 
 
-#line 877 "lex.yy.c"
+#line 878 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -932,7 +933,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 118 "nutshscanner.l"
+#line 119 "nutshscanner.l"
 { printf("yytext str_cond: %s\n", yytext);
                                        yylval.string = strdup(yytext);
                                        return STRING;
@@ -940,7 +941,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 122 "nutshscanner.l"
+#line 123 "nutshscanner.l"
 { if(isEnv(yytext)){
                                        printf("yytext before env sub: %s\n", yytext);
                                        char *yycopy = strdup(subEnv(yytext) );
@@ -956,69 +957,69 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 134 "nutshscanner.l"
+#line 135 "nutshscanner.l"
 { if(++quoteCount %2 == 0) {printf("if: count %d \n", quoteCount); BEGIN(INITIAL);}
                                     else printf("else: count %d \n", quoteCount);
                                      }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 137 "nutshscanner.l"
+#line 138 "nutshscanner.l"
 { BEGIN(INITIAL); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 139 "nutshscanner.l"
+#line 140 "nutshscanner.l"
 { tokenCount++;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 140 "nutshscanner.l"
+#line 141 "nutshscanner.l"
 { return BYE; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 141 "nutshscanner.l"
+#line 142 "nutshscanner.l"
 { return CD;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 142 "nutshscanner.l"
+#line 143 "nutshscanner.l"
 { return ALIAS; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 143 "nutshscanner.l"
+#line 144 "nutshscanner.l"
 { return UNALIAS; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 144 "nutshscanner.l"
+#line 145 "nutshscanner.l"
 { return SETENV; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 145 "nutshscanner.l"
+#line 146 "nutshscanner.l"
 { return PRINTENV; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 146 "nutshscanner.l"
+#line 147 "nutshscanner.l"
 { return UNSETENV; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 147 "nutshscanner.l"
+#line 148 "nutshscanner.l"
 { yylval.string = strdup(yytext); return PATH;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 148 "nutshscanner.l"
+#line 149 "nutshscanner.l"
 { return yytext[0]; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 149 "nutshscanner.l"
+#line 150 "nutshscanner.l"
 { if(strlen(yytext) > 1 && isalpha(yytext[1]) != 0){
                         yylval.string = tildeNameExpansion(yytext);
                       }
@@ -1030,33 +1031,33 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 157 "nutshscanner.l"
-{ yylval.string = strdup(dot); return STRING; }
+#line 158 "nutshscanner.l"
+{ yylval.string = strdup(dot); printf("%s\n", dot); return STRING; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 158 "nutshscanner.l"
-{ yylval.string = strdup(dotdot); return STRING; }
+#line 159 "nutshscanner.l"
+{ yylval.string = strdup(dotdot); printf("%s\n", dotdot); return STRING; }
 	YY_BREAK
 case 18:
 /* rule 18 can match eol */
 YY_RULE_SETUP
-#line 159 "nutshscanner.l"
+#line 160 "nutshscanner.l"
 { return END; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 160 "nutshscanner.l"
+#line 161 "nutshscanner.l"
 { quoteCount = 1; BEGIN(string_condition); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 161 "nutshscanner.l"
+#line 162 "nutshscanner.l"
 { BEGIN(env_condition); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 164 "nutshscanner.l"
+#line 165 "nutshscanner.l"
 {
                               removeChar(yytext, '\\');
                               yylval.string = strdup(yytext);
@@ -1065,14 +1066,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 169 "nutshscanner.l"
+#line 170 "nutshscanner.l"
 { yylval.string = strdup(yytext);
                         return STRING;
                     }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 173 "nutshscanner.l"
+#line 174 "nutshscanner.l"
 {/*char meta = checkMeta(yytext);
                      printf("yytext to be checked %s \n", yytext);
                      printf("checkmeta %c \n", meta);
@@ -1110,10 +1111,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 207 "nutshscanner.l"
+#line 208 "nutshscanner.l"
 ECHO;
 	YY_BREAK
-#line 1117 "lex.yy.c"
+#line 1118 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(string_condition):
 case YY_STATE_EOF(env_condition):
@@ -2120,5 +2121,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 207 "nutshscanner.l"
+#line 208 "nutshscanner.l"
 

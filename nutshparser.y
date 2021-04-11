@@ -61,6 +61,7 @@ cmd_line    :
 COMBINE_INPUT   :
   STRING COMBINE_INPUT       {$$ = combineCharArr(combineCharArr($1, toCharArr(" ")), $2);}
    | STRING                  {$$ = $1;}
+   |                         {}
 
 PATH_INPUT  :
     PATH STRING ':' PATH_INPUT   {$$ = combineCharArr($1, pathInput($2,$4));}
@@ -83,12 +84,13 @@ int runCD(char* arg) {
     temp += a.substr(1);
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-    printf("path: %s \n", toCharArr(temp));
-    char *c = strdup(toCharArr(temp));
-		if(chdir(toCharArr(c)) == 0) {
-			dot = toCharArr(temp);
-      dotdot = toCharArr(getPrevPath(temp));
-      varTable["PWD"] = temp;
+    char* t = toCharArr(temp);
+    removeChar(t, '.');
+    printf("path: %s \n", t);
+		if(chdir(t) == 0) {
+			dot = t;
+      dotdot = toCharArr(getPrevPath(t));
+      varTable["PWD"] = t;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -104,18 +106,20 @@ int runCD(char* arg) {
     temp += a;
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-    char *c = strdup(toCharArr(temp));
-    if(c[strlen(c)-2] == ' '){
-      c[strlen(c)-2] = '\0';
+    char* t = toCharArr(temp);
+    removeChar(t, '.');
+    printf("path: %s \n", t);
+    if(t[strlen(t)-2] == ' '){
+      t[strlen(t)-2] = '\0';
     }
-    if(c[strlen(c)-1] == ' '){
-      c[strlen(c)-1] = '\0';
+    if(t[strlen(t)-1] == ' '){
+      t[strlen(t)-1] = '\0';
     }
-    printf("path relative: %s\n", toCharArr(c));
-		if(chdir(c) == 0) {
-			dot = toCharArr(c);
-      dotdot = toCharArr(getPrevPath(c));
-      varTable["PWD"] = c;
+    printf("path relative: %s\n", toCharArr(t));
+		if(chdir(t) == 0) {
+			dot = t;
+      dotdot = toCharArr(getPrevPath(t));
+      varTable["PWD"] = t;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -129,9 +133,12 @@ int runCD(char* arg) {
       std::string temp = arg;
       removeSubstrs(temp, "/..", 2);
       removeSubstrs(temp, "/.", 1);
-			dot = toCharArr(temp);
+      char* t = toCharArr(temp);
+      removeChar(t, '.');
+      printf("path: %s \n", t);
+			dot = t;
       dotdot = toCharArr(temp);
-			varTable["PWD"] = temp;
+			varTable["PWD"] = t;
 			dotdot = toCharArr(getPrevPath(varTable["PWD"]));
 		}
 		else {
@@ -369,26 +376,26 @@ int runSysCommand(char *command, char* arg){
       arg[strlen(arg)-1] = '\0';
     }
     
-    // printf("arg: %s \n", arg);
-
+    //printf("arg: %s \n", arg);
     char* argument[100];
-    char *token = strtok(arg, " ");
-    int i = 1;
-    argument[0] = command;
-    while (token != NULL)
-    {
-        argument[i++] = token;
-        token = strtok(NULL, " ");
+    if(strlen(arg) != 0){   
+      char *token = strtok(arg, " ");
+      int i = 1;
+      argument[0] = command;
+      while (token != NULL)
+      {
+          argument[i++] = token;
+          token = strtok(NULL, " ");
+      }
+      argument[i] = NULL;
+      //  for(int j = 0; j< i; j++){
+      //    printf("argument: %s \n", argument[j]);
+      //  }
+
+      command = combineCharArr(toCharArr("/"),command);
+      command = combineCharArr(path, command);
+      // printf("command: %s \n", command);
     }
-    argument[i] = NULL;
-    //  for(int j = 0; j< i; j++){
-    //    printf("argument: %s \n", argument[j]);
-    //  }
-
-    command = combineCharArr(toCharArr("/"),command);
-    command = combineCharArr(path, command);
-    // printf("command: %s \n", command);
-
     pid_t pid;
     pid = fork();
     if(pid == -1){
@@ -398,7 +405,7 @@ int runSysCommand(char *command, char* arg){
       if(sizeof(argument) != 0)
         execv(command, argument);
        else
-         execl(command, command , (char*)0);
+         execl(command, command, NULL , (char*)0);
     }
     else{
       wait(NULL);

@@ -422,7 +422,7 @@ union yyalloc
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  4
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  17
+#define YYNRULES  18
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  39
 
@@ -472,7 +472,7 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyrline[] =
 {
        0,    46,    46,    47,    48,    49,    52,    53,    54,    56,
-      57,    58,    59,    62,    63,    66,    67,    68
+      57,    58,    59,    62,    63,    64,    67,    68,    69
 };
 #endif
 
@@ -522,10 +522,10 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,     0,     0,     0,     0,     0,     0,    12,
+       0,     0,     0,    15,     0,     0,     0,     0,     0,    12,
        0,     2,     0,     4,    14,     0,     0,     6,     0,     0,
-       9,     0,     1,     3,    13,    11,     0,     7,    17,     0,
-       0,    10,     5,     0,     0,     8,    16,     0,    15
+       9,     0,     1,     3,    13,    11,     0,     7,    18,     0,
+       0,    10,     5,     0,     0,     8,    17,     0,    16
 };
 
   /* YYPGOTO[NTERM-NUM].  */
@@ -575,14 +575,14 @@ static const yytype_uint8 yystos[] =
 static const yytype_uint8 yyr1[] =
 {
        0,    15,    16,    16,    16,    16,    16,    16,    16,    16,
-      16,    16,    16,    17,    17,    18,    18,    18
+      16,    16,    16,    17,    17,    17,    18,    18,    18
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     2,     3,     2,     4,     2,     3,     4,     2,
-       3,     3,     1,     2,     1,     4,     3,     1
+       3,     3,     1,     2,     1,     0,     4,     3,     1
 };
 
 
@@ -1334,25 +1334,31 @@ yyreduce:
     break;
 
   case 15:
-#line 66 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = combineCharArr((yyvsp[-3].string), pathInput((yyvsp[-2].string),(yyvsp[0].string)));}
+#line 64 "nutshparser.y" /* yacc.c:1646  */
+    {}
 #line 1340 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
 #line 67 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = pathInput((yyvsp[-2].string),(yyvsp[0].string));}
+    {(yyval.string) = combineCharArr((yyvsp[-3].string), pathInput((yyvsp[-2].string),(yyvsp[0].string)));}
 #line 1346 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
 #line 68 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = (yyvsp[0].string);}
+    {(yyval.string) = pathInput((yyvsp[-2].string),(yyvsp[0].string));}
 #line 1352 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
+  case 18:
+#line 69 "nutshparser.y" /* yacc.c:1646  */
+    {(yyval.string) = (yyvsp[0].string);}
+#line 1358 "nutshparser.tab.c" /* yacc.c:1646  */
+    break;
 
-#line 1356 "nutshparser.tab.c" /* yacc.c:1646  */
+
+#line 1362 "nutshparser.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1580,7 +1586,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 70 "nutshparser.y" /* yacc.c:1906  */
+#line 71 "nutshparser.y" /* yacc.c:1906  */
 
 
 int yyerror(char *s) {
@@ -1597,12 +1603,13 @@ int runCD(char* arg) {
     temp += a.substr(1);
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-    printf("path: %s \n", toCharArr(temp));
-    char *c = strdup(toCharArr(temp));
-		if(chdir(toCharArr(c)) == 0) {
-			dot = toCharArr(temp);
-      dotdot = toCharArr(getPrevPath(temp));
-      varTable["PWD"] = temp;
+    char* t = toCharArr(temp);
+    removeChar(t, '.');
+    printf("path: %s \n", t);
+		if(chdir(t) == 0) {
+			dot = t;
+      dotdot = toCharArr(getPrevPath(t));
+      varTable["PWD"] = t;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -1618,18 +1625,20 @@ int runCD(char* arg) {
     temp += a;
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-    char *c = strdup(toCharArr(temp));
-    if(c[strlen(c)-2] == ' '){
-      c[strlen(c)-2] = '\0';
+    char* t = toCharArr(temp);
+    removeChar(t, '.');
+    printf("path: %s \n", t);
+    if(t[strlen(t)-2] == ' '){
+      t[strlen(t)-2] = '\0';
     }
-    if(c[strlen(c)-1] == ' '){
-      c[strlen(c)-1] = '\0';
+    if(t[strlen(t)-1] == ' '){
+      t[strlen(t)-1] = '\0';
     }
-    printf("path relative: %s\n", toCharArr(c));
-		if(chdir(c) == 0) {
-			dot = toCharArr(c);
-      dotdot = toCharArr(getPrevPath(c));
-      varTable["PWD"] = c;
+    printf("path relative: %s\n", toCharArr(t));
+		if(chdir(t) == 0) {
+			dot = t;
+      dotdot = toCharArr(getPrevPath(t));
+      varTable["PWD"] = t;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -1643,9 +1652,12 @@ int runCD(char* arg) {
       std::string temp = arg;
       removeSubstrs(temp, "/..", 2);
       removeSubstrs(temp, "/.", 1);
-			dot = toCharArr(temp);
+      char* t = toCharArr(temp);
+      removeChar(t, '.');
+      printf("path: %s \n", t);
+			dot = t;
       dotdot = toCharArr(temp);
-			varTable["PWD"] = temp;
+			varTable["PWD"] = t;
 			dotdot = toCharArr(getPrevPath(varTable["PWD"]));
 		}
 		else {
@@ -1883,26 +1895,26 @@ int runSysCommand(char *command, char* arg){
       arg[strlen(arg)-1] = '\0';
     }
     
-    // printf("arg: %s \n", arg);
-
+    //printf("arg: %s \n", arg);
     char* argument[100];
-    char *token = strtok(arg, " ");
-    int i = 1;
-    argument[0] = command;
-    while (token != NULL)
-    {
-        argument[i++] = token;
-        token = strtok(NULL, " ");
+    if(strlen(arg) != 0){   
+      char *token = strtok(arg, " ");
+      int i = 1;
+      argument[0] = command;
+      while (token != NULL)
+      {
+          argument[i++] = token;
+          token = strtok(NULL, " ");
+      }
+      argument[i] = NULL;
+      //  for(int j = 0; j< i; j++){
+      //    printf("argument: %s \n", argument[j]);
+      //  }
+
+      command = combineCharArr(toCharArr("/"),command);
+      command = combineCharArr(path, command);
+      // printf("command: %s \n", command);
     }
-    argument[i] = NULL;
-    //  for(int j = 0; j< i; j++){
-    //    printf("argument: %s \n", argument[j]);
-    //  }
-
-    command = combineCharArr(toCharArr("/"),command);
-    command = combineCharArr(path, command);
-    // printf("command: %s \n", command);
-
     pid_t pid;
     pid = fork();
     if(pid == -1){
@@ -1912,7 +1924,7 @@ int runSysCommand(char *command, char* arg){
       if(sizeof(argument) != 0)
         execv(command, argument);
        else
-         execl(command, command , (char*)0);
+         execl(command, command, NULL , (char*)0);
     }
     else{
       wait(NULL);
