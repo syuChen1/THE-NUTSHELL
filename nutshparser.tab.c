@@ -89,7 +89,7 @@ void removeSubstrs(std::string &str, const std::string &substr, int dot);
 int updateEnv(char *variable, char *word);
 int printEnv();
 int unsetEnv(char *variable);
-char *pathInput(char *first, char *second);
+char *pathInput(char *c);
 
 char* getUserHomeDir(char *user);
 
@@ -137,7 +137,8 @@ extern int yydebug;
     SETENV = 264,
     PRINTENV = 265,
     UNSETENV = 266,
-    META = 267
+    META = 267,
+    PATH = 268
   };
 #endif
 
@@ -149,7 +150,7 @@ union YYSTYPE
 #line 32 "nutshparser.y" /* yacc.c:355  */
 char *string;
 
-#line 153 "nutshparser.tab.c" /* yacc.c:355  */
+#line 154 "nutshparser.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -166,7 +167,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 170 "nutshparser.tab.c" /* yacc.c:358  */
+#line 171 "nutshparser.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -408,21 +409,21 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  22
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   36
+#define YYLAST   38
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  14
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  4
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  16
+#define YYNRULES  15
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  35
+#define YYNSTATES  33
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   267
+#define YYMAXUTOK   268
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -436,7 +437,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    13,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -457,7 +458,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11,    12
+       5,     6,     7,     8,     9,    10,    11,    12,    13
 };
 
 #if YYDEBUG
@@ -465,7 +466,7 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyrline[] =
 {
        0,    40,    40,    41,    42,    43,    44,    45,    46,    47,
-      48,    49,    50,    53,    54,    57,    58
+      48,    49,    50,    53,    54,    57
 };
 #endif
 
@@ -475,7 +476,7 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "BYE", "CD", "STRING", "ALIAS", "END",
-  "UNALIAS", "SETENV", "PRINTENV", "UNSETENV", "META", "':'", "$accept",
+  "UNALIAS", "SETENV", "PRINTENV", "UNSETENV", "META", "PATH", "$accept",
   "cmd_line", "COMBINE_INPUT", "PATH_INPUT", YY_NULLPTR
 };
 #endif
@@ -486,14 +487,14 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,   266,   267,    58
+     265,   266,   267,   268
 };
 # endif
 
-#define YYPACT_NINF -13
+#define YYPACT_NINF -4
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-13)))
+  (!!((Yystate) == (-4)))
 
 #define YYTABLE_NINF -1
 
@@ -504,10 +505,10 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -3,     7,     5,    -1,     6,    10,    11,    12,    13,   -13,
-      17,   -13,    14,   -13,    -1,    15,    18,   -13,    19,    20,
-     -13,    21,   -13,   -13,   -13,   -13,    22,   -13,    23,    24,
-     -13,   -13,    20,   -13,   -13
+      -3,     7,     5,    -1,     6,    10,    11,    12,    13,    -4,
+      17,    -4,    14,    -4,    -1,    15,    18,    -4,    19,    20,
+      -4,    21,    -4,    -4,    -4,    -4,    22,    -4,    -4,    23,
+      -4,    -4,    -4
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -518,13 +519,13 @@ static const yytype_uint8 yydefact[] =
        0,     0,     0,    13,     0,     0,     0,     0,     0,    12,
        0,     2,     0,     4,    13,     0,     0,     6,     0,     0,
        9,     0,     1,     3,    14,    11,     0,     7,    15,     0,
-      10,     5,     0,     8,    16
+      10,     5,     8
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -13,   -13,    16,   -12
+      -4,    -4,    24,    -4
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -540,16 +541,16 @@ static const yytype_uint8 yytable[] =
 {
        1,     2,     3,     4,    14,     5,     6,     7,     8,     9,
       12,    16,    13,    17,    11,    18,    19,    22,    21,    20,
-      34,    23,    25,    26,     0,    28,    27,     0,    30,    31,
-      24,    33,     0,     0,     0,     0,    32
+       0,    23,    25,    26,     0,    28,    27,     0,    30,    31,
+      32,     0,     0,     0,     0,     0,     0,     0,    24
 };
 
 static const yytype_int8 yycheck[] =
 {
        3,     4,     5,     6,     5,     8,     9,    10,    11,    12,
        5,     5,     7,     7,     7,     5,     5,     0,     5,     7,
-      32,     7,     7,     5,    -1,     5,     7,    -1,     7,     7,
-      14,     7,    -1,    -1,    -1,    -1,    13
+      -1,     7,     7,     5,    -1,     5,     7,    -1,     7,     7,
+       7,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    14
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -559,21 +560,21 @@ static const yytype_uint8 yystos[] =
        0,     3,     4,     5,     6,     8,     9,    10,    11,    12,
       15,     7,     5,     7,     5,    16,     5,     7,     5,     5,
        7,     5,     0,     7,    16,     7,     5,     7,     5,    17,
-       7,     7,    13,     7,    17
+       7,     7,     7
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
        0,    14,    15,    15,    15,    15,    15,    15,    15,    15,
-      15,    15,    15,    16,    16,    17,    17
+      15,    15,    15,    16,    16,    17
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     2,     3,     2,     4,     2,     3,     4,     2,
-       3,     3,     1,     0,     2,     1,     3
+       3,     3,     1,     0,     2,     1
 };
 
 
@@ -1252,89 +1253,83 @@ yyreduce:
         case 2:
 #line 40 "nutshparser.y" /* yacc.c:1646  */
     {exit(1); return 1; }
-#line 1256 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1257 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
 #line 41 "nutshparser.y" /* yacc.c:1646  */
     {runCD((yyvsp[-1].string)); return 1; }
-#line 1262 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1263 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
 #line 42 "nutshparser.y" /* yacc.c:1646  */
     {runCD(toCharArr("~")); return 1;}
-#line 1268 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1269 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
 #line 43 "nutshparser.y" /* yacc.c:1646  */
     {runSetAlias((yyvsp[-2].string), (yyvsp[-1].string)); return 1;}
-#line 1274 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1275 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
 #line 44 "nutshparser.y" /* yacc.c:1646  */
     {printAlias(); return 1;}
-#line 1280 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1281 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
 #line 45 "nutshparser.y" /* yacc.c:1646  */
     {unsetAlias((yyvsp[-1].string)); return 1;}
-#line 1286 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1287 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
 #line 46 "nutshparser.y" /* yacc.c:1646  */
     {updateEnv((yyvsp[-2].string),(yyvsp[-1].string)); return 1;}
-#line 1292 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1293 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
 #line 47 "nutshparser.y" /* yacc.c:1646  */
     {printEnv(); return 1;}
-#line 1298 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1299 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
 #line 48 "nutshparser.y" /* yacc.c:1646  */
     {unsetEnv((yyvsp[-1].string)); return 1;}
-#line 1304 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1305 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
 #line 49 "nutshparser.y" /* yacc.c:1646  */
     {system(combineCharArr((yyvsp[-2].string), (yyvsp[-1].string))); return 1;}
-#line 1310 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1311 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
 #line 53 "nutshparser.y" /* yacc.c:1646  */
     {(yyval.string) = toCharArr("");}
-#line 1316 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1317 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
 #line 54 "nutshparser.y" /* yacc.c:1646  */
     {(yyval.string) = combineCharArr(toCharArr(" "), combineCharArr((yyvsp[-1].string),(yyvsp[0].string)));}
-#line 1322 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1323 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
 #line 57 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = (yyvsp[0].string);}
-#line 1328 "nutshparser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 16:
-#line 58 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = pathInput((yyvsp[-2].string),(yyvsp[0].string));}
-#line 1334 "nutshparser.tab.c" /* yacc.c:1646  */
+    {if((yyvsp[0].string)[0] == '.') (yyval.string) = pathInput((yyvsp[0].string)); else (yyval.string) = (yyvsp[0].string);}
+#line 1329 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1338 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1333 "nutshparser.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1562,7 +1557,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 60 "nutshparser.y" /* yacc.c:1906  */
+#line 58 "nutshparser.y" /* yacc.c:1906  */
 
 
 int yyerror(char *s) {
@@ -1701,17 +1696,17 @@ int unsetEnv(char *variable){
   return 1;
 }
 
-char *pathInput(char *first, char *second){
-  char *str; 
-  if( second[0] == '~'){
-    str = combineCharArr(first, toCharArr(":"));
-    str = combineCharArr(str, second);
+char* pathInput(char *c){
+  std::string str = c;
+  size_t start = 0;
+  while((start = str.find('~', start)) != std::string::npos){
+    str.replace(start, 2, varTable["HOME"]);
+    start += varTable["HOME"].length();
+    printf("%s \n", toCharArr(str));
+
   }
-  else{
-    str = combineCharArr(first, toCharArr(":~"));
-    str = combineCharArr(str, second);
-  }
-  return str;
+  printf(toCharArr(str));
+  return toCharArr(str);
 }
 
 

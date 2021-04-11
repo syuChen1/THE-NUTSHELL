@@ -353,8 +353,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 		YY_FATAL_ERROR( "token too large, exceeds YYLMAX" ); \
 	yy_flex_strncpy( yytext, (yytext_ptr), yyleng + 1 ); \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 23
-#define YY_END_OF_BUFFER 24
+#define YY_NUM_RULES 24
+#define YY_END_OF_BUFFER 25
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -364,16 +364,16 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[101] =
     {   0,
-       21,   21,    0,    0,    0,    0,   24,   23,   17,    5,
-       22,   18,   23,   21,   15,   13,   20,   22,   22,   22,
-       22,   22,   22,   14,    1,    3,    2,    4,   22,   20,
-       21,   19,   21,   20,   16,   20,   20,   20,   20,   22,
-       22,    7,   22,   22,   22,   14,   14,    1,    1,    2,
-       20,   20,   20,   20,   20,   20,   20,   20,   20,   22,
-        6,   22,   22,   22,   22,   14,   14,   14,   14,   14,
-       20,   20,   20,   20,   20,   22,   22,   22,   22,   22,
-       14,   14,   14,   14,   20,    8,   22,   22,   22,   22,
-       22,   10,   22,   22,   22,    9,   22,   11,   12,    0
+       22,   22,    0,    0,    0,    0,   25,   24,   18,    5,
+       23,   19,   24,   22,   13,   13,   21,   23,   23,   23,
+       23,   23,   23,   15,    1,    3,    2,    4,   23,   21,
+       22,   20,   22,   21,   17,   21,   21,   21,   21,   23,
+       23,    7,   23,   23,   23,   15,   15,    1,    1,    2,
+       21,   21,   21,   21,   21,   21,   21,   21,   21,   23,
+        6,   23,   23,   23,   23,   15,   15,   15,   15,   15,
+       21,   21,   21,   21,   21,   23,   23,   23,   23,   23,
+       15,   15,   15,   15,   21,    8,   23,   23,   23,   23,
+       23,   10,   23,   23,   23,    9,   23,   11,   12,    0
 
     } ;
 
@@ -411,15 +411,15 @@ static const YY_CHAR yy_ec[256] =
 
 static const YY_CHAR yy_meta[31] =
     {   0,
-        1,    1,    2,    3,    4,    2,    5,    6,    3,    1,
+        1,    1,    2,    3,    4,    2,    5,    6,    3,    7,
         7,    6,    3,    3,    3,    3,    3,    3,    3,    3,
         3,    3,    3,    3,    3,    3,    3,    5,    5,    3
     } ;
 
 static const flex_int16_t yy_base[114] =
     {   0,
-        0,    0,   30,   59,   88,  117,  261,  301,  301,  301,
-      248,   31,  228,   37,   25,  301,   39,   34,   21,   38,
+        0,    0,   30,   59,   88,  117,  266,  301,  301,  301,
+      249,   31,  232,   37,   25,  244,   39,   34,   21,   38,
        40,   51,   45,  239,   27,  301,    0,  301,  238,   66,
        67,  301,   68,   89,  220,  219,   97,   98,   99,   65,
        69,  218,   73,   96,  100,  217,  125,   38,   86,    0,
@@ -436,7 +436,7 @@ static const flex_int16_t yy_base[114] =
 static const flex_int16_t yy_def[114] =
     {   0,
       100,    1,  101,  101,  102,  102,  100,  100,  100,  100,
-      103,  100,  100,  103,  103,  100,  104,  103,  103,  103,
+      103,  100,  100,  103,  103,  103,  104,  103,  103,  103,
       103,  103,  103,  105,  106,  100,  107,  100,  103,  104,
       100,  100,  103,  104,  103,  108,  109,  108,  108,  103,
       103,  103,  103,  103,  103,  110,  111,  106,  106,  107,
@@ -479,8 +479,8 @@ static const flex_int16_t yy_nxt[332] =
        30,   82,   82,   95,   97,   67,   30,   55,   67,   30,
        55,   30,   98,   99,   25,   25,   25,   25,   25,   25,
        25,   27,   27,   27,   27,   27,   27,   27,   29,   30,
-       47,   29,   29,   36,   36,   32,   36,   36,   46,   30,
-      100,   46,   46,   48,   48,  100,   48,   48,   50,   50,
+       47,   29,   29,   36,   36,   30,   36,   36,   46,   32,
+       30,   46,   46,   48,   48,  100,   48,   48,   50,   50,
        54,  100,  100,   54,   54,   56,   56,  100,   56,   56,
        66,  100,  100,   66,   66,   68,   68,  100,   68,   68,
        74,  100,  100,   74,   74,   81,  100,  100,   81,   81,
@@ -520,8 +520,8 @@ static const flex_int16_t yy_chk[332] =
        86,   81,   68,   91,   94,   66,   61,   54,   46,   42,
        36,   35,   95,   97,  101,  101,  101,  101,  101,  101,
       101,  102,  102,  102,  102,  102,  102,  102,  103,   29,
-       24,  103,  103,  104,  104,   13,  104,  104,  105,   11,
-        7,  105,  105,  106,  106,    0,  106,  106,  107,  107,
+       24,  103,  103,  104,  104,   16,  104,  104,  105,   13,
+       11,  105,  105,  106,  106,    7,  106,  106,  107,  107,
       108,    0,    0,  108,  108,  109,  109,    0,  109,  109,
       110,    0,    0,  110,  110,  111,  111,    0,  111,  111,
       112,    0,    0,  112,  112,  113,    0,    0,  113,  113,
@@ -1014,11 +1014,16 @@ YY_RULE_SETUP
 case 13:
 YY_RULE_SETUP
 #line 144 "nutshscanner.l"
-{ return yytext[0]; }
+{ yylval.string = strdup(yytext); return PATH; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 145 "nutshscanner.l"
+{ return yytext[0];}
+	YY_BREAK
+case 15:
+YY_RULE_SETUP
+#line 146 "nutshscanner.l"
 { if(strlen(yytext) > 1 && isalpha(yytext[1]) != 0){
                         yylval.string = tildeExpansion(yytext);
                       }
@@ -1028,51 +1033,51 @@ YY_RULE_SETUP
                       return STRING; 
                     }
 	YY_BREAK
-case 15:
-YY_RULE_SETUP
-#line 153 "nutshscanner.l"
-{ yylval.string = strdup(dot); return STRING; }
-	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 154 "nutshscanner.l"
-{ yylval.string = strdup(dotdot); return STRING; }
+{ yylval.string = strdup(dot); return STRING; }
 	YY_BREAK
 case 17:
-/* rule 17 can match eol */
 YY_RULE_SETUP
 #line 155 "nutshscanner.l"
-{ return END; }
+{ yylval.string = strdup(dotdot); return STRING; }
 	YY_BREAK
 case 18:
+/* rule 18 can match eol */
 YY_RULE_SETUP
 #line 156 "nutshscanner.l"
-{ quoteCount = 1; BEGIN(string_condition); }
+{ return END; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 157 "nutshscanner.l"
-{ BEGIN(env_condition); }
+{ quoteCount = 1; BEGIN(string_condition); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 160 "nutshscanner.l"
+#line 158 "nutshscanner.l"
+{ BEGIN(env_condition); }
+	YY_BREAK
+case 21:
+YY_RULE_SETUP
+#line 161 "nutshscanner.l"
 {
                               removeChar(yytext, '\\');
                               yylval.string = strdup(yytext);
                               return STRING;
                            }
 	YY_BREAK
-case 21:
+case 22:
 YY_RULE_SETUP
-#line 165 "nutshscanner.l"
+#line 166 "nutshscanner.l"
 { yylval.string = strdup(yytext);
                         return STRING;
                     }
 	YY_BREAK
-case 22:
+case 23:
 YY_RULE_SETUP
-#line 169 "nutshscanner.l"
+#line 170 "nutshscanner.l"
 {/*char meta = checkMeta(yytext);
                      printf("yytext to be checked %s \n", yytext);
                      printf("checkmeta %c \n", meta);
@@ -1108,12 +1113,12 @@ YY_RULE_SETUP
                       };
                      }
 	YY_BREAK
-case 23:
+case 24:
 YY_RULE_SETUP
-#line 203 "nutshscanner.l"
+#line 204 "nutshscanner.l"
 ECHO;
 	YY_BREAK
-#line 1117 "lex.yy.c"
+#line 1122 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(string_condition):
 case YY_STATE_EOF(env_condition):
@@ -2120,5 +2125,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 203 "nutshscanner.l"
+#line 204 "nutshscanner.l"
 

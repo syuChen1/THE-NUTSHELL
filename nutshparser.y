@@ -24,7 +24,7 @@ void removeSubstrs(std::string &str, const std::string &substr, int dot);
 int updateEnv(char *variable, char *word);
 int printEnv();
 int unsetEnv(char *variable);
-char *pathInput(char *first, char *second);
+char *pathInput(char *c);
 
 char* getUserHomeDir(char *user);
 %}
@@ -32,7 +32,7 @@ char* getUserHomeDir(char *user);
 %union {char *string;}
 
 %start cmd_line
-%token <string> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  META
+%token <string> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  META PATH
 %type <string> COMBINE_INPUT PATH_INPUT
 
 %%
@@ -54,9 +54,7 @@ COMBINE_INPUT   :
   | STRING COMBINE_INPUT    {$$ = combineCharArr(toCharArr(" "), combineCharArr($1,$2));}
 
 PATH_INPUT  :
-    STRING                  {$$ = $1;}
-  | STRING ':' PATH_INPUT   {$$ = pathInput($1,$3);}
-
+  STRING                    {if($1[0] == '.') $$ = pathInput($1); else $$ = $1;}
 %%
 
 int yyerror(char *s) {
@@ -195,17 +193,17 @@ int unsetEnv(char *variable){
   return 1;
 }
 
-char *pathInput(char *first, char *second){
-  char *str; 
-  if( second[0] == '~'){
-    str = combineCharArr(first, toCharArr(":"));
-    str = combineCharArr(str, second);
+char* pathInput(char *c){
+  std::string str = c;
+  size_t start = 0;
+  while((start = str.find('~', start)) != std::string::npos){
+    str.replace(start, 2, varTable["HOME"]);
+    start += varTable["HOME"].length();
+    printf("%s \n", toCharArr(str));
+
   }
-  else{
-    str = combineCharArr(first, toCharArr(":~"));
-    str = combineCharArr(str, second);
-  }
-  return str;
+  printf(toCharArr(str));
+  return toCharArr(str);
 }
 
 

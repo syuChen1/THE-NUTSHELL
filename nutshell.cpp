@@ -86,9 +86,9 @@ int main(){
     string cwd = getcwd_string();
 
     varTable["PWD"] = cwd;
-    varTable["HOME"] = cwd;
+    varTable["HOME"] = "/root/";
     varTable["PROMPT"] = "nutshell";
-    varTable["PATH"] = "~/bin";
+    varTable["PATH"] = ".:/bin:/usr/bin";
 
     //set . to curr path
     dot = toCharArr(cwd);
