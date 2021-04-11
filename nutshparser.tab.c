@@ -74,6 +74,8 @@
 #include "nutshell.h"
 #include <pwd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <dirent.h>
 #include <iostream>
 
 int yylex();
@@ -97,7 +99,7 @@ int runSysCommand(char *command, char* arg);
 
 char* getUserHomeDir(char *user);
 
-#line 99 "nutshparser.tab.c" /* yacc.c:339  */
+#line 103 "nutshparser.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -151,10 +153,10 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 34 "nutshparser.y" /* yacc.c:355  */
+#line 38 "nutshparser.y" /* yacc.c:355  */
 char *string;
 
-#line 156 "nutshparser.tab.c" /* yacc.c:355  */
+#line 160 "nutshparser.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -171,7 +173,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 173 "nutshparser.tab.c" /* yacc.c:358  */
+#line 177 "nutshparser.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -469,13 +471,8 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-<<<<<<< HEAD
-       0,    42,    42,    43,    44,    45,    46,    47,    48,    49,
-      50,    51,    52,    55,    56,    59,    60,    61
-=======
-       0,    42,    42,    43,    44,    45,    48,    49,    50,    52,
-      53,    54,    55,    58,    59,    62,    63,    64
->>>>>>> f27606aaceac6d3a9e10c7a4525094f1b35299cc
+       0,    46,    46,    47,    48,    49,    52,    53,    54,    56,
+      57,    58,    59,    62,    63,    66,    67,    68
 };
 #endif
 
@@ -525,9 +522,9 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,    13,     0,     0,     0,     0,     0,    12,
-       0,     2,     0,     4,    13,     0,     0,     6,     0,     0,
-       9,     0,     1,     3,    14,    11,     0,     7,    17,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,    12,
+       0,     2,     0,     4,    14,     0,     0,     6,     0,     0,
+       9,     0,     1,     3,    13,    11,     0,     7,    17,     0,
        0,    10,     5,     0,     0,     8,    16,     0,    15
 };
 
@@ -585,7 +582,7 @@ static const yytype_uint8 yyr1[] =
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     2,     3,     2,     4,     2,     3,     4,     2,
-       3,     3,     1,     0,     2,     4,     3,     1
+       3,     3,     1,     2,     1,     4,     3,     1
 };
 
 
@@ -1262,175 +1259,100 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 42 "nutshparser.y" /* yacc.c:1646  */
+#line 46 "nutshparser.y" /* yacc.c:1646  */
     {exit(1); return 1; }
-#line 1261 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1265 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 43 "nutshparser.y" /* yacc.c:1646  */
+#line 47 "nutshparser.y" /* yacc.c:1646  */
     {runCD((yyvsp[-1].string)); return 1; }
-#line 1267 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1271 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 44 "nutshparser.y" /* yacc.c:1646  */
+#line 48 "nutshparser.y" /* yacc.c:1646  */
     {runCD(toCharArr("~")); return 1;}
-#line 1273 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1277 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 45 "nutshparser.y" /* yacc.c:1646  */
-<<<<<<< HEAD
-    {runSetAlias((yyvsp[-2].string), (yyvsp[-1].string)); return 1;}
-#line 1279 "nutshparser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 6:
-#line 46 "nutshparser.y" /* yacc.c:1646  */
-    {printAlias(); return 1;}
-#line 1285 "nutshparser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 7:
-#line 47 "nutshparser.y" /* yacc.c:1646  */
-    {unsetAlias((yyvsp[-1].string)); return 1;}
-#line 1291 "nutshparser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 8:
-#line 48 "nutshparser.y" /* yacc.c:1646  */
-    {updateEnv((yyvsp[-2].string),(yyvsp[-1].string)); return 1;}
-#line 1297 "nutshparser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 9:
 #line 49 "nutshparser.y" /* yacc.c:1646  */
-    {printEnv(); return 1;}
-#line 1303 "nutshparser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 10:
-#line 50 "nutshparser.y" /* yacc.c:1646  */
-    {unsetEnv((yyvsp[-1].string)); return 1;}
-#line 1309 "nutshparser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 11:
-#line 51 "nutshparser.y" /* yacc.c:1646  */
-    {runSysCommand((yyvsp[-2].string), (yyvsp[-1].string)); return 1;}
-#line 1315 "nutshparser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 13:
-#line 55 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = toCharArr("");}
-#line 1321 "nutshparser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 14:
-#line 56 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = combineCharArr(combineCharArr((yyvsp[-1].string),(yyvsp[0].string)), toCharArr(" "));}
-#line 1327 "nutshparser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 15:
-#line 59 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = combineCharArr((yyvsp[-3].string), pathInput((yyvsp[-2].string),(yyvsp[0].string)));}
-#line 1333 "nutshparser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 16:
-#line 60 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = pathInput((yyvsp[-2].string),(yyvsp[0].string));}
-#line 1339 "nutshparser.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 17:
-#line 61 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = (yyvsp[0].string);}
-#line 1345 "nutshparser.tab.c" /* yacc.c:1646  */
-    break;
-
-
-#line 1349 "nutshparser.tab.c" /* yacc.c:1646  */
-=======
     {if(!aliasLoopCheck((yyvsp[-2].string), (yyvsp[-1].string))){ 
                                 runSetAlias((yyvsp[-2].string), (yyvsp[-1].string));}
                                 return 1;}
-#line 1281 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1285 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 48 "nutshparser.y" /* yacc.c:1646  */
+#line 52 "nutshparser.y" /* yacc.c:1646  */
     {printAlias(); return 1;}
-#line 1287 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1291 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 49 "nutshparser.y" /* yacc.c:1646  */
+#line 53 "nutshparser.y" /* yacc.c:1646  */
     {unsetAlias((yyvsp[-1].string)); return 1;}
-#line 1293 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1297 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 50 "nutshparser.y" /* yacc.c:1646  */
+#line 54 "nutshparser.y" /* yacc.c:1646  */
     {if(!envLoopCheck((yyvsp[-2].string), (yyvsp[-1].string))){updateEnv((yyvsp[-2].string),(yyvsp[-1].string));}
                                        return 1;}
-#line 1300 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1304 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 52 "nutshparser.y" /* yacc.c:1646  */
+#line 56 "nutshparser.y" /* yacc.c:1646  */
     {printEnv(); return 1;}
-#line 1306 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1310 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 53 "nutshparser.y" /* yacc.c:1646  */
+#line 57 "nutshparser.y" /* yacc.c:1646  */
     {unsetEnv((yyvsp[-1].string)); return 1;}
-#line 1312 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1316 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 54 "nutshparser.y" /* yacc.c:1646  */
-    {system(combineCharArr((yyvsp[-2].string), (yyvsp[-1].string))); return 1;}
-#line 1318 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 58 "nutshparser.y" /* yacc.c:1646  */
+    {runSysCommand((yyvsp[-2].string), (yyvsp[-1].string)); return 1;}
+#line 1322 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 58 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = toCharArr("");}
-#line 1324 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 62 "nutshparser.y" /* yacc.c:1646  */
+    {(yyval.string) = combineCharArr(combineCharArr((yyvsp[-1].string), toCharArr(" ")), (yyvsp[0].string));}
+#line 1328 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 59 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = combineCharArr(toCharArr(" "), combineCharArr((yyvsp[-1].string),(yyvsp[0].string)));}
-#line 1330 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 63 "nutshparser.y" /* yacc.c:1646  */
+    {(yyval.string) = (yyvsp[0].string);}
+#line 1334 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 62 "nutshparser.y" /* yacc.c:1646  */
+#line 66 "nutshparser.y" /* yacc.c:1646  */
     {(yyval.string) = combineCharArr((yyvsp[-3].string), pathInput((yyvsp[-2].string),(yyvsp[0].string)));}
-#line 1336 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1340 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 63 "nutshparser.y" /* yacc.c:1646  */
+#line 67 "nutshparser.y" /* yacc.c:1646  */
     {(yyval.string) = pathInput((yyvsp[-2].string),(yyvsp[0].string));}
-#line 1342 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1346 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 64 "nutshparser.y" /* yacc.c:1646  */
+#line 68 "nutshparser.y" /* yacc.c:1646  */
     {(yyval.string) = (yyvsp[0].string);}
-#line 1348 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1352 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1352 "nutshparser.tab.c" /* yacc.c:1646  */
->>>>>>> f27606aaceac6d3a9e10c7a4525094f1b35299cc
+#line 1356 "nutshparser.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1658,11 +1580,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-<<<<<<< HEAD
-#line 63 "nutshparser.y" /* yacc.c:1906  */
-=======
-#line 66 "nutshparser.y" /* yacc.c:1906  */
->>>>>>> f27606aaceac6d3a9e10c7a4525094f1b35299cc
+#line 70 "nutshparser.y" /* yacc.c:1906  */
 
 
 int yyerror(char *s) {
@@ -1850,9 +1768,7 @@ bool envLoopCheck(char* token1, char *token2)
   }
 
   std::string value;
-
   value = varTable[toCharArr(token2)];
-   
   
   while(1)
   {
@@ -1887,6 +1803,7 @@ int printEnv(){
   }
   return 1;
 }
+
 int unsetEnv(char *variable){
   if(varTable.count(variable)){
     if((strcmp(variable, toCharArr("HOME")) == 0) || (strcmp(variable, toCharArr("PATH")) == 0))
@@ -1945,16 +1862,63 @@ char* getUserHomeDir(char *user){
 }
 
 int runSysCommand(char *command, char* arg){
-  pid_t pid;
-  pid = fork();
-  if(pid == -1){
-    printf("error forking! \n");
+  bool found = false;
+  char* path;
+  for(auto it = executables.begin(); it != executables.end(); it++){
+    for(char* x : it->second){
+      if(strcmp(x, command) == 0){
+        // printf("executable: %s \n", x);
+        // printf("path: %s \n", toCharArr(it->first));
+        path = toCharArr(it->first);
+        found = true;
+        break;
+      }
+    }
   }
-  else if (pid == 0){ //child process
-  execl("/bin/echo", "hello", (char*)0); 
+  if(found){
+    if(arg[strlen(arg)-2] == ' '){
+      arg[strlen(arg)-2] = '\0';
+    }
+    if(arg[strlen(arg)-1] == ' '){
+      arg[strlen(arg)-1] = '\0';
+    }
+    
+    // printf("arg: %s \n", arg);
+
+    char* argument[100];
+    char *token = strtok(arg, " ");
+    int i = 1;
+    argument[0] = command;
+    while (token != NULL)
+    {
+        argument[i++] = token;
+        token = strtok(NULL, " ");
+    }
+    argument[i] = NULL;
+    //  for(int j = 0; j< i; j++){
+    //    printf("argument: %s \n", argument[j]);
+    //  }
+
+    command = combineCharArr(toCharArr("/"),command);
+    command = combineCharArr(path, command);
+    // printf("command: %s \n", command);
+
+    pid_t pid;
+    pid = fork();
+    if(pid == -1){
+      printf("error forking! \n");
+    }
+    else if (pid == 0){ //child process
+      if(sizeof(argument) != 0)
+        execv(command, argument);
+       else
+         execl(command, command , (char*)0);
+    }
+    else{
+      wait(NULL);
+    }
   }
-  else{ //parent process
-    printf("\n");
-  }
+
   return 1;
 }
+

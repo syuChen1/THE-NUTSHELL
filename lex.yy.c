@@ -581,7 +581,7 @@ bool checkWC(char *str){
 char* WCcondition(char *pattern){
    // source: https://www.geeksforgeeks.org/wildcard-pattern-matching/
    char* result = "";
-   for(char* str : filenames){
+   for(char* str : cwdFiles){
       int n = strlen(str);
       int m = strlen(pattern);
       bool lookup[n + 1][m + 1];
@@ -1103,7 +1103,7 @@ YY_RULE_SETUP
                         else{
                            yylval.string = strdup((yytext));
                         }
-                        //printf("after WC natching: %s \n", yylval.string);
+                        printf("after WC natching: %s \n", yylval.string);
                         return STRING;
                       };
                      }

@@ -1,18 +1,23 @@
 #ifndef NUTSHELL_H
 #define NUTSHELL_H
+
 #include <unordered_map>
 #include <vector>
+#define MAG   "\x1B[35m"
+#define RESET "\x1B[0m"
 // env variable table
 extern std::unordered_map<std::string, std::string> varTable;
 // alias table
 extern std::unordered_map<std::string, std::string> aliasTable;
-extern std::vector<char*> filenames;
+extern std::unordered_map<std::string, std::vector<char*>> executables; 
+
+extern std::vector<char*> cwdFiles;
 
 std::string getPrevPath(std::string cwd);
 char* toCharArr(std::string str);
 char* combineCharArr(char* first, char* second);
 void removeChar(char* s, char c);
-void getFileNames();
+void getFileNames(std::vector<char*> *v, std::string path);
 extern char* getUserHomeDir(char *user);
 
 extern int tokenCount;

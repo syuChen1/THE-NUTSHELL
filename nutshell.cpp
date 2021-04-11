@@ -15,9 +15,10 @@
 #define RESET "\x1B[0m"
 using namespace std;
 
-vector<char*> filenames;
+vector<char*> cwdFiles;
 std::unordered_map<std::string, std::string> varTable;
 std::unordered_map<std::string, std::string> aliasTable;
+std::unordered_map<std::string, std::vector<char*>> executables; 
 char* dot;
 char* dotdot;
 int tokenCount = 0;
@@ -45,20 +46,47 @@ char* combineCharArr(char* first, char* second){
   return str;
 }
 
-void getFileNames(){
-    filenames.clear();
+void getFileNames(vector<char*> *v, string path){
+    v->clear();
     struct dirent *de;
-    DIR *dr = opendir(".");
+    DIR *dr = opendir(toCharArr (path));
     if (dr == NULL)  // opendir returns NULL if couldn't open directory
     {
-        printf("Could not open current directory" );
         return;
     }
     while ((de = readdir(dr)) != NULL)
-        filenames.push_back(de->d_name);
+        v->push_back(de->d_name);
     closedir(dr);
-    std::sort(filenames.begin(), filenames.end());
+    std::sort(v->begin(), v->end());
 }
+
+int getPathFiles(char *path){
+
+    char* temp = toCharArr(path);
+    removeChar(temp, '.');
+    char *token = strtok(temp, toCharArr(":"));
+
+    // Keep printing tokens while one of the
+    // delimiters present in str[].
+    while (token != NULL)
+    {
+      struct dirent *de;
+      DIR *dr = opendir(token);
+      if (dr != NULL){
+        std::vector<char*> filenames;
+        std::string s = token;
+        getFileNames(&filenames, s);
+        executables[s] = filenames;
+        token = strtok(NULL, ":");
+      }
+      else{
+        token = strtok(NULL, ":");
+      }
+    }
+
+    return 1;
+}
+
 
 //function to get the current dir path
 string getcwd_string( void ) {
@@ -87,8 +115,7 @@ int main(){
     varTable["PWD"] = cwd;
     varTable["HOME"] = "/root";
     varTable["PROMPT"] = "nutshell";
-    varTable["PATH"] = "~/bin";
-
+    varTable["PATH"] = ".:/bin:/usr/bin";
     //set . to curr path
     dot = toCharArr(cwd);
 
@@ -101,7 +128,8 @@ int main(){
     {
         printf(MAG "[%s]>> " RESET, toCharArr(varTable["PWD"]));
         tokenCount = 0;
-        getFileNames();
+        getFileNames(&cwdFiles, ".");
+        getPathFiles(toCharArr(varTable["PATH"]));
         yyparse();
     }
 

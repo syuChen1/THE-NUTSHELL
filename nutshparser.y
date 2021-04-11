@@ -9,6 +9,8 @@
 #include "nutshell.h"
 #include <pwd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <dirent.h>
 #include <iostream>
 
 int yylex();
@@ -57,8 +59,8 @@ cmd_line    :
   | META
 
 COMBINE_INPUT   :
-                            {$$ = toCharArr("");}
-  | STRING COMBINE_INPUT    {$$ = combineCharArr(combineCharArr($1,$2), toCharArr(" "));}
+  STRING COMBINE_INPUT       {$$ = combineCharArr(combineCharArr($1, toCharArr(" ")), $2);}
+   | STRING                  {$$ = $1;}
 
 PATH_INPUT  :
     PATH STRING ':' PATH_INPUT   {$$ = combineCharArr($1, pathInput($2,$4));}
@@ -346,16 +348,63 @@ char* getUserHomeDir(char *user){
 }
 
 int runSysCommand(char *command, char* arg){
-  pid_t pid;
-  pid = fork();
-  if(pid == -1){
-    printf("error forking! \n");
+  bool found = false;
+  char* path;
+  for(auto it = executables.begin(); it != executables.end(); it++){
+    for(char* x : it->second){
+      if(strcmp(x, command) == 0){
+        // printf("executable: %s \n", x);
+        // printf("path: %s \n", toCharArr(it->first));
+        path = toCharArr(it->first);
+        found = true;
+        break;
+      }
+    }
   }
-  else if (pid == 0){ //child process
-  execl("/bin/echo", "hello", (char*)0); 
+  if(found){
+    if(arg[strlen(arg)-2] == ' '){
+      arg[strlen(arg)-2] = '\0';
+    }
+    if(arg[strlen(arg)-1] == ' '){
+      arg[strlen(arg)-1] = '\0';
+    }
+    
+    // printf("arg: %s \n", arg);
+
+    char* argument[100];
+    char *token = strtok(arg, " ");
+    int i = 1;
+    argument[0] = command;
+    while (token != NULL)
+    {
+        argument[i++] = token;
+        token = strtok(NULL, " ");
+    }
+    argument[i] = NULL;
+    //  for(int j = 0; j< i; j++){
+    //    printf("argument: %s \n", argument[j]);
+    //  }
+
+    command = combineCharArr(toCharArr("/"),command);
+    command = combineCharArr(path, command);
+    // printf("command: %s \n", command);
+
+    pid_t pid;
+    pid = fork();
+    if(pid == -1){
+      printf("error forking! \n");
+    }
+    else if (pid == 0){ //child process
+      if(sizeof(argument) != 0)
+        execv(command, argument);
+       else
+         execl(command, command , (char*)0);
+    }
+    else{
+      wait(NULL);
+    }
   }
-  else{ //parent process
-    printf("\n");
-  }
+
   return 1;
 }
+
