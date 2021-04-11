@@ -32,7 +32,7 @@ char* getUserHomeDir(char *user);
 %union {char *string;}
 
 %start cmd_line
-%token <string> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  META
+%token <string> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  META PATH
 %type <string> COMBINE_INPUT PATH_INPUT
 
 %%
@@ -54,8 +54,9 @@ COMBINE_INPUT   :
   | STRING COMBINE_INPUT    {$$ = combineCharArr(toCharArr(" "), combineCharArr($1,$2));}
 
 PATH_INPUT  :
-    STRING                  {$$ = $1;}
+    PATH STRING ':' PATH_INPUT   {$$ = combineCharArr($1, pathInput($2,$4));}
   | STRING ':' PATH_INPUT   {$$ = pathInput($1,$3);}
+  | STRING                  {$$ = $1;}
 
 %%
 
@@ -197,14 +198,8 @@ int unsetEnv(char *variable){
 
 char *pathInput(char *first, char *second){
   char *str; 
-  if( second[0] == '~'){
-    str = combineCharArr(first, toCharArr(":"));
-    str = combineCharArr(str, second);
-  }
-  else{
-    str = combineCharArr(first, toCharArr(":~"));
-    str = combineCharArr(str, second);
-  }
+  str = combineCharArr(first, toCharArr(":"));
+  str = combineCharArr(str, second);
   return str;
 }
 

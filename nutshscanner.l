@@ -104,7 +104,7 @@ char* reverseCharArr(char *str){
 %array
 %option noyywrap
 
-CHAR               [.A-Za-z0-9!\\><|?*&/~_-][.A-Za-z0-9!\\><|?*&/~_-]*
+CHAR               [.A-Za-z0-9!\\><|?*&/_-][.A-Za-z0-9!\\><|?*&/_-]*
 STR_ANYCHAR        [)(*&%$#@!`;,\\.a-zA-Z0-9'*/_><|=~ -][}{)(*&%$#@!`;,\\.a-zA-Z0-9'*/_><|=~ -]*
 ENV_ANYCHAR        [)(*%#@!`;,.a-zA-Z0-9'/*_=~ -][)(*%#@!`;,.a-zA-Z0-9'/*_=~ -]*
 META               [><|\\&"]*
@@ -141,6 +141,7 @@ unalias             { return UNALIAS; }
 setenv              { return SETENV; }
 printenv            { return PRINTENV; }
 unsetenv            { return UNSETENV; }
+[.][:]                { yylval.string = strdup(yytext); return PATH;}
 [:]           	     { return yytext[0]; }
 [~]{CHAR}*          { if(strlen(yytext) > 1 && isalpha(yytext[1]) != 0){
                         yylval.string = tildeExpansion(yytext);

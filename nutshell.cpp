@@ -86,7 +86,7 @@ int main(){
     string cwd = getcwd_string();
 
     varTable["PWD"] = cwd;
-    varTable["HOME"] = cwd;
+    varTable["HOME"] = "/root/";
     varTable["PROMPT"] = "nutshell";
     varTable["PATH"] = "~/bin";
 
