@@ -1103,7 +1103,7 @@ YY_RULE_SETUP
                         else{
                            yylval.string = strdup((yytext));
                         }
-                        printf("after WC natching: %s \n", yylval.string);
+                        //printf("after WC natching: %s \n", yylval.string);
                         return STRING;
                       };
                      }

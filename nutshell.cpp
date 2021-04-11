@@ -113,7 +113,7 @@ int main(){
     string cwd = getcwd_string();
 
     varTable["PWD"] = cwd;
-    varTable["HOME"] = "/root";
+    varTable["HOME"] = "/home/linux16/COP4600-Project-1-FLEX-and-BISON";
     varTable["PROMPT"] = "nutshell";
     varTable["PATH"] = ".:/bin:/usr/bin";
     //set . to curr path
