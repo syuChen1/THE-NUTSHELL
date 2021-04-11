@@ -17,8 +17,9 @@ TODO:
 - [x] Wildcard Matching
 - [x] Tilde Expansion
 - [ ] rework on the non-build in command
-    - [ ] execl() https://linux.die.net/man/3/execl https://man7.org/linux/man-pages/man3/exec.3.html
-    - [ ] fork a child process and run exec inside that
+    - [x] execl() https://linux.die.net/man/3/execl https://man7.org/linux/man-pages/man3/exec.3.html
+    - [x] fork a child process and run exec inside that
+    - [ ] debugging. (pwd, ls with more commands ...)
 - [ ] look into setenv lsthis "jj ${this}"
 - [x] infinite loop detection
 - [ ] test example code.
