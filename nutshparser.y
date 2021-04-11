@@ -40,7 +40,7 @@ char* getUserHomeDir(char *user);
 
 %start cmd_line
 %token <string> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  META PATH
-%type <string> COMBINE_INPUT PATH_INPUT
+%type <string> COMBINE_INPUT PATH_INPUT NON_BUILDIN
 
 %%
 cmd_line    :
@@ -56,9 +56,13 @@ cmd_line    :
                                        return 1;}
   | PRINTENV END              {printEnv(); return 1;}
   | UNSETENV STRING END       {unsetEnv($2); return 1;}
-  | STRING COMBINE_INPUT END  {runSysCommand($1, $2); return 1;}
-  | STRING END                {runSysCommandNoArg($1); return 1;}
+  | NON_BUILDIN END               {return 1;}
   | META
+
+NON_BUILDIN     :
+   STRING COMBINE_INPUT END  {runSysCommand($1, $2); return 1;}
+  | STRING END                {runSysCommandNoArg($1); return 1;}
+
 
 COMBINE_INPUT   :
   STRING COMBINE_INPUT       {$$ = combineCharArr(combineCharArr($1, toCharArr(" ")), $2);}
