@@ -1703,9 +1703,10 @@ bool aliasLoopCheck(char* token1, char *token2)
   }
 
   std::string value;
-
-  value = aliasTable[toCharArr(token2)];
-   
+  if(aliasTable.count(token2))
+    value = aliasTable[toCharArr(token2)];
+  else
+    return false;
   
   while(1)
   {
@@ -1718,7 +1719,8 @@ bool aliasLoopCheck(char* token1, char *token2)
     }
     else if(!aliasTable.count(value))
     {
-      unsetAlias(toCharArr(token2));
+      //if(aliasTable[token2] == nullptr)
+        //unsetAlias(toCharArr(token2));
       break;
     }
     else
@@ -1780,7 +1782,10 @@ bool envLoopCheck(char* token1, char *token2)
   }
 
   std::string value;
-  value = varTable[toCharArr(token2)];
+  if(varTable.count(token2))
+    value = varTable[toCharArr(token2)];
+  else
+    return false;
   
   while(1)
   {
@@ -1793,7 +1798,7 @@ bool envLoopCheck(char* token1, char *token2)
     }
     else if(!varTable.count(value))
     {
-      unsetEnv(toCharArr(token2));
+      //unsetEnv(toCharArr(token2));
       break;
     }
     else
