@@ -31,6 +31,7 @@ int unsetEnv(char *variable);
 char *pathInput(char *first, char *second);
 
 int runSysCommand(char *command, char* arg);
+int runSysCommandNoArg(char *command);
 
 char* getUserHomeDir(char *user);
 %}
@@ -56,12 +57,12 @@ cmd_line    :
   | PRINTENV END              {printEnv(); return 1;}
   | UNSETENV STRING END       {unsetEnv($2); return 1;}
   | STRING COMBINE_INPUT END  {runSysCommand($1, $2); return 1;}
+  | STRING END                {runSysCommandNoArg($1); return 1;}
   | META
 
 COMBINE_INPUT   :
   STRING COMBINE_INPUT       {$$ = combineCharArr(combineCharArr($1, toCharArr(" ")), $2);}
    | STRING                  {$$ = $1;}
-   |                         {}
 
 PATH_INPUT  :
     PATH STRING ':' PATH_INPUT   {$$ = combineCharArr($1, pathInput($2,$4));}
@@ -360,6 +361,8 @@ char* getUserHomeDir(char *user){
 }
 
 int runSysCommand(char *command, char* arg){
+  //printf("arg1: %s \n", arg);
+
   bool found = false;
   char* path;
   for(auto it = executables.begin(); it != executables.end(); it++){
@@ -373,50 +376,88 @@ int runSysCommand(char *command, char* arg){
       }
     }
   }
-  if(found){
+  if(!found){
+    printf("%s: command not found\n", command);
+    return 1;
+  }
+  char* argument[100];
+  if(found && strlen(arg) != 0){
     if(arg[strlen(arg)-2] == ' '){
       arg[strlen(arg)-2] = '\0';
     }
     if(arg[strlen(arg)-1] == ' '){
       arg[strlen(arg)-1] = '\0';
     }
-    
     //printf("arg: %s \n", arg);
-    char* argument[100];
-    if(strlen(arg) != 0){   
-      char *token = strtok(arg, " ");
-      int i = 1;
-      argument[0] = command;
-      while (token != NULL)
-      {
-          argument[i++] = token;
-          token = strtok(NULL, " ");
-      }
-      argument[i] = NULL;
+    //printf("arg2: %s \n", arg);
+    char *token = strtok(arg, " ");
+    int i = 1;
+    argument[0] = command;
+    while (token != NULL)
+    {
+        argument[i++] = token;
+        token = strtok(NULL, " ");
+    }
+    argument[i] = NULL;
       //  for(int j = 0; j< i; j++){
       //    printf("argument: %s \n", argument[j]);
       //  }
 
-      command = combineCharArr(toCharArr("/"),command);
-      command = combineCharArr(path, command);
+    command = combineCharArr(toCharArr("/"),command);
+    command = combineCharArr(path, command);
       // printf("command: %s \n", command);
-    }
+  }
     pid_t pid;
     pid = fork();
     if(pid == -1){
       printf("error forking! \n");
     }
     else if (pid == 0){ //child process
-      if(sizeof(argument) != 0)
-        execv(command, argument);
-       else
-         execl(command, command, NULL , (char*)0);
+      // printf("command and args \n");
+      execv(command, argument);
     }
     else{
       wait(NULL);
     }
-  }
 
   return 1;
+}
+
+int runSysCommandNoArg(char *command){
+  
+  bool found = false;
+  char* path;
+  for(auto it = executables.begin(); it != executables.end(); it++){
+    for(char* x : it->second){
+      if(strcmp(x, command) == 0){
+        // printf("executable: %s \n", x);
+        // printf("path: %s \n", toCharArr(it->first));
+        path = toCharArr(it->first);
+        found = true;
+        break;
+      }
+    }
+  }
+  if(!found){
+    printf("%s: command not found\n", command);
+    return 1;
+  }
+  command = combineCharArr(toCharArr("/"),command);
+  command = combineCharArr(path, command);
+   pid_t pid;
+    pid = fork();
+    if(pid == -1){
+      printf("error forking! \n");
+    }
+    else if (pid == 0){ //child process
+      // printf("only one command \n");
+      execl(command, command , (char*)0);
+    }
+    else{
+      wait(NULL);
+    }
+
+  return 1;
+
 }
 

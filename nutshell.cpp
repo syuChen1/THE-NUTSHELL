@@ -111,7 +111,7 @@ string getPrevPath(string cwd){
 int main(){
     //get the curr dir path
     string cwd = getcwd_string();
-
+    getFileNames(&cwdFiles, ".");   
     varTable["PWD"] = cwd;
     varTable["HOME"] = "/";
     varTable["PROMPT"] = "nutshell";
