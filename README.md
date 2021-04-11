@@ -7,6 +7,7 @@ make
 ```
 
 TODO:
+
 - [x] Alias expansions should only be performed on the first word of each command. (right now is performing in every word)
 - [ ] Metacharacter
     - [x] > < | &
@@ -19,6 +20,10 @@ TODO:
     - [x] fork a child process and run exec inside that
     - [ ] additional testing
 - [x] look into cd te?.txt
+
+**priority**
+
+**- [ ] Piping and Redirection**
 - [ ] look into setenv lsthis "jj ${this}"
 - [x] infinite loop detection
 - [ ] test example code.
