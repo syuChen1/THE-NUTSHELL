@@ -26,6 +26,8 @@ int printEnv();
 int unsetEnv(char *variable);
 char *pathInput(char *first, char *second);
 
+int runSysCommand(char *command, char* arg);
+
 char* getUserHomeDir(char *user);
 %}
 
@@ -46,12 +48,12 @@ cmd_line    :
   | SETENV STRING PATH_INPUT END  {updateEnv($2,$3); return 1;}
   | PRINTENV END              {printEnv(); return 1;}
   | UNSETENV STRING END       {unsetEnv($2); return 1;}
-  | STRING COMBINE_INPUT END  {system(combineCharArr($1, $2)); return 1;}
+  | STRING COMBINE_INPUT END  {runSysCommand($1, $2); return 1;}
   | META
 
 COMBINE_INPUT   :
                             {$$ = toCharArr("");}
-  | STRING COMBINE_INPUT    {$$ = combineCharArr(toCharArr(" "), combineCharArr($1,$2));}
+  | STRING COMBINE_INPUT    {$$ = combineCharArr(combineCharArr($1,$2), toCharArr(" "));}
 
 PATH_INPUT  :
     PATH STRING ':' PATH_INPUT   {$$ = combineCharArr($1, pathInput($2,$4));}
@@ -69,7 +71,7 @@ int yyerror(char *s) {
 int runCD(char* arg) {
   //if the first argument is ~
   if (arg[0] == '~'){
-    std::string temp = tilde;
+    std::string temp = varTable["HOME"];
     std::string a = arg;
     temp += a.substr(1);
     removeSubstrs(temp, "/..", 2);
@@ -230,12 +232,25 @@ void removeSubstrs(std::string &str, const std::string &substr, int dot){
    }
 }
 
-
-//TODO: EC Tilde expansion
 char* getUserHomeDir(char *user){
-    struct passwd* pw;
-    if( ( pw = getpwnam(user)) == NULL ) {
-      fprintf( stderr, "Unknown user\n");
-    }
-    return pw->pw_dir;
+  struct passwd* pw;
+  if( ( pw = getpwnam(user)) == NULL ) {
+    fprintf( stderr, "Unknown user\n");
+  }
+  return pw->pw_dir;
+}
+
+int runSysCommand(char *command, char* arg){
+  pid_t pid;
+  pid = fork();
+  if(pid == -1){
+    printf("error forking! \n");
+  }
+  else if (pid == 0){ //child process
+  execl("/bin/echo", "hello", (char*)0); 
+  }
+  else{ //parent process
+    printf("\n");
+  }
+  return 1;
 }

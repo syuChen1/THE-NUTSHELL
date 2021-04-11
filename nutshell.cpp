@@ -18,7 +18,6 @@ using namespace std;
 vector<char*> filenames;
 std::unordered_map<std::string, std::string> varTable;
 std::unordered_map<std::string, std::string> aliasTable;
-char* tilde;
 char* dot;
 char* dotdot;
 int tokenCount = 0;
@@ -86,7 +85,7 @@ int main(){
     string cwd = getcwd_string();
 
     varTable["PWD"] = cwd;
-    varTable["HOME"] = "/root/";
+    varTable["HOME"] = "/root";
     varTable["PROMPT"] = "nutshell";
     varTable["PATH"] = "~/bin";
 
@@ -96,8 +95,6 @@ int main(){
     //set .. to prev path
     cwd = getPrevPath(cwd);
     dotdot = toCharArr(cwd);
-
-    tilde = toCharArr("/root");
 
     system("clear");
     while(1)

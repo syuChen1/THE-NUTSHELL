@@ -15,7 +15,6 @@ void removeChar(char* s, char c);
 void getFileNames();
 extern char* getUserHomeDir(char *user);
 
-extern char* tilde;
 extern int tokenCount;
 extern char* dot;
 extern char* dotdot;

@@ -59,8 +59,11 @@ char* WCcondition(char *pattern){
    }
    return result == ""? pattern : result;
 }
-
 char* tildeExpansion(char* str){
+   removeChar(str, '~');
+   return combineCharArr(toCharArr(varTable["HOME"]), str);
+}
+char* tildeNameExpansion(char* str){
    removeChar(str, '~');
    char *pointer = &str[0];
    char name[100];
@@ -144,10 +147,10 @@ unsetenv            { return UNSETENV; }
 [.][:]                { yylval.string = strdup(yytext); return PATH;}
 [:]           	     { return yytext[0]; }
 [~]{CHAR}*          { if(strlen(yytext) > 1 && isalpha(yytext[1]) != 0){
-                        yylval.string = tildeExpansion(yytext);
+                        yylval.string = tildeNameExpansion(yytext);
                       }
                       else{
-                        yylval.string = strdup(tilde); 
+                        yylval.string = tildeExpansion(yytext); 
                       };
                       return STRING; 
                     }
