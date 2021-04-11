@@ -20,8 +20,7 @@ TODO:
     - [ ] execl() https://linux.die.net/man/3/execl https://man7.org/linux/man-pages/man3/exec.3.html
     - [ ] fork a child process and run exec inside that
 - [ ] look into setenv lsthis "jj ${this}"
-- [ ] infinite loop detection
-    - [ ] possible recursion solution
+- [x] infinite loop detection
 - [ ] test example code.
 - [ ] File Name Completion
 

@@ -82,18 +82,20 @@ int yyerror(char *s);
 int runCD(char* arg);
 
 int runSetAlias(char *name, char *word);
+bool aliasLoopCheck(char* token1, char *token2);
 int printAlias();
 int unsetAlias(char *name);
 void removeSubstrs(std::string &str, const std::string &substr, int dot);
 
 int updateEnv(char *variable, char *word);
+bool envLoopCheck(char* token1, char *token2);
 int printEnv();
 int unsetEnv(char *variable);
 char *pathInput(char *first, char *second);
 
 char* getUserHomeDir(char *user);
 
-#line 97 "nutshparser.tab.c" /* yacc.c:339  */
+#line 99 "nutshparser.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -147,10 +149,10 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 32 "nutshparser.y" /* yacc.c:355  */
+#line 34 "nutshparser.y" /* yacc.c:355  */
 char *string;
 
-#line 154 "nutshparser.tab.c" /* yacc.c:355  */
+#line 156 "nutshparser.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -167,7 +169,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 171 "nutshparser.tab.c" /* yacc.c:358  */
+#line 173 "nutshparser.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -465,8 +467,8 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    40,    40,    41,    42,    43,    44,    45,    46,    47,
-      48,    49,    50,    53,    54,    57,    58,    59
+       0,    42,    42,    43,    44,    45,    48,    49,    50,    52,
+      53,    54,    55,    58,    59,    62,    63,    64
 };
 #endif
 
@@ -1253,97 +1255,100 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 40 "nutshparser.y" /* yacc.c:1646  */
+#line 42 "nutshparser.y" /* yacc.c:1646  */
     {exit(1); return 1; }
-#line 1259 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1261 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 41 "nutshparser.y" /* yacc.c:1646  */
+#line 43 "nutshparser.y" /* yacc.c:1646  */
     {runCD((yyvsp[-1].string)); return 1; }
-#line 1265 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1267 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 42 "nutshparser.y" /* yacc.c:1646  */
+#line 44 "nutshparser.y" /* yacc.c:1646  */
     {runCD(toCharArr("~")); return 1;}
-#line 1271 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1273 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 43 "nutshparser.y" /* yacc.c:1646  */
-    {runSetAlias((yyvsp[-2].string), (yyvsp[-1].string)); return 1;}
-#line 1277 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 45 "nutshparser.y" /* yacc.c:1646  */
+    {if(!aliasLoopCheck((yyvsp[-2].string), (yyvsp[-1].string))){ 
+                                runSetAlias((yyvsp[-2].string), (yyvsp[-1].string));}
+                                return 1;}
+#line 1281 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 44 "nutshparser.y" /* yacc.c:1646  */
+#line 48 "nutshparser.y" /* yacc.c:1646  */
     {printAlias(); return 1;}
-#line 1283 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1287 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 45 "nutshparser.y" /* yacc.c:1646  */
+#line 49 "nutshparser.y" /* yacc.c:1646  */
     {unsetAlias((yyvsp[-1].string)); return 1;}
-#line 1289 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1293 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 46 "nutshparser.y" /* yacc.c:1646  */
-    {updateEnv((yyvsp[-2].string),(yyvsp[-1].string)); return 1;}
-#line 1295 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 50 "nutshparser.y" /* yacc.c:1646  */
+    {if(!envLoopCheck((yyvsp[-2].string), (yyvsp[-1].string))){updateEnv((yyvsp[-2].string),(yyvsp[-1].string));}
+                                       return 1;}
+#line 1300 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 47 "nutshparser.y" /* yacc.c:1646  */
+#line 52 "nutshparser.y" /* yacc.c:1646  */
     {printEnv(); return 1;}
-#line 1301 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1306 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 48 "nutshparser.y" /* yacc.c:1646  */
+#line 53 "nutshparser.y" /* yacc.c:1646  */
     {unsetEnv((yyvsp[-1].string)); return 1;}
-#line 1307 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1312 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 49 "nutshparser.y" /* yacc.c:1646  */
+#line 54 "nutshparser.y" /* yacc.c:1646  */
     {system(combineCharArr((yyvsp[-2].string), (yyvsp[-1].string))); return 1;}
-#line 1313 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1318 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 53 "nutshparser.y" /* yacc.c:1646  */
+#line 58 "nutshparser.y" /* yacc.c:1646  */
     {(yyval.string) = toCharArr("");}
-#line 1319 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1324 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 54 "nutshparser.y" /* yacc.c:1646  */
+#line 59 "nutshparser.y" /* yacc.c:1646  */
     {(yyval.string) = combineCharArr(toCharArr(" "), combineCharArr((yyvsp[-1].string),(yyvsp[0].string)));}
-#line 1325 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1330 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 57 "nutshparser.y" /* yacc.c:1646  */
+#line 62 "nutshparser.y" /* yacc.c:1646  */
     {(yyval.string) = combineCharArr((yyvsp[-3].string), pathInput((yyvsp[-2].string),(yyvsp[0].string)));}
-#line 1331 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1336 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 58 "nutshparser.y" /* yacc.c:1646  */
+#line 63 "nutshparser.y" /* yacc.c:1646  */
     {(yyval.string) = pathInput((yyvsp[-2].string),(yyvsp[0].string));}
-#line 1337 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1342 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 59 "nutshparser.y" /* yacc.c:1646  */
+#line 64 "nutshparser.y" /* yacc.c:1646  */
     {(yyval.string) = (yyvsp[0].string);}
-#line 1343 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1348 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1347 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1352 "nutshparser.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1571,7 +1576,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 61 "nutshparser.y" /* yacc.c:1906  */
+#line 66 "nutshparser.y" /* yacc.c:1906  */
 
 
 int yyerror(char *s) {
@@ -1661,6 +1666,53 @@ int runSetAlias(char *name, char *word) {
 	return 1;
 }
 
+//check for infinite loop in alias table
+bool aliasLoopCheck(char* token1, char *token2)
+{
+  bool flag = false;
+  //std::cout << aliasTable.size();
+  if(aliasTable.size() == 0)
+    return flag;
+  
+  if(aliasTable.size() == 1)
+  {
+    if(aliasTable.count(token2))
+    {
+      std::cout << "inifinite alias loop detected!\n";
+      return true;
+    }
+      
+    else 
+      return false;
+  }
+
+  std::string value;
+
+  value = aliasTable[toCharArr(token2)];
+   
+  
+  while(1)
+  {
+    if(strcmp(toCharArr(token1), toCharArr(value)) == 0)
+    {
+      flag = true;
+      std::cout << "inifinite alias loop detected!\n";
+      //unsetAlias(toCharArr(value));
+      break;
+    }
+    else if(!aliasTable.count(value))
+    {
+      unsetAlias(toCharArr(token2));
+      break;
+    }
+    else
+    {
+      value = aliasTable[value];
+    }
+  }
+  return flag;
+}
+
 int printAlias(){
   if(aliasTable.size() == 0){
     std::cout << "No alias avaliable" << std::endl;
@@ -1679,7 +1731,8 @@ int unsetAlias(char *name){
     std::cout << "earsed " << name << std::endl;
     return 1;
   }
-  std::cout << name << " not exist." << std::endl;
+  else 
+    std::cout << name << " not exist." << std::endl;
   return 1;
 }
 
@@ -1689,6 +1742,54 @@ int updateEnv(char *variable, char *word){
   std::cout << "set " << variable << " to " << word << std::endl;
   return 1;
 }
+
+//check for infinite loop in environment variable table
+bool envLoopCheck(char* token1, char *token2)
+{
+  bool flag = false;
+  //std::cout << aliasTable.size();
+  if(varTable.size() == 0)
+    return flag;
+  
+  if(varTable.size() == 1)
+  {
+    if(varTable.count(token2))
+    {
+      std::cout << "inifinite alias loop detected!\n";
+      return true;
+    }
+      
+    else 
+      return false;
+  }
+
+  std::string value;
+
+  value = varTable[toCharArr(token2)];
+   
+  
+  while(1)
+  {
+    if(strcmp(toCharArr(token1), toCharArr(value)) == 0)
+    {
+      flag = true;
+      std::cout << "inifinite env variable loop detected!\n";
+      //unsetAlias(toCharArr(value));
+      break;
+    }
+    else if(!varTable.count(value))
+    {
+      unsetEnv(toCharArr(token2));
+      break;
+    }
+    else
+    {
+      value = varTable[value];
+    }
+  }
+  return flag;
+}
+
 int printEnv(){
   if(varTable.size() == 0){
     std::cout << "No Environment Variable avaliable" << std::endl;
@@ -1702,8 +1803,13 @@ int printEnv(){
 }
 int unsetEnv(char *variable){
   if(varTable.count(variable)){
+    if((strcmp(variable, toCharArr("HOME")) == 0) || (strcmp(variable, toCharArr("PATH")) == 0))
+    {
+      std::cout << "unable to erased HOME or PATH directory\n";
+      return 1;
+    }
     varTable.erase(variable);
-    std::cout << "earsed " << variable << std::endl;
+    std::cout << "erased " << variable << std::endl;
     return 1;
   }
   std::cout << variable << " not exist." << std::endl;
