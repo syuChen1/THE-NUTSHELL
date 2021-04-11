@@ -18,10 +18,11 @@ TODO:
     - [x] execl() https://linux.die.net/man/3/execl https://man7.org/linux/man-pages/man3/exec.3.html
     - [x] fork a child process and run exec inside that
     - [ ] additional testing
+- [x] look into cd te?.txt
 - [ ] look into setenv lsthis "jj ${this}"
 - [x] infinite loop detection
 - [ ] test example code.
-- [ ] look into cd te?.txt
+
 
 EC:
 - [x] Tilde Expansion
