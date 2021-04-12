@@ -80,9 +80,18 @@ int yyerror(char *s) {
 int runCD(char* arg) {
   //if the first argument is ~
   if (arg[0] == '~'){
-    std::string temp = varTable["HOME"];
-    std::string a = arg;
-    temp += a.substr(1);
+    std::string temp;
+    std::string a;
+    if(isalpha(arg[1]) == 0)
+    { 
+      temp = varTable["HOME"];
+      a = arg;
+      temp += a.substr(1);
+    }
+    else {
+      temp = varTable["PWD"];
+      temp = temp + '/' + arg;
+    }
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
     char* t = toCharArr(temp);
@@ -356,6 +365,7 @@ char* getUserHomeDir(char *user){
   struct passwd* pw;
   if( ( pw = getpwnam(user)) == NULL ) {
     fprintf( stderr, "Unknown user\n");
+    return "";
   }
   return pw->pw_dir;
 }

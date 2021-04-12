@@ -105,6 +105,7 @@ string getPrevPath(string cwd){
         *pointer ='\0';
         pointer++;
     }
+
     cwd = temp;
     return cwd;
 }
@@ -114,7 +115,7 @@ int main(){
     string cwd = getcwd_string();
 
     varTable["PWD"] = cwd;
-    varTable["HOME"] = "/";
+    varTable["HOME"] = "/root";
     varTable["PROMPT"] = "nutshell";
     varTable["PATH"] = ".:/bin:/usr/bin";
     //set . to curr path
