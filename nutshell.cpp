@@ -19,6 +19,7 @@ vector<char*> cwdFiles;
 std::unordered_map<std::string, std::string> varTable;
 std::unordered_map<std::string, std::string> aliasTable;
 std::unordered_map<std::string, std::vector<char*>> executables; 
+std::vector<char*> commands;
 char* dot;
 char* dotdot;
 int tokenCount = 0;
@@ -111,7 +112,7 @@ string getPrevPath(string cwd){
 int main(){
     //get the curr dir path
     string cwd = getcwd_string();
-    getFileNames(&cwdFiles, ".");   
+
     varTable["PWD"] = cwd;
     varTable["HOME"] = "/";
     varTable["PROMPT"] = "nutshell";
@@ -130,6 +131,7 @@ int main(){
         tokenCount = 0;
         getFileNames(&cwdFiles, ".");
         getPathFiles(toCharArr(varTable["PATH"]));
+        commands.clear();
         yyparse();
     }
 

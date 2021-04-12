@@ -1067,7 +1067,7 @@ case 22:
 YY_RULE_SETUP
 #line 169 "nutshscanner.l"
 { yylval.string = strdup(yytext);
-                        return META;
+                        return STRING;
                     }
 	YY_BREAK
 case 23:
