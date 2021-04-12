@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <dirent.h>
+#include <algorithm>
 #include <iostream>
 
 int yylex();
@@ -30,8 +31,7 @@ int printEnv();
 int unsetEnv(char *variable);
 char *pathInput(char *first, char *second);
 
-int runSysCommand(char *command, char* arg);
-int runSysCommandNoArg(char *command);
+int runSysCommand(std::vector<char*> commands);
 
 char* getUserHomeDir(char *user);
 %}
@@ -40,7 +40,7 @@ char* getUserHomeDir(char *user);
 
 %start cmd_line
 %token <string> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  META PATH
-%type <string> COMBINE_INPUT PATH_INPUT NON_BUILDIN
+%type <string> COMBINE_INPUT PATH_INPUT
 
 %%
 cmd_line    :
@@ -56,17 +56,13 @@ cmd_line    :
                                        return 1;}
   | PRINTENV END              {printEnv(); return 1;}
   | UNSETENV STRING END       {unsetEnv($2); return 1;}
-  | NON_BUILDIN END               {return 1;}
+  | STRING COMBINE_INPUT END  {commands.push_back($1); runSysCommand(commands);  return 1;}
   | META
 
-NON_BUILDIN     :
-   STRING COMBINE_INPUT END  {runSysCommand($1, $2); return 1;}
-  | STRING END                {runSysCommandNoArg($1); return 1;}
-
-
 COMBINE_INPUT   :
-  STRING COMBINE_INPUT       {$$ = combineCharArr(combineCharArr($1, toCharArr(" ")), $2);}
-   | STRING                  {$$ = $1;}
+     STRING COMBINE_INPUT    {commands.push_back($1);}
+   | STRING                  {commands.push_back($1);}
+   |                         {}
 
 PATH_INPUT  :
     PATH STRING ':' PATH_INPUT   {$$ = combineCharArr($1, pathInput($2,$4));}
@@ -84,9 +80,18 @@ int yyerror(char *s) {
 int runCD(char* arg) {
   //if the first argument is ~
   if (arg[0] == '~'){
-    std::string temp = varTable["HOME"];
-    std::string a = arg;
-    temp += a.substr(1);
+    std::string temp;
+    std::string a;
+    if(isalpha(arg[1]) == 0)
+    { 
+      temp = varTable["HOME"];
+      a = arg;
+      temp += a.substr(1);
+    }
+    else {
+      temp = varTable["PWD"];
+      temp = temp + '/' + arg;
+    }
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
     char* t = toCharArr(temp);
@@ -360,110 +365,58 @@ char* getUserHomeDir(char *user){
   struct passwd* pw;
   if( ( pw = getpwnam(user)) == NULL ) {
     fprintf( stderr, "Unknown user\n");
+    return toCharArr("");
   }
   return pw->pw_dir;
 }
 
-int runSysCommand(char *command, char* arg){
-  //printf("arg1: %s \n", arg);
+int runSysCommand(std::vector<char*> commands){
+
+  std::reverse(commands.begin(), commands.end());
 
   bool found = false;
   char* path;
   for(auto it = executables.begin(); it != executables.end(); it++){
-    for(char* x : it->second){
-      if(strcmp(x, command) == 0){
-        // printf("executable: %s \n", x);
-        // printf("path: %s \n", toCharArr(it->first));
+     for(char* x : it->second){
+       if(strcmp(x, commands[0]) == 0){
+          //printf("executable: %s \n", x);
+          //printf("path: %s \n", toCharArr(it->first));
         path = toCharArr(it->first);
         found = true;
         break;
       }
     }
   }
-  if(!found){
-    printf("%s: command not found\n", command);
-    return 1;
+  // char* argument[100];
+  if(!found) {
+     printf("%s: command not found\n", commands[0]);
+     return 0;
   }
-  char* argument[100];
-  if(found && strlen(arg) != 0){
-    if(arg[strlen(arg)-2] == ' '){
-      arg[strlen(arg)-2] = '\0';
-    }
-    if(arg[strlen(arg)-1] == ' '){
-      arg[strlen(arg)-1] = '\0';
-    }
-    //printf("arg: %s \n", arg);
-    //printf("arg2: %s \n", arg);
-    char *token = strtok(arg, " ");
-    int i = 1;
-    argument[0] = command;
-    while (token != NULL)
-    {
-        argument[i++] = token;
-        printf("args: %s \n", token);
-        token = strtok(NULL, " ");
-    }
-    argument[i] = NULL;
-      //  for(int j = 0; j< i; j++){
-      //    printf("argument: %s \n", argument[j]);
-      //  }
 
-    command = combineCharArr(toCharArr("/"),command);
-    command = combineCharArr(path, command);
-      printf("command: %s \n", command);
+  commands[0] = strdup(combineCharArr(toCharArr("/"),commands[0]));
+  commands[0] = strdup(combineCharArr(path, commands[0]));
+    //printf("Executable: %s \n", commands[0]);
 
+  pid_t pid;
+  pid = fork();
+  if(pid == -1){      
+    printf("error forking! \n");
   }
-    pid_t pid;
-    pid = fork();
-    if(pid == -1){
-      printf("error forking! \n");
-    }
-    else if (pid == 0){ //child process
-      // printf("command and args \n");
-      execv(command, argument);
-    }
-    else{
-      wait(NULL);
-    }
-
-  return 1;
-}
-
-int runSysCommandNoArg(char *command){
-  
-  bool found = false;
-  char* path;
-  for(auto it = executables.begin(); it != executables.end(); it++){
-    for(char* x : it->second){
-      if(strcmp(x, command) == 0){
-        // printf("executable: %s \n", x);
-        // printf("path: %s \n", toCharArr(it->first));
-        path = toCharArr(it->first);
-        found = true;
-        break;
+  else if (pid == 0){ //child process
+    if(commands.size() > 1){
+      char* arguments[commands.size()+1];
+      for(int i = 0; i< commands.size(); i++)
+        arguments[i] = commands[i];
+      arguments[commands.size()] = NULL;
+      execv(commands[0], arguments);
+     }
+     else{
+        execl(commands[0] , commands[0], NULL);
       }
     }
+  else{
+    wait(NULL);
   }
-  if(!found){
-    printf("%s: command not found\n", command);
-    return 1;
-  }
-  command = combineCharArr(toCharArr("/"),command);
-  command = combineCharArr(path, command);
-   pid_t pid;
-    pid = fork();
-    if(pid == -1){
-      printf("error forking! \n");
-    }
-    else if (pid == 0){ //child process
-      // printf("only one command \n");
-      execl(command, command , (char*)0);
-    }
-    else{
-      wait(NULL);
-    }
 
   return 1;
-
 }
-
