@@ -167,7 +167,7 @@ unsetenv            { return UNSETENV; }
                               return STRING;
                            }
 {META}              { yylval.string = strdup(yytext);
-                        return META;
+                        return STRING;
                     }
 
 {CHAR}+             {/*char meta = checkMeta(yytext);

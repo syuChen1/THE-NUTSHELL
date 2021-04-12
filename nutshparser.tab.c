@@ -1924,6 +1924,7 @@ int runSysCommand(char *command, char* arg){
     while (token != NULL)
     {
         argument[i++] = token;
+        printf("args: %s \n", token);
         token = strtok(NULL, " ");
     }
     argument[i] = NULL;
@@ -1933,7 +1934,8 @@ int runSysCommand(char *command, char* arg){
 
     command = combineCharArr(toCharArr("/"),command);
     command = combineCharArr(path, command);
-      // printf("command: %s \n", command);
+      printf("command: %s \n", command);
+
   }
     pid_t pid;
     pid = fork();
