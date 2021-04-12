@@ -2,3 +2,8 @@ apple
 carrot
 banana
 hello
+
+I will be printed in the file tricky.txt
+
+I will be printed in the file tricky.txt
+I will be printed in the file tricky.txt
