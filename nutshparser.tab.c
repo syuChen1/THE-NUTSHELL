@@ -1884,7 +1884,7 @@ char* getUserHomeDir(char *user){
   struct passwd* pw;
   if( ( pw = getpwnam(user)) == NULL ) {
     fprintf( stderr, "Unknown user\n");
-    return "";
+    return toCharArr("");
   }
   return pw->pw_dir;
 }
