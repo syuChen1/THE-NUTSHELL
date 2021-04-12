@@ -28,7 +28,6 @@ TODO:
 - [x] infinite loop detection
 - [ ] test example code.
 
-
 EC:
 - [x] Tilde Expansion
 - [ ] File Name Completion
@@ -39,5 +38,6 @@ DEBUG:
 - [x] when trying to cd ./.. or cd ~/.. or cd ../. , it give wrong directory. I have codes for debugging cd ../.. and cd ./. But still needs minor adjustment to get the above code to work.  
 - [x] cd te?t can not work. will return correct path, but syscall can not go there?
 - [ ] cd "test dir"/"nested dir"
+- [ ] cd "~tildetest"
 
 
