@@ -31,7 +31,8 @@ int printEnv();
 int unsetEnv(char *variable);
 char *pathInput(char *first, char *second);
 
-int runSysCommand(std::vector<char*> commands);
+int runSysCommand(std::vector<std::string> commands);
+std::vector<std::vector <std::string>> handleCurrCmd(std::vector<std::string> commands);
 
 char* getUserHomeDir(char *user);
 %}
@@ -56,12 +57,12 @@ cmd_line    :
                                        return 1;}
   | PRINTENV END              {printEnv(); return 1;}
   | UNSETENV STRING END       {unsetEnv($2); return 1;}
-  | STRING COMBINE_INPUT END  {commands.push_back($1); runSysCommand(commands);  return 1;}
+  | STRING COMBINE_INPUT END  {commands.push_back(std::string($1)); runSysCommand(commands);  return 1;}
   | META
 
 COMBINE_INPUT   :
-     STRING COMBINE_INPUT    {commands.push_back($1);}
-   | STRING                  {commands.push_back($1);}
+     STRING COMBINE_INPUT    {commands.push_back(std::string($1));}
+   | STRING                  {commands.push_back(std::string($1));}
    |                         {}
 
 PATH_INPUT  :
@@ -370,53 +371,107 @@ char* getUserHomeDir(char *user){
   return pw->pw_dir;
 }
 
-int runSysCommand(std::vector<char*> commands){
+int runSysCommand(std::vector<std::string> commands){
 
   std::reverse(commands.begin(), commands.end());
+  std::vector<std::vector <std::string>> currCmd = handleCurrCmd(commands);
+  // bool found = false;
+  // char* path;
+  // for(auto it = executables.begin(); it != executables.end(); it++){
+  //    for(char* x : it->second){
+  //      if(strcmp(x, commands[0]) == 0){
+  //         //printf("executable: %s \n", x);
+  //         //printf("path: %s \n", toCharArr(it->first));
+  //       path = toCharArr(it->first);
+  //       found = true;
+  //       break;
+  //     }
+  //   }
+  // }
+  // // char* argument[100];
+  // if(!found) {
+  //    printf("%s: command not found\n", commands[0]);
+  //    return 0;
+  // }
 
-  bool found = false;
-  char* path;
-  for(auto it = executables.begin(); it != executables.end(); it++){
-     for(char* x : it->second){
-       if(strcmp(x, commands[0]) == 0){
-          //printf("executable: %s \n", x);
-          //printf("path: %s \n", toCharArr(it->first));
-        path = toCharArr(it->first);
-        found = true;
-        break;
-      }
-    }
-  }
-  // char* argument[100];
-  if(!found) {
-     printf("%s: command not found\n", commands[0]);
-     return 0;
-  }
+  // commands[0] = strdup(combineCharArr(toCharArr("/"),commands[0]));
+  // commands[0] = strdup(combineCharArr(path, commands[0]));
+  //   //printf("Executable: %s \n", commands[0]);
 
-  commands[0] = strdup(combineCharArr(toCharArr("/"),commands[0]));
-  commands[0] = strdup(combineCharArr(path, commands[0]));
-    //printf("Executable: %s \n", commands[0]);
-
-  pid_t pid;
-  pid = fork();
-  if(pid == -1){      
-    printf("error forking! \n");
-  }
-  else if (pid == 0){ //child process
-    if(commands.size() > 1){
-      char* arguments[commands.size()+1];
-      for(int i = 0; i< commands.size(); i++)
-        arguments[i] = commands[i];
-      arguments[commands.size()] = NULL;
-      execv(commands[0], arguments);
-     }
-     else{
-        execl(commands[0] , commands[0], NULL);
-      }
-    }
-  else{
-    wait(NULL);
-  }
+  // pid_t pid;
+  // pid = fork();
+  // if(pid == -1){      
+  //   printf("error forking! \n");
+  // }
+  // else if (pid == 0){ //child process
+  //   if(commands.size() > 1){
+  //     char* arguments[commands.size()+1];
+  //     for(int i = 0; i< commands.size(); i++)
+  //       arguments[i] = commands[i];
+  //     arguments[commands.size()] = NULL;
+  //     execv(commands[0], arguments);
+  //    }
+  //    else{
+  //       execl(commands[0] , commands[0], NULL);
+  //     }
+  //   }
+  // else{
+  //   wait(NULL);
+  // }
 
   return 1;
+}
+
+std::vector<std::vector <std::string>> handleCurrCmd(std::vector<std::string> commands){
+
+  std::vector<std::vector <std::string>> currCmd;
+  std::vector<std::string> temp;
+  for(int i = 0; i < commands.size(); i++){
+    if(commands[i] != "|" && commands[i] != "<" && commands[i] != ">"  )
+    {
+      if(i > 0 && (commands[i-1] == "|" || commands[i-1] == "<" || commands[i-1] == ">"  ))
+      temp.push_back(commands[i-1]);
+      temp.push_back(commands[i]);
+    }
+    else if(commands[i] == "|"){
+      temp.push_back("|");
+      currCmd.push_back(temp);
+      temp.clear();
+    }
+    else if(commands[i] == "<"){
+      temp.push_back("<");
+      currCmd.push_back(temp);
+      temp.clear();
+    }
+    else if(commands[i] == ">"){
+      temp.push_back(">");
+      currCmd.push_back(temp);
+      temp.clear();
+    }
+  }
+  currCmd.push_back(temp);
+
+  for(int i = 0; i < currCmd.size(); i++){
+    if(currCmd[i][currCmd[i].size()-1] == "|" && currCmd[i][0] == "|"){
+        currCmd[i].erase(currCmd[i].end());
+        currCmd[i].erase(currCmd[i].begin());
+        currCmd[i].push_back("MIDDLE");
+    }
+    else if(currCmd[i][currCmd[i].size()-1] == "|"){
+        currCmd[i].erase(currCmd[i].end());
+        currCmd[i].push_back("FIRST");
+    }
+    else if(currCmd[i][0] == "|"){
+        currCmd[i].erase(currCmd[i].begin());
+        currCmd[i].push_back("LAST");
+    }
+    
+  }
+  for(int i = 0; i < currCmd.size(); i++){
+    for(int j = 0; j < currCmd[i].size(); j++){
+      printf("%s ",toCharArr(currCmd[i][j]));
+    }
+    printf("\n");
+  }
+  return currCmd;
 }

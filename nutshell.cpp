@@ -19,7 +19,7 @@ vector<char*> cwdFiles;
 std::unordered_map<std::string, std::string> varTable;
 std::unordered_map<std::string, std::string> aliasTable;
 std::unordered_map<std::string, std::vector<char*>> executables; 
-std::vector<char*> commands;
+std::vector<std::string> commands;
 char* dot;
 char* dotdot;
 int tokenCount = 0;

@@ -19,8 +19,7 @@ char* combineCharArr(char* first, char* second);
 void removeChar(char* s, char c);
 void getFileNames(std::vector<char*> *v, std::string path);
 extern char* getUserHomeDir(char *user);
-extern std::vector<char*> commands;
-
+extern std::vector<std::string> commands;
 extern int tokenCount;
 extern char* dot;
 extern char* dotdot;
