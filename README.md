@@ -40,5 +40,6 @@ DEBUG:
 - [ ] cd "test dir"/"nested dir"
 - [x] cd "~tildetest"
 - [ ] ./testdir/test.o
+- [ ] echo "${e}"
 
 
