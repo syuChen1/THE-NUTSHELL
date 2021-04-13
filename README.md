@@ -39,5 +39,6 @@ DEBUG:
 - [x] cd te?t can not work. will return correct path, but syscall can not go there?
 - [ ] cd "test dir"/"nested dir"
 - [x] cd "~tildetest"
+- [ ] ./testdir/test.o
 
 
