@@ -170,29 +170,24 @@ unsetenv            { return UNSETENV; }
                         return STRING;
                     }
 
-{CHAR}+             {/*char meta = checkMeta(yytext);
-                     printf("yytext to be checked %s \n", yytext);
-                     printf("checkmeta %c \n", meta);
-                     if(meta != '1'){
-                        char *ret = strchr(yytext, meta);
-                        printf("printing %s \n", ret);
-                        for ( int i = strlen(ret); i > 0; --i ){
-                           unput(ret[i] );
-                        }
-                         int length = strlen(yytext) - strlen(ret);
-                         for ( int i = length -1; i >= 0; --i ){
-                            unput( yytext[i] );
-                         }
-                        return META;
-                     }*/
-                     if(tokenCount == 0 && ifAlias(yytext)) {
+{CHAR}+             {if(tokenCount == 0 && ifAlias(yytext)) {
                         printf("yytext before alias_sub: %s\n", yytext);
                         // source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
                            char *yycopy = strdup( subAliases(yytext) );
                            for ( int i = strlen(subAliases(yytext)) - 1; i >= 0; --i )
                                unput( yycopy[i] );
                            free( yycopy );
-                      } else {
+                      } 
+                      else {
+                        for(auto it = executables.begin(); it != executables.end(); it++){
+                           for(char* x : it->second){
+                              if(strcmp(x, yytext) == 0){
+                                 printf("non build-in command: %s\n", yytext);
+                                 yylval.string = strdup(yytext);
+                                 return NON_BUILD_IN_COMMAND;
+                              }
+                           }
+                        }
                         printf("yytext char_cond: %s\n", yytext);
                         if(checkWC(yytext)){
                            yylval.string = strdup(WCcondition(yytext));

@@ -54,8 +54,8 @@ extern int yydebug;
     SETENV = 264,
     PRINTENV = 265,
     UNSETENV = 266,
-    META = 267,
-    PATH = 268
+    PATH = 267,
+    NON_BUILD_IN_COMMAND = 268
   };
 #endif
 
@@ -64,8 +64,8 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 40 "nutshparser.y" /* yacc.c:1909  */
-char *string;
+#line 39 "nutshparser.y" /* yacc.c:1909  */
+char *string; int interger; 
 
 #line 71 "nutshparser.tab.h" /* yacc.c:1909  */
 };
