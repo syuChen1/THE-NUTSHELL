@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "nutshell.h"
+#include <iostream>
 
 char* subAliases(char* name){
    if(aliasTable.count(name))
@@ -76,33 +77,10 @@ char* tildeNameExpansion(char* str){
    name[i] = '\0';
    //printf("name after search: %s \n", name);
    //printf("path after search: %s \n", pointer);
-   char* dir = getUserHomeDir(name);
+   char* dir = toCharArr(getUserHomeDir(name));
    return combineCharArr(dir, pointer);
 }
 
-/*
-char checkMeta(char* str){
-    for ( int i = strlen(str) - 1; i >= 0; --i ){
-       if(str[i] == '|' || str[i] == '&' || str[i] == '<' || str[i] == '>' ){
-          printf("found meta1 \n");
-          if(i-1 > 0 && str[i-1] != '\\'){
-            printf("found meta \n");
-            return str[i];
-          }
-       }
-    }
-    return '1';
-}
-char* reverseCharArr(char *str){
-   char* r = (char*)malloc((strlen(str) + 1) * sizeof(char));
-   r[strlen(str)] = '\0';
-   int i;
-   for(i = 0; i < strlen(str); i++) {
-      r[i] = str[strlen(str) - 1 - i];
-  }
-  return r;
-}
-*/
 %}
 %array
 %option noyywrap
@@ -116,7 +94,7 @@ META               [><|\\&"]*
 %%
 
 <string_condition>{STR_ANYCHAR}+     { printf("yytext str_cond: %s\n", yytext);
-                                       yylval.string = strdup(yytext);
+                                       yylval.STRING = new std::string(yytext);
                                        return STRING;
                                     }
 <env_condition>{ENV_ANYCHAR}+        { if(isEnv(yytext)){
@@ -127,7 +105,7 @@ META               [><|\\&"]*
                                        free( yycopy );
                                     } else {
                                        printf("yytext env_cond: %s\n", yytext);
-                                       yylval.string = strdup(yytext);
+                                       yylval.STRING = new std::string(yytext);
                                        return STRING;
                                     };
                                  }
@@ -144,18 +122,18 @@ unalias             { return UNALIAS; }
 setenv              { return SETENV; }
 printenv            { return PRINTENV; }
 unsetenv            { return UNSETENV; }
-[.][:]                { yylval.string = strdup(yytext); return PATH;}
+[.][:]                { yylval.STRING = new std::string(yytext); return PATH;}
 [:]           	     { return yytext[0]; }
 [~]{CHAR}*          { if(strlen(yytext) > 1 && isalpha(yytext[1]) != 0){
-                        yylval.string = tildeNameExpansion(yytext);
+                        yylval.STRING = new std::string(tildeNameExpansion(yytext));
                       }
                       else{
-                        yylval.string = tildeExpansion(yytext); 
+                        yylval.STRING = new std::string(tildeNameExpansion(yytext)); 
                       };
                       return STRING; 
                     }
-[.]                 { yylval.string = strdup(dot); printf("%s\n", dot); return STRING; }
-[.][.]              { yylval.string = strdup(dotdot); printf("%s\n", dotdot); return STRING; }
+[.]                 { yylval.STRING = new std::string(dot); std::cout << dot << std::endl; return STRING; }
+[.][.]              { yylval.STRING = new std::string(dotdot); std::cout << dotdot << std::endl; return STRING; }
 "\n"		           { return END; }
 [\"]                { quoteCount = 1; BEGIN(string_condition); }
 [\$][\{]            { BEGIN(env_condition); }
@@ -163,10 +141,10 @@ unsetenv            { return UNSETENV; }
 
 {CHAR}*[\\]{META}{CHAR}*   {
                               removeChar(yytext, '\\');
-                              yylval.string = strdup(yytext);
+                              yylval.STRING = new std::string(yytext);
                               return STRING;
                            }
-{META}              { yylval.string = strdup(yytext);
+{META}              { yylval.STRING = new std::string(yytext);
                         return STRING;
                     }
 
@@ -181,21 +159,21 @@ unsetenv            { return UNSETENV; }
                       else {
                         for(auto it = executables.begin(); it != executables.end(); it++){
                            for(char* x : it->second){
-                              if(strcmp(x, yytext) == 0){
+                              if(strcmp(x, yytext) == 0 && tokenCount == 0){
                                  printf("non build-in command: %s\n", yytext);
-                                 yylval.string = strdup(yytext);
+                                 yylval.STRING = new std::string(yytext);
                                  return NON_BUILD_IN_COMMAND;
                               }
                            }
                         }
                         printf("yytext char_cond: %s\n", yytext);
                         if(checkWC(yytext)){
-                           yylval.string = strdup(WCcondition(yytext));
+                           yylval.STRING = new std::string(WCcondition(yytext));
                         }
                         else{
-                           yylval.string = strdup((yytext));
+                           yylval.STRING = new std::string(yytext);
                         }
-                        //printf("after WC natching: %s \n", yylval.string);
+                        //printf("after WC natching: %s \n", yylval.STRING);
                         return STRING;
                       };
                      }

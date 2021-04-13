@@ -20,8 +20,8 @@ std::unordered_map<std::string, std::string> varTable;
 std::unordered_map<std::string, std::string> aliasTable;
 std::unordered_map<std::string, std::vector<char*>> executables; 
 std::vector<std::string> commands;
-char* dot;
-char* dotdot;
+std::string dot;
+std::string dotdot;
 int tokenCount = 0;
 
 Cmd_t cmdTable;

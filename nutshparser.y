@@ -18,30 +18,34 @@ using namespace std;
 int yylex();
 int yyerror(char *s);
 
-int runCD(char* arg);
+int runCD(string arg);
 
-int runSetAlias(char *name, char *word);
-bool aliasLoopCheck(char* token1, char *token2);
+int runSetAlias(string name, string word);
+bool aliasLoopCheck(string token1, string token2);
 int printAlias();
-int unsetAlias(char *name);
+int unsetAlias(string name);
 void removeSubstrs(std::string &str, const std::string &substr, int dot);
 
-int updateEnv(char *variable, char *word);
-bool envLoopCheck(char* token1, char *token2);
+int updateEnv(string variable, string word);
+bool envLoopCheck(string  token1, string token2);
 int printEnv();
-int unsetEnv(char *variable);
-char *pathInput(char *first, char *second);
+int unsetEnv(string variable);
+string pathInput(string first, string second);
 int runSysCommand(std::vector<std::string> commands);
 
-char* getUserHomeDir(char *user);
+string getUserHomeDir(string user);
 %}
 
-%union {char *string; int interger; }
+%code requires {
+#include "nutshell.h"
+}
 
+
+%define api.value.type union
 %start cmd_line
-%token <string> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  PATH NON_BUILD_IN_COMMAND
-%type <string> COMBINE_INPUT PATH_INPUT
-%type <interger> COMMAND NON_BUILD_IN BUILD_IN
+%token <std::string*> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  PATH NON_BUILD_IN_COMMAND
+%type <std::string*> COMBINE_INPUT PATH_INPUT
+%type <int> COMMAND NON_BUILD_IN BUILD_IN
 
 %%
 cmd_line    :
@@ -51,31 +55,31 @@ cmd_line    :
 COMMAND     :
   NON_BUILD_IN                  {$$ = $1;}
   | BUILD_IN                    {$$ = $1;}
-  | STRING                      {printf("this is a file : %s \n", $1); $$ = 1;}
+  | STRING                      {cout << "this is a file :" << $1 <<endl; $$ = 1;}
   
 NON_BUILD_IN    :
-	  CD STRING         			    {$$ = runCD($2);}
-  | CD                          {$$ = runCD(toCharArr("~"));}
-	| ALIAS STRING STRING 		    {if(!aliasLoopCheck($2, $3)){ 
-                                  $$ = runSetAlias($2, $3);}}
+	  CD STRING         			    {$$ = runCD(*$2);}
+  | CD                          {$$ = runCD("~");}
+	| ALIAS STRING STRING 		    {if(!aliasLoopCheck(*$2, *$3)){ 
+                                  $$ = runSetAlias(*$2, *$3);}}
   | ALIAS                       {$$ = printAlias();}
-  | UNALIAS STRING              {$$ = unsetAlias($2);}
-  | SETENV STRING PATH_INPUT    {if(!envLoopCheck($2, $3)){$$ = updateEnv($2,$3);}}
+  | UNALIAS STRING              {$$ = unsetAlias(*$2);}
+  | SETENV STRING PATH_INPUT    {if(!envLoopCheck(*$2, *$3)){$$ = updateEnv(*$2,*$3);}}
   | PRINTENV                    {$$ = printEnv();}
-  | UNSETENV STRING             {$$ = unsetEnv($2);}
+  | UNSETENV STRING             {$$ = unsetEnv(*$2);}
 
 BUILD_IN        :
-  NON_BUILD_IN_COMMAND COMBINE_INPUT    {commands.push_back(std::string($1)); $$ = runSysCommand(commands);}
+  NON_BUILD_IN_COMMAND COMBINE_INPUT    {commands.push_back(*$1); $$ = runSysCommand(commands);}
 
 COMBINE_INPUT   :
-     STRING COMBINE_INPUT       {commands.push_back(std::string($1));}
-   | STRING                     {commands.push_back(std::string($1));}
+     STRING COMBINE_INPUT       {commands.push_back(*$1);}
+   | STRING                     {commands.push_back(*$1);}
    |                            {}
 
 PATH_INPUT  :
-    PATH STRING ':' PATH_INPUT   {$$ = combineCharArr($1, pathInput($2,$4));}
-  | STRING ':' PATH_INPUT        {$$ = pathInput($1,$3);}
-  | STRING                       {$$ = $1;}
+    PATH STRING ':' PATH_INPUT   {$$ = new std::string(*$1 + pathInput(*$2,*$4));}
+  | STRING ':' PATH_INPUT        {$$ = new std::string(pathInput(*$1,*$3));}
+  | STRING                       {$$ = new std::string(*$1);}
 
 %%
 
@@ -85,7 +89,7 @@ int yyerror(char *s) {
   }
 
 // CD
-int runCD(char* arg) {
+int runCD(string arg) {
   //if the first argument is ~
   if (arg[0] == '~'){
     std::string temp;
@@ -102,13 +106,13 @@ int runCD(char* arg) {
     }
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-    char* t = toCharArr(temp);
-    removeChar(t, '.');
-    printf("path: %s \n", t);
-		if(chdir(t) == 0) {
-			dot = t;
-      dotdot = toCharArr(getPrevPath(t));
-      varTable["PWD"] = t;
+    auto found = temp.find('.');
+    if(found != string::npos) temp.erase(found);
+    cout << "path : " << temp << endl;
+		if(chdir(toCharArr(temp)) == 0) {
+			dot = temp;
+      dotdot = getPrevPath(toCharArr(temp));
+      varTable["PWD"] = temp;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -124,20 +128,21 @@ int runCD(char* arg) {
     temp += a;
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-    char* t = toCharArr(temp);
-    removeChar(t, '.');
-    printf("path: %s \n", t);
-    if(t[strlen(t)-2] == ' '){
-      t[strlen(t)-2] = '\0';
-    }
-    if(t[strlen(t)-1] == ' '){
-      t[strlen(t)-1] = '\0';
-    }
-    printf("path relative: %s\n", toCharArr(t));
-		if(chdir(t) == 0) {
-			dot = t;
-      dotdot = toCharArr(getPrevPath(t));
-      varTable["PWD"] = t;
+    auto found = temp.find('.');
+    if(found != string::npos) temp.erase(found);
+    //cout << "path : " << temp << endl;
+
+    // if(t[strlen(t)-2] == ' '){
+    //   t[strlen(t)-2] = '\0';
+    // }
+    // if(t[strlen(t)-1] == ' '){
+    //   t[strlen(t)-1] = '\0';
+    // }
+    cout << "path relative: " << temp << endl;
+		if(chdir(toCharArr(temp)) == 0) {
+			dot = temp;
+      dotdot = getPrevPath(toCharArr(temp));
+      varTable["PWD"] = temp;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -147,17 +152,17 @@ int runCD(char* arg) {
 	}
 
 	else { // arg is absolute path
-		if(chdir(arg) == 0){
+		if(chdir(toCharArr(arg)) == 0){
       std::string temp = arg;
       removeSubstrs(temp, "/..", 2);
       removeSubstrs(temp, "/.", 1);
-      char* t = toCharArr(temp);
-      removeChar(t, '.');
-      printf("path: %s \n", t);
-			dot = t;
-      dotdot = toCharArr(temp);
-			varTable["PWD"] = t;
-			dotdot = toCharArr(getPrevPath(varTable["PWD"]));
+      auto found = temp.find('.');
+      if(found != string::npos) temp.erase(found);
+      cout << "path : " << temp << endl;
+			dot = temp;
+      dotdot = getPrevPath(toCharArr(temp));
+			varTable["PWD"] = temp;
+			dotdot = getPrevPath(varTable["PWD"]);
 		}
 		else {
 			printf("Directory not found\n");
@@ -168,13 +173,13 @@ int runCD(char* arg) {
 }
 
 // Alias
-int runSetAlias(char *name, char *word) {
-  if(strcmp(name, word) == 0){
-		printf("Error, expansion of \"%s\" would create a loop.\n", name);
+int runSetAlias(string name, string word) {
+  if(name == word){
+    cout << "Error, expansion of" << name << "would create a loop.\n";
 		return 1;
 	}
-  else if((aliasTable.count(name)) && (strcmp(toCharArr(aliasTable[name]), word) == 0)){
-		printf("Error, expansion of \"%s\" would create a loop.\n", name);
+  else if(aliasTable.count(name) && aliasTable[name]== word){
+		cout << "Error, expansion of" << name << "would create a loop.\n";
 		return 1;
 	}
 	aliasTable[name] = word;
@@ -182,7 +187,7 @@ int runSetAlias(char *name, char *word) {
 }
 
 //check for infinite loop in alias table
-bool aliasLoopCheck(char* token1, char *token2)
+bool aliasLoopCheck(string token1, string token2)
 {
   bool flag = false;
   //std::cout << aliasTable.size();
@@ -203,23 +208,20 @@ bool aliasLoopCheck(char* token1, char *token2)
 
   std::string value;
   if(aliasTable.count(token2))
-    value = aliasTable[toCharArr(token2)];
+    value = aliasTable[token2];
   else
     return false;
   
   while(1)
   {
-    if(strcmp(toCharArr(token1), toCharArr(value)) == 0)
+    if(token1 == value)
     {
       flag = true;
       std::cout << "inifinite alias loop detected!\n";
-      //unsetAlias(toCharArr(value));
       break;
     }
     else if(!aliasTable.count(value))
     {
-      //if(aliasTable[token2] == nullptr)
-        //unsetAlias(toCharArr(token2));
       break;
     }
     else
@@ -242,7 +244,7 @@ int printAlias(){
   return 1;
 }
 
-int unsetAlias(char *name){
+int unsetAlias(string name){
   if(aliasTable.count(name)){
     aliasTable.erase(name);
     std::cout << "earsed " << name << std::endl;
@@ -254,14 +256,14 @@ int unsetAlias(char *name){
 }
 
 // Env Variable
-int updateEnv(char *variable, char *word){
+int updateEnv(string variable, string word){
   varTable[variable] = word;
   std::cout << "set " << variable << " to " << word << std::endl;
   return 1;
 }
 
 //check for infinite loop in environment variable table
-bool envLoopCheck(char* token1, char *token2)
+bool envLoopCheck(string token1, string token2)
 {
   bool flag = false;
   //std::cout << aliasTable.size();
@@ -282,13 +284,13 @@ bool envLoopCheck(char* token1, char *token2)
 
   std::string value;
   if(varTable.count(token2))
-    value = varTable[toCharArr(token2)];
+    value = varTable[token2];
   else
     return false;
   
   while(1)
   {
-    if(strcmp(toCharArr(token1), toCharArr(value)) == 0)
+    if(token1 == value)
     {
       flag = true;
       std::cout << "inifinite env variable loop detected!\n";
@@ -320,9 +322,9 @@ int printEnv(){
   return 1;
 }
 
-int unsetEnv(char *variable){
+int unsetEnv(string variable){
   if(varTable.count(variable)){
-    if((strcmp(variable, toCharArr("HOME")) == 0) || (strcmp(variable, toCharArr("PATH")) == 0))
+    if(variable == "HOME" || variable == "PATH")
     {
       std::cout << "unable to erased HOME or PATH directory\n";
       return 1;
@@ -335,10 +337,9 @@ int unsetEnv(char *variable){
   return 1;
 }
 
-char *pathInput(char *first, char *second){
-  char *str; 
-  str = combineCharArr(first, toCharArr(":"));
-  str = combineCharArr(str, second);
+string pathInput(string first, string second){
+  string str; 
+  str = first + ":" + second;
   return str;
 }
 
@@ -369,11 +370,11 @@ void removeSubstrs(std::string &str, const std::string &substr, int dot){
    }
 }
 
-char* getUserHomeDir(char *user){
+string getUserHomeDir(string user){
   struct passwd* pw;
-  if( ( pw = getpwnam(user)) == NULL ) {
+  if( ( pw = getpwnam(toCharArr(user))) == NULL ) {
     fprintf( stderr, "Unknown user\n");
-    return toCharArr("");
+    return "";
   }
   return pw->pw_dir;
 }

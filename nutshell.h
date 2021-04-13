@@ -43,9 +43,9 @@ char* toCharArr(std::string str);
 char* combineCharArr(char* first, char* second);
 void removeChar(char* s, char c);
 void getFileNames(std::vector<char*> *v, std::string path);
-extern char* getUserHomeDir(char *user);
+extern std::string getUserHomeDir(std::string user);
 extern std::vector<std::string> commands;
 extern int tokenCount;
-extern char* dot;
-extern char* dotdot;
+extern std::string dot;
+extern std::string dotdot;
 #endif
