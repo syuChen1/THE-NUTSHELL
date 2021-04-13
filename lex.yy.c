@@ -952,37 +952,37 @@ YY_RULE_SETUP
 case 6:
 YY_RULE_SETUP
 #line 118 "nutshscanner.l"
-{ return BYE; }
+{ yylval.STRING = new std::string(yytext); return BYE; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 119 "nutshscanner.l"
-{ return CD;}
+{ yylval.STRING = new std::string(yytext); return CD;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 120 "nutshscanner.l"
-{ return ALIAS; }
+{ yylval.STRING = new std::string(yytext); return ALIAS; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 121 "nutshscanner.l"
-{ return UNALIAS; }
+{ yylval.STRING = new std::string(yytext); return UNALIAS; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 122 "nutshscanner.l"
-{ return SETENV; }
+{ yylval.STRING = new std::string(yytext); return SETENV; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 123 "nutshscanner.l"
-{ return PRINTENV; }
+{ yylval.STRING = new std::string(yytext); return PRINTENV; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 124 "nutshscanner.l"
-{ return UNSETENV; }
+{ yylval.STRING = new std::string(yytext); return UNSETENV; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP

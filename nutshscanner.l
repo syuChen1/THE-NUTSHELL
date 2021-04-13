@@ -115,14 +115,14 @@ META               [><|\\&"]*
 <env_condition>[\}]              { BEGIN(INITIAL); }
 
 [ ]		           { tokenCount++;}
-bye                 { return BYE; }
-cd		              { return CD;}
-alias		           { return ALIAS; }
-unalias             { return UNALIAS; }
-setenv              { return SETENV; }
-printenv            { return PRINTENV; }
-unsetenv            { return UNSETENV; }
-[.][:]                { yylval.STRING = new std::string(yytext); return PATH;}
+bye                 { yylval.STRING = new std::string(yytext); return BYE; }
+cd		              { yylval.STRING = new std::string(yytext); return CD;}
+alias		           { yylval.STRING = new std::string(yytext); return ALIAS; }
+unalias             { yylval.STRING = new std::string(yytext); return UNALIAS; }
+setenv              { yylval.STRING = new std::string(yytext); return SETENV; }
+printenv            { yylval.STRING = new std::string(yytext); return PRINTENV; }
+unsetenv            { yylval.STRING = new std::string(yytext); return UNSETENV; }
+[.][:]               { yylval.STRING = new std::string(yytext); return PATH;}
 [:]           	     { return yytext[0]; }
 [~]{CHAR}*          { if(strlen(yytext) > 1 && isalpha(yytext[1]) != 0){
                         yylval.STRING = new std::string(tildeNameExpansion(yytext));

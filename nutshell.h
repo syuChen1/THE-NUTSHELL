@@ -14,7 +14,7 @@ extern std::unordered_map<std::string, std::vector<char*>> executables;
 struct Command_t
 {
     std::string name;
-    std::string args;
+    std::vector<std::string> args;
     std::string input;
     std::string output;
     int order;
@@ -23,18 +23,18 @@ struct Command_t
 struct File_t
 {
     std::string name;
-    bool accessible;
+    int accessible;
     std::string input;
     std::string output;
     int order;
 };
 struct Cmd_t {
-    std::vector<Command_t>* comVector;
-    std::vector<File_t>* fileVector;
+    std::vector<Command_t*>* comVector;
+    std::vector<File_t*>* fileVector;
 };
-Command_t make_Command_object(std::string name, std::string args, std::string input, std::string output , int order, bool buildin);
-File_t make_File_object(std::string name, bool accessible, std::string input, std::string output, int order);
-Cmd_t make_Cmd_object(std::vector<Command_t>* command, std::vector<File_t>* file);
+Command_t* make_Command_object(std::string name, std::vector<std::string> args, std::string input, std::string output , int order, bool buildin);
+File_t* make_File_object(std::string name, int accessible, std::string input, std::string output, int order);
+Cmd_t make_Cmd_object(std::vector<Command_t*>* command, std::vector<File_t*>* file);
 
 extern std::vector<char*> cwdFiles;
 
@@ -44,7 +44,6 @@ char* combineCharArr(char* first, char* second);
 void removeChar(char* s, char c);
 void getFileNames(std::vector<char*> *v, std::string path);
 extern std::string getUserHomeDir(std::string user);
-extern std::vector<std::string> commands;
 extern int tokenCount;
 extern std::string dot;
 extern std::string dotdot;

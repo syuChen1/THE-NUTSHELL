@@ -19,35 +19,41 @@ vector<char*> cwdFiles;
 std::unordered_map<std::string, std::string> varTable;
 std::unordered_map<std::string, std::string> aliasTable;
 std::unordered_map<std::string, std::vector<char*>> executables; 
-std::vector<std::string> commands;
 std::string dot;
 std::string dotdot;
 int tokenCount = 0;
 
 Cmd_t cmdTable;
-Command_t make_Command_object(std::string name, std::string args, std::string input, std::string output , int order, bool buildin)
+Command_t* make_Command_object(std::string name, std::vector<std::string> args, std::string input, std::string output , int order, bool buildin)
 {
-    Command_t res;
-    res.name = name;
-    res.args = args;
-    res.input = input;
-    res.output = output;
-    res.order = order;
-    res.buildin = buildin;
+    Command_t* res;
+    res->name = name;
+    cout << res->name << endl;
+    cout << res->args.size() << endl;
+
+    res->args = args;
+    cout << "above" << endl;
+    cout << input << endl;
+    res->input = input;
+    cout << res->args.size() << endl;
+    res->output = output;
+    res->order = order;
+    res->buildin = buildin;
+    cout << "here" << endl;
     return res;
 }
-File_t make_File_object(std::string name, bool accessible, std::string input, std::string output, int order)
+File_t* make_File_object(std::string name, int accessible, std::string input, std::string output, int order)
 {
-    File_t res;
-    res.name = name;
-    res.accessible = accessible;
-    res.input = input;
-    res.output = output;
-    res.order = order;
+    File_t* res;
+    res->name = name;
+    res->accessible = accessible;
+    res->input = input;
+    res->output = output;
+    res->order = order;
     return res;
 
 }
-Cmd_t make_Cmd_object(std::vector<Command_t>* command, std::vector<File_t>* file)
+Cmd_t make_Cmd_object(std::vector<Command_t*>* command, std::vector<File_t*>* file)
 {
     Cmd_t res;
     res.comVector = command;
@@ -164,7 +170,6 @@ int main(){
         tokenCount = 0;
         getFileNames(&cwdFiles, ".");
         getPathFiles(toCharArr(varTable["PATH"]));
-        commands.clear();
         yyparse();
     }
 

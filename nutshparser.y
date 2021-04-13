@@ -32,8 +32,9 @@ int printEnv();
 int unsetEnv(string variable);
 string pathInput(string first, string second);
 int runSysCommand(std::vector<std::string> commands);
-
+extern Cmd_t cmdTable;
 string getUserHomeDir(string user);
+int finalCall(Cmd_t cmdTable);
 %}
 
 %code requires {
@@ -44,37 +45,38 @@ string getUserHomeDir(string user);
 %define api.value.type union
 %start cmd_line
 %token <std::string*> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  PATH NON_BUILD_IN_COMMAND
-%type <std::string*> COMBINE_INPUT PATH_INPUT
-%type <int> COMMAND NON_BUILD_IN BUILD_IN
+%type <std::string*> PATH_INPUT
+
+%type <std::vector<std::string>*> COMBINE_INPUT
+%nterm <Cmd_t> CMD
+%nterm <Command_t*> COMMAND
 
 %%
 cmd_line    :
 	  BYE END 		                {exit(1); return 1; }
-  | COMMAND END                 {return 1;}
+  | CMD END                     { cmdTable = $1; finalCall(cmdTable); return 1;}
 
-COMMAND     :
-  NON_BUILD_IN                  {$$ = $1;}
-  | BUILD_IN                    {$$ = $1;}
-  | STRING                      {cout << "this is a file :" << $1 <<endl; $$ = 1;}
+CMD     :
+    COMMAND                     {vector<Command_t*>* v; v->push_back($1); $$ = make_Cmd_object(v, {});}
+  | STRING                      {vector<File_t*>* v; v->push_back(make_File_object(*$1, access(toCharArr(*$1), F_OK ), "STDIN", "STDOUT", 0)); $$ = make_Cmd_object({},v);}
   
-NON_BUILD_IN    :
-	  CD STRING         			    {$$ = runCD(*$2);}
-  | CD                          {$$ = runCD("~");}
+COMMAND    :
+	  CD STRING         			    {runCD(*$2);return 1;}
+  | CD                          {runCD("~"); return 1;}
 	| ALIAS STRING STRING 		    {if(!aliasLoopCheck(*$2, *$3)){ 
-                                  $$ = runSetAlias(*$2, *$3);}}
-  | ALIAS                       {$$ = printAlias();}
-  | UNALIAS STRING              {$$ = unsetAlias(*$2);}
-  | SETENV STRING PATH_INPUT    {if(!envLoopCheck(*$2, *$3)){$$ = updateEnv(*$2,*$3);}}
-  | PRINTENV                    {$$ = printEnv();}
-  | UNSETENV STRING             {$$ = unsetEnv(*$2);}
+                                  runSetAlias(*$2, *$3);}return 1;}
+  | ALIAS                       {vector<string> args; args.push_back("hello"); $$ = make_Command_object(*$1, args, "STDIN", "STDOUT", 0, true);}
+  | UNALIAS STRING              {unsetAlias(*$2);return 1;}
+  | SETENV STRING PATH_INPUT    {if(!envLoopCheck(*$2, *$3)){updateEnv(*$2,*$3);}return 1;}
+  | PRINTENV                    {$$ = make_Command_object(*$1, {}, "STDIN", "STDOUT", 0, true);}
+  | UNSETENV STRING             {unsetEnv(*$2);return 1;}
 
-BUILD_IN        :
-  NON_BUILD_IN_COMMAND COMBINE_INPUT    {commands.push_back(*$1); $$ = runSysCommand(commands);}
-
+  | NON_BUILD_IN_COMMAND COMBINE_INPUT    {$$ = make_Command_object(*$1, *$2, "STDIN", "STDOUT", 0, false);}  
+                                        
 COMBINE_INPUT   :
-     STRING COMBINE_INPUT       {commands.push_back(*$1);}
-   | STRING                     {commands.push_back(*$1);}
-   |                            {}
+     %empty                     {$$ = new std::vector<string>();}
+   | STRING                     {$$ = new std::vector<string>(); $$->push_back(*$1);}
+   | COMBINE_INPUT STRING       {$$ = $1; $$->push_back(*$2);}
 
 PATH_INPUT  :
     PATH STRING ':' PATH_INPUT   {$$ = new std::string(*$1 + pathInput(*$2,*$4));}
@@ -119,6 +121,7 @@ int runCD(string arg) {
 			printf("Directory not found\n");
 			return 1;
 		}
+
   }
   // arg is relative path
 	else if (arg[0] != '/') {
@@ -419,5 +422,13 @@ int runSysCommand(std::vector<std::string> commands){
     wait(NULL);
   }
 
+  return 1;
+}
+
+int finalCall(Cmd_t cmdTable){
+  if(cmdTable.comVector->size() != 0){
+    // cout << cmdTable.comVector[0].name << endl;
+    cout << "yes" << endl;
+  }
   return 1;
 }
