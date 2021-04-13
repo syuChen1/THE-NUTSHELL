@@ -1,7 +1,4 @@
 %{
-// This is ONLY a demo micro-shell whose purpose is to illustrate the need for and how to handle nested alias substitutions and Flex start conditions.
-// This is to help students learn these specific capabilities, the code is by far not a complete nutshell by any means.
-// Only "alias name word", "cd word", and "bye" run. 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -43,29 +40,33 @@ int finalCall(Cmd_t cmdTable);
 
 
 %define api.value.type union
-%start cmd_line
 %token <std::string*> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  PATH NON_BUILD_IN_COMMAND
-%type <std::string*> PATH_INPUT
+%nterm <std::string*> PATH_INPUT
 
-%type <std::vector<std::string>*> COMBINE_INPUT
+%nterm <std::vector<std::string>*> COMBINE_INPUT
 %nterm <Cmd_t> CMD
-%nterm <Command_t*> COMMAND
+%nterm <std::vector<Command_t>*> COMMAND_LIST
+%nterm <Command_t> COMMAND
 
 %%
-cmd_line    :
+input    :
 	  BYE END 		                {exit(1); return 1; }
   | CMD END                     { cmdTable = $1; finalCall(cmdTable); return 1;}
 
 CMD     :
-    COMMAND                     {vector<Command_t*>* v; v->push_back($1); $$ = make_Cmd_object(v, {});}
-  | STRING                      {vector<File_t*>* v; v->push_back(make_File_object(*$1, access(toCharArr(*$1), F_OK ), "STDIN", "STDOUT", 0)); $$ = make_Cmd_object({},v);}
+    COMMAND_LIST                {$$ = make_Cmd_object($1, {});}
+  | STRING                      {vector<File_t>* v; v->push_back(make_File_object(*$1, access(toCharArr(*$1), F_OK ), "STDIN", "STDOUT", 0)); $$ = make_Cmd_object({},v);}
   
+COMMAND_LIST      :
+   %empty						            { $$ = new std::vector<Command_t>(); }        
+  | COMMAND						          { $$ = new std::vector<Command_t>(); $$->push_back($1); }                     
+
 COMMAND    :
 	  CD STRING         			    {runCD(*$2);return 1;}
   | CD                          {runCD("~"); return 1;}
 	| ALIAS STRING STRING 		    {if(!aliasLoopCheck(*$2, *$3)){ 
                                   runSetAlias(*$2, *$3);}return 1;}
-  | ALIAS                       {vector<string> args; args.push_back("hello"); $$ = make_Command_object(*$1, args, "STDIN", "STDOUT", 0, true);}
+  | ALIAS                       {vector<string> args; args.push_back("hello"); $$ = make_Command_object(*$1, args, *$1, "STDOUT", 0, true);}
   | UNALIAS STRING              {unsetAlias(*$2);return 1;}
   | SETENV STRING PATH_INPUT    {if(!envLoopCheck(*$2, *$3)){updateEnv(*$2,*$3);}return 1;}
   | PRINTENV                    {$$ = make_Command_object(*$1, {}, "STDIN", "STDOUT", 0, true);}

@@ -29,12 +29,12 @@ struct File_t
     int order;
 };
 struct Cmd_t {
-    std::vector<Command_t*>* comVector;
-    std::vector<File_t*>* fileVector;
+    std::vector<Command_t>* comVector;
+    std::vector<File_t>* fileVector;
 };
-Command_t* make_Command_object(std::string name, std::vector<std::string> args, std::string input, std::string output , int order, bool buildin);
-File_t* make_File_object(std::string name, int accessible, std::string input, std::string output, int order);
-Cmd_t make_Cmd_object(std::vector<Command_t*>* command, std::vector<File_t*>* file);
+Command_t make_Command_object(std::string name, std::vector<std::string> args, std::string input, std::string output , int order, bool buildin);
+File_t make_File_object(std::string name, int accessible, std::string input, std::string output, int order);
+Cmd_t make_Cmd_object(std::vector<Command_t>* command, std::vector<File_t>* file);
 
 extern std::vector<char*> cwdFiles;
 
