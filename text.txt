@@ -1,12 +1,1 @@
-<<<<<<< HEAD
-=======
-apple
-carrot
-banana
 hello
-
-I will be printed in the file tricky.txt
-
-I will be printed in the file tricky.txt
-I will be printed in the file tricky.txt
->>>>>>> ef4bc1720b59c4d7f902aef2115e4ccbbc606aae

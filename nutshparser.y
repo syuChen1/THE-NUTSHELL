@@ -32,9 +32,10 @@ int printEnv();
 int unsetEnv(string variable);
 string pathInput(string first, string second);
 int runSysCommand(std::vector<std::string> commands);
-extern Cmd_t cmdTable;
 string getUserHomeDir(string user);
-int finalCall(Cmd_t cmdTable);
+
+// [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
+int finalCall(std::vector<std::vector<std::string>> cmd_table);
 %}
 
 %code requires {
@@ -45,38 +46,61 @@ int finalCall(Cmd_t cmdTable);
 %define api.value.type union
 %start cmd_line
 %token <std::string*> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  PATH NON_BUILD_IN_COMMAND
-%type <std::string*> PATH_INPUT
+%type <std::string*> PATH_INPUT COMBINE_INPUT
+%type <int> CMD COMMAND NON_BUILTIN
 
-%type <std::vector<std::string>*> COMBINE_INPUT
-%nterm <Cmd_t> CMD
-%nterm <Command_t*> COMMAND
 
 %%
 cmd_line    :
 	  BYE END 		                {exit(1); return 1; }
-  | CMD END                     { cmdTable = $1; finalCall(cmdTable); return 1;}
+  | CMD END                     {finalCall(cmd_table); return 1;}
 
 CMD     :
-    COMMAND                     {vector<Command_t*>* v; v->push_back($1); $$ = make_Cmd_object(v, {});}
-  | STRING                      {vector<File_t*>* v; v->push_back(make_File_object(*$1, access(toCharArr(*$1), F_OK ), "STDIN", "STDOUT", 0)); $$ = make_Cmd_object({},v);}
-  
-COMMAND    :
-	  CD STRING         			    {runCD(*$2);return 1;}
-  | CD                          {runCD("~"); return 1;}
-	| ALIAS STRING STRING 		    {if(!aliasLoopCheck(*$2, *$3)){ 
-                                  runSetAlias(*$2, *$3);}return 1;}
-  | ALIAS                       {vector<string> args; args.push_back("hello"); $$ = make_Command_object(*$1, args, "STDIN", "STDOUT", 0, true);}
-  | UNALIAS STRING              {unsetAlias(*$2);return 1;}
-  | SETENV STRING PATH_INPUT    {if(!envLoopCheck(*$2, *$3)){updateEnv(*$2,*$3);}return 1;}
-  | PRINTENV                    {$$ = make_Command_object(*$1, {}, "STDIN", "STDOUT", 0, true);}
-  | UNSETENV STRING             {unsetEnv(*$2);return 1;}
+    COMMAND                     {$$ = 1;}
+  | STRING                      { cmd_table[commandCount].push_back(*$1);
+                                  cmd_table[commandCount].push_back("");
+                                  cmd_table[commandCount].push_back("STDIN"); 
+                                  cmd_table[commandCount].push_back("STDOUT"); 
+                                  cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                  cmd_table[commandCount].push_back("FILE"); 
+                                  commandCount++;
+                                  $$ = 1;
+                                }
+  | NON_BUILTIN                  {$$ =1; }
 
-  | NON_BUILD_IN_COMMAND COMBINE_INPUT    {$$ = make_Command_object(*$1, *$2, "STDIN", "STDOUT", 0, false);}  
+NON_BUILTIN   :
+    NON_BUILD_IN_COMMAND COMBINE_INPUT   {
+                                          cmd_table[commandCount].push_back(*$1);
+                                          cmd_table[commandCount].push_back(*$2);
+                                          cmd_table[commandCount].push_back("STDIN"); 
+                                          cmd_table[commandCount].push_back("STDOUT"); 
+                                          cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                          cmd_table[commandCount].push_back("NONBI"); 
+                                          commandCount++;
+                                          $$ = 1;
+                                        }  
+  | NON_BUILTIN '|' NON_BUILTIN     {$$ = 1;}
+  
+
+COMMAND    :
+	  CD STRING  END        			    {runCD(*$2);return 1;}
+  | CD   END                       {runCD("~"); return 1;}
+	| ALIAS STRING STRING END		    {if(!aliasLoopCheck(*$2, *$3)){ 
+                                  runSetAlias(*$2, *$3);} return 1;}
+  | ALIAS  END                     { printAlias(); return 1;}  
+
+  | UNALIAS STRING  END            {unsetAlias(*$2);return 1;}
+  | SETENV STRING PATH_INPUT END   {if(!envLoopCheck(*$2, *$3)){updateEnv(*$2,*$3);}return 1;}
+
+  | PRINTENV    END                { printEnv(); return 1;}  
+  | UNSETENV STRING  END           {unsetEnv(*$2);return 1;}
+
+
                                         
 COMBINE_INPUT   :
-     %empty                     {$$ = new std::vector<string>();}
-   | STRING                     {$$ = new std::vector<string>(); $$->push_back(*$1);}
-   | COMBINE_INPUT STRING       {$$ = $1; $$->push_back(*$2);}
+     %empty                     {string s = ""; $$ = &s;}
+   | STRING                     {$$ = new std::string(*$1);}
+   | COMBINE_INPUT STRING       {$$ = new std::string(*$1 + " " + *$2);}
 
 PATH_INPUT  :
     PATH STRING ':' PATH_INPUT   {$$ = new std::string(*$1 + pathInput(*$2,*$4));}
@@ -425,10 +449,106 @@ int runSysCommand(std::vector<std::string> commands){
   return 1;
 }
 
-int finalCall(Cmd_t cmdTable){
-  if(cmdTable.comVector->size() != 0){
-    // cout << cmdTable.comVector[0].name << endl;
-    cout << "yes" << endl;
+char** handleCharArr (string s){
+    char* arguments[s.size()+1];
+    
+    char *str = toCharArr(s);
+    char *token = strtok(str, " ");
+    int i = 0;
+    while (token != NULL)
+    {
+        printf("%s\n", token);
+        arguments[i++] = strtok(NULL, " ");
+    }
+    arguments[s.size()] = NULL;
+    return arguments;
+}
+
+
+
+// [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
+int finalCall(std::vector<std::vector<std::string>> cmd_table)
+{
+  int numPipes = commandCount;
+  pid_t pid;
+  int pipefds[2*numPipes];
+  cout << pipefds << endl;
+  for(int i = 0 ; i< numPipes; i++)
+  {
+    if(pipe(pipefds+i*2) < 0)
+      perror("couldn't pipe");
+      return 1;
   }
-  return 1;
+  int j = 0;
+  for(int i = 0; i < numPipes; i++)
+  {                
+    pid = fork();
+    if(pid == 0)
+    {
+        char* path;
+          for(auto it = executables.begin(); it != executables.end(); it++)
+          {
+            for(char* x : it->second)
+            {
+              if(strcmp(x, toCharArr(cmd_table[i][0])) == 0)
+              {
+                path = toCharArr(it->first);
+                break;
+              }
+            }
+          }
+        cmd_table[i][0] = "/" + cmd_table[i][0];
+        cmd_table[i][0] = std::string(path) + cmd_table[i][0];
+        printf("Executable: %s \n", toCharArr(cmd_table[i][0]));
+
+        //if not last command
+        if(stoi(cmd_table[i][4]) != commandCount){
+          if(dup2(pipefds[j+1], 1) < 0){
+            perror("dup 2 error");
+            return 1;
+          }
+        }
+
+        //if not first command && j != 2*numPipes
+        if(j != 0){
+          if(dup2(pipefds[j-2], 0) < 0){
+            perror("dup 2 error");
+            return 1;
+          }
+        }
+
+        for(i = 0; i > 2*numPipes; i++){
+          close(pipefds[i]);
+        }
+
+        if(cmd_table[i][1].size() > 0){
+          char** arguments = handleCharArr(cmd_table[i][1]);
+          if( execv(toCharArr(cmd_table[i][0]), arguments) < 0){
+            perror("execl error");
+            return 1;
+          }
+        }
+        else{
+          if(execl(toCharArr(cmd_table[i][0]), toCharArr(cmd_table[i][0]), NULL) < 0)
+          {
+            perror("execl error");
+            return 1;
+          }
+        }
+    }
+    else if(pid < 0)
+    {
+      perror("pipe error");
+      return 1;
+    }
+    j+= 2;
+  }
+  //parent
+  for(int i = 0; i < 2 * numPipes; i++){
+    close(pipefds[i]);
+  }
+
+  for(int i = 0; i < numPipes + 1; i++)
+    wait(NULL);
+
 }

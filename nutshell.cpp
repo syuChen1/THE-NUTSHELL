@@ -22,46 +22,9 @@ std::unordered_map<std::string, std::vector<char*>> executables;
 std::string dot;
 std::string dotdot;
 int tokenCount = 0;
-
-Cmd_t cmdTable;
-Command_t* make_Command_object(std::string name, std::vector<std::string> args, std::string input, std::string output , int order, bool buildin)
-{
-    Command_t* res;
-    res->name = name;
-    cout << res->name << endl;
-    cout << res->args.size() << endl;
-
-    res->args = args;
-    cout << "above" << endl;
-    cout << input << endl;
-    res->input = input;
-    cout << res->args.size() << endl;
-    res->output = output;
-    res->order = order;
-    res->buildin = buildin;
-    cout << "here" << endl;
-    return res;
-}
-File_t* make_File_object(std::string name, int accessible, std::string input, std::string output, int order)
-{
-    File_t* res;
-    res->name = name;
-    res->accessible = accessible;
-    res->input = input;
-    res->output = output;
-    res->order = order;
-    return res;
-
-}
-Cmd_t make_Cmd_object(std::vector<Command_t*>* command, std::vector<File_t*>* file)
-{
-    Cmd_t res;
-    res.comVector = command;
-    res.fileVector = file;
-    return res;
-
-}
-
+int commandCount =0;
+bool firstWord = true;
+std::vector<std::vector<std::string>> cmd_table;
 void removeChar(char* s, char c)
 {
     int j, n = strlen(s);
@@ -168,9 +131,18 @@ int main(){
     {
         printf(MAG "[%s]>> " RESET, toCharArr(varTable["PWD"]));
         tokenCount = 0;
+        commandCount = 0;
+        firstWord = true;
         getFileNames(&cwdFiles, ".");
         getPathFiles(toCharArr(varTable["PATH"]));
+        for(int i = 0; i < 100; i++){
+            vector<string> v;
+            cmd_table.push_back(v);
+        }
+
         yyparse();
+        cmd_table.clear();
+    
     }
 
     return 0;

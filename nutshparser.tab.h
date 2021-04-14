@@ -40,7 +40,7 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 40 "nutshparser.y" /* yacc.c:1909  */
+#line 41 "nutshparser.y" /* yacc.c:1909  */
 
 #include "nutshell.h"
 
@@ -72,9 +72,11 @@ union YYSTYPE
 {
 
   /* CMD  */
-  Cmd_t CMD;
+  int CMD;
+  /* NON_BUILTIN  */
+  int NON_BUILTIN;
   /* COMMAND  */
-  Command_t* COMMAND;
+  int COMMAND;
   /* BYE  */
   std::string* BYE;
   /* CD  */
@@ -97,11 +99,11 @@ union YYSTYPE
   std::string* PATH;
   /* NON_BUILD_IN_COMMAND  */
   std::string* NON_BUILD_IN_COMMAND;
+  /* COMBINE_INPUT  */
+  std::string* COMBINE_INPUT;
   /* PATH_INPUT  */
   std::string* PATH_INPUT;
-  /* COMBINE_INPUT  */
-  std::vector<std::string>* COMBINE_INPUT;
-#line 105 "nutshparser.tab.h" /* yacc.c:1909  */
+#line 107 "nutshparser.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
