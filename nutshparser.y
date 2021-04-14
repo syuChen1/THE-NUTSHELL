@@ -54,24 +54,24 @@ int finalCall(Cmd_t cmdTable);
 %%
 cmd_line    :
 	  BYE END 		                {exit(1); return 1; }
-  | CMD END                     { cmdTable = $1; finalCall(cmdTable); return 1;}
+  | CMD END                     {cmdTable = $1; finalCall(cmdTable); return 1;}
 
 CMD     :
-    COMMAND                     {vector<Command_t*>* v; v->push_back($1); $$ = make_Cmd_object(v, {});}
-  | STRING                      {vector<File_t*>* v; v->push_back(make_File_object(*$1, access(toCharArr(*$1), F_OK ), "STDIN", "STDOUT", 0)); $$ = make_Cmd_object({},v);}
+    COMMAND                     { vector<Command_t*> v; v.push_back($1); $$ = make_Cmd_object(&v, {});}
+  | STRING                      {vector<File_t*> v; v.push_back(make_File_object(*$1, access(toCharArr(*$1), F_OK ), "STDIN", "STDOUT", 0)); $$ = make_Cmd_object({},&v);}
   
 COMMAND    :
-	  CD STRING         			    {runCD(*$2);return 1;}
-  | CD                          {runCD("~"); return 1;}
-	| ALIAS STRING STRING 		    {if(!aliasLoopCheck(*$2, *$3)){ 
+	  CD STRING END        			    {runCD(*$2);return 1;}
+  | CD END                         {runCD("~"); return 1;}
+	| ALIAS STRING STRING END		    {if(!aliasLoopCheck(*$2, *$3)){ 
                                   runSetAlias(*$2, *$3);}return 1;}
-  | ALIAS                       {vector<string> args; args.push_back("hello"); $$ = make_Command_object(*$1, args, "STDIN", "STDOUT", 0, true);}
-  | UNALIAS STRING              {unsetAlias(*$2);return 1;}
-  | SETENV STRING PATH_INPUT    {if(!envLoopCheck(*$2, *$3)){updateEnv(*$2,*$3);}return 1;}
-  | PRINTENV                    {$$ = make_Command_object(*$1, {}, "STDIN", "STDOUT", 0, true);}
-  | UNSETENV STRING             {unsetEnv(*$2);return 1;}
+  | ALIAS                       {vector<string> v; *$$ = make_Command_object(*$1, v, "STDIN", "STDOUT", 0, true); }
+  | UNALIAS STRING END             {unsetAlias(*$2);return 1;}
+  | SETENV STRING PATH_INPUT END   {if(!envLoopCheck(*$2, *$3)){updateEnv(*$2,*$3);}return 1;}
+  | PRINTENV                    {*$$ = make_Command_object(*$1, {}, "STDIN", "STDOUT", 0, true);}
+  | UNSETENV STRING  END           {unsetEnv(*$2);return 1;}
 
-  | NON_BUILD_IN_COMMAND COMBINE_INPUT    {$$ = make_Command_object(*$1, *$2, "STDIN", "STDOUT", 0, false);}  
+  | NON_BUILD_IN_COMMAND COMBINE_INPUT    {*$$ = make_Command_object(*$1, *$2, "STDIN", "STDOUT", 0, false);}  
                                         
 COMBINE_INPUT   :
      %empty                     {$$ = new std::vector<string>();}
@@ -427,8 +427,9 @@ int runSysCommand(std::vector<std::string> commands){
 
 int finalCall(Cmd_t cmdTable){
   if(cmdTable.comVector->size() != 0){
-    // cout << cmdTable.comVector[0].name << endl;
-    cout << "yes" << endl;
+
+    cout << cmdTable.comVector[0][0] << endl;
+    //  cout << cmdTable.comVector[0][0]->name << endl;
   }
   return 1;
 }

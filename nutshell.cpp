@@ -24,37 +24,32 @@ std::string dotdot;
 int tokenCount = 0;
 
 Cmd_t cmdTable;
-Command_t* make_Command_object(std::string name, std::vector<std::string> args, std::string input, std::string output , int order, bool buildin)
+Command_t make_Command_object(std::string name, std::vector<std::string> args, std::string input, std::string output , int order, bool buildin)
 {
-    Command_t* res;
-    res->name = name;
-    cout << res->name << endl;
-    cout << res->args.size() << endl;
-
-    res->args = args;
-    cout << "above" << endl;
-    cout << input << endl;
-    res->input = input;
-    cout << res->args.size() << endl;
-    res->output = output;
-    res->order = order;
-    res->buildin = buildin;
-    cout << "here" << endl;
+    Command_t res;
+    res.name = name;
+    res.args = args;
+    res.input = input;
+    res.output = output;
+    res.order = order;
+    res.buildin = buildin;
+    cout << res.name << res.input << res.order << endl;
     return res;
 }
 File_t* make_File_object(std::string name, int accessible, std::string input, std::string output, int order)
 {
-    File_t* res;
-    res->name = name;
-    res->accessible = accessible;
-    res->input = input;
-    res->output = output;
-    res->order = order;
-    return res;
+    File_t res;
+    res.name = name;
+    res.accessible = accessible;
+    res.input = input;
+    res.output = output;
+    res.order = order;
+    return &res;
 
 }
 Cmd_t make_Cmd_object(std::vector<Command_t*>* command, std::vector<File_t*>* file)
 {
+    
     Cmd_t res;
     res.comVector = command;
     res.fileVector = file;
