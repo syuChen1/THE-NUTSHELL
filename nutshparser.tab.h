@@ -40,7 +40,7 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 41 "nutshparser.y" /* yacc.c:1909  */
+#line 42 "nutshparser.y" /* yacc.c:1909  */
 
 #include "nutshell.h"
 

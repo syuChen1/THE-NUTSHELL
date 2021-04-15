@@ -1,1 +1,4 @@
-hello
+alias a b
+alias c d
+alias 
+bye

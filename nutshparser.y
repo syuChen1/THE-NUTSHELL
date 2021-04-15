@@ -13,6 +13,7 @@
 #include <dirent.h>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 int yylex();
@@ -449,38 +450,26 @@ int runSysCommand(std::vector<std::string> commands){
   return 1;
 }
 
-char** handleCharArr (string s){
-    char* arguments[s.size()+1];
-    
-    char *str = toCharArr(s);
-    char *token = strtok(str, " ");
-    int i = 0;
-    while (token != NULL)
-    {
-        printf("%s\n", token);
-        arguments[i++] = strtok(NULL, " ");
-    }
-    arguments[s.size()] = NULL;
-    return arguments;
-}
-
 
 
 // [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
+// 0 output // 1 input
 int finalCall(std::vector<std::vector<std::string>> cmd_table)
 {
-  int numPipes = commandCount;
+  int status;
+  int i = 0;
   pid_t pid;
+  int numPipes = commandCount;
   int pipefds[2*numPipes];
-  cout << pipefds << endl;
-  for(int i = 0 ; i< numPipes; i++)
+  for(i = 0 ; i< numPipes; i++)
   {
-    if(pipe(pipefds+i*2) < 0)
+    if(pipe(pipefds+i*2) < 0){
       perror("couldn't pipe");
-      return 1;
+       return 1;
+    }
   }
   int j = 0;
-  for(int i = 0; i < numPipes; i++)
+  for(i = 0; i < numPipes; i++)
   {                
     pid = fork();
     if(pid == 0)
@@ -497,32 +486,58 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table)
               }
             }
           }
+        char *cc =strdup(toCharArr(cmd_table[i][0]));  
         cmd_table[i][0] = "/" + cmd_table[i][0];
         cmd_table[i][0] = std::string(path) + cmd_table[i][0];
         printf("Executable: %s \n", toCharArr(cmd_table[i][0]));
 
+        /*
+        ls -l | grep nut | more
+
+        1st pass: ls -l (j = 0)) STDOUT -> pipe_input    STDIN -> terminal
+        2nd pass: grep nut (j = 2) STDOUT -> pipe_input, STDIN -> pipe_output 
+        3nd pass: more  (j = 4) STDOUT -> terminal       STDIN -> pipe_output  
+
+        */
+
+        // if it is the only command
+        if(commandCount == 0){
+
+        }
         //if not last command
-        if(stoi(cmd_table[i][4]) != commandCount){
-          if(dup2(pipefds[j+1], 1) < 0){
-            perror("dup 2 error");
-            return 1;
+        else{
+          if(stoi(cmd_table[i][4]) != commandCount-1){
+            cout << "here1" << cmd_table[i][0] << endl;
+            // fd[out] -> pipe_input
+            if(dup2(pipefds[j+1], 1) < 0){   
+              perror("dup 2 error");
+              return 1;
+           }
+          }
+        //if not first command && j != 2*numPipes 
+          if(j != 0){
+            //fd[0] -> pipe_input
+            cout << "here2" << cmd_table[i][0]  << endl;
+            if(dup2(pipefds[j-2], 0) < 0){
+              perror("dup 2 error");
+              return 1;
+            }
           }
         }
-
-        //if not first command && j != 2*numPipes
-        if(j != 0){
-          if(dup2(pipefds[j-2], 0) < 0){
-            perror("dup 2 error");
-            return 1;
-          }
+        for(int q = 0; q > 2*numPipes; q++){
+          close(pipefds[q]);
         }
-
-        for(i = 0; i > 2*numPipes; i++){
-          close(pipefds[i]);
-        }
-
         if(cmd_table[i][1].size() > 0){
-          char** arguments = handleCharArr(cmd_table[i][1]);
+          char* arguments[cmd_table[i][1].size()+2];
+          arguments[0] = strdup(cc);
+          stringstream ss(cmd_table[i][1]);
+          string word;
+          int u = 1;
+          while (ss >> word) {
+            // printf("%s\n", toCharArr(word));
+            arguments[u++] = toCharArr(word);
+          }
+          arguments[u] = NULL;
           if( execv(toCharArr(cmd_table[i][0]), arguments) < 0){
             perror("execl error");
             return 1;
@@ -544,11 +559,14 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table)
     j+= 2;
   }
   //parent
-  for(int i = 0; i < 2 * numPipes; i++){
+  for(i = 0; i < 2 * numPipes; i++){
     close(pipefds[i]);
   }
+    cout << "theend1" << endl;
 
-  for(int i = 0; i < numPipes + 1; i++)
-    wait(NULL);
+    for(i = 0; i < numPipes+1; i++){
+        wait(&status);
+  }
+  cout << "theend2" << endl;
 
 }

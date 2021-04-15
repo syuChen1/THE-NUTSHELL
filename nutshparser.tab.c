@@ -78,6 +78,7 @@
 #include <dirent.h>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 int yylex();
@@ -102,7 +103,7 @@ string getUserHomeDir(string user);
 // [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
 int finalCall(std::vector<std::vector<std::string>> cmd_table);
 
-#line 106 "nutshparser.tab.c" /* yacc.c:339  */
+#line 107 "nutshparser.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -132,11 +133,11 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table);
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 41 "nutshparser.y" /* yacc.c:355  */
+#line 42 "nutshparser.y" /* yacc.c:355  */
 
 #include "nutshell.h"
 
-#line 140 "nutshparser.tab.c" /* yacc.c:355  */
+#line 141 "nutshparser.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -195,7 +196,7 @@ union YYSTYPE
   std::string* COMBINE_INPUT;
   /* PATH_INPUT  */
   std::string* PATH_INPUT;
-#line 199 "nutshparser.tab.c" /* yacc.c:355  */
+#line 200 "nutshparser.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -212,7 +213,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 216 "nutshparser.tab.c" /* yacc.c:358  */
+#line 217 "nutshparser.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -510,9 +511,9 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    55,    55,    56,    59,    60,    69,    72,    82,    86,
-      87,    88,    90,    92,    93,    95,    96,   101,   102,   103,
-     106,   107,   108
+       0,    56,    56,    57,    60,    61,    70,    73,    83,    87,
+      88,    89,    91,    93,    94,    96,    97,   102,   103,   104,
+     107,   108,   109
 };
 #endif
 
@@ -1305,25 +1306,25 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 55 "nutshparser.y" /* yacc.c:1646  */
+#line 56 "nutshparser.y" /* yacc.c:1646  */
     {exit(1); return 1; }
-#line 1311 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1312 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 56 "nutshparser.y" /* yacc.c:1646  */
+#line 57 "nutshparser.y" /* yacc.c:1646  */
     {finalCall(cmd_table); return 1;}
-#line 1317 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1318 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 59 "nutshparser.y" /* yacc.c:1646  */
+#line 60 "nutshparser.y" /* yacc.c:1646  */
     {(*(int*)(&yyval)) = 1;}
-#line 1323 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1324 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 60 "nutshparser.y" /* yacc.c:1646  */
+#line 61 "nutshparser.y" /* yacc.c:1646  */
     { cmd_table[commandCount].push_back(*(*(std::string**)(&yyvsp[0])));
                                   cmd_table[commandCount].push_back("");
                                   cmd_table[commandCount].push_back("STDIN"); 
@@ -1333,17 +1334,17 @@ yyreduce:
                                   commandCount++;
                                   (*(int*)(&yyval)) = 1;
                                 }
-#line 1337 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1338 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 69 "nutshparser.y" /* yacc.c:1646  */
+#line 70 "nutshparser.y" /* yacc.c:1646  */
     {(*(int*)(&yyval)) =1; }
-#line 1343 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1344 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 72 "nutshparser.y" /* yacc.c:1646  */
+#line 73 "nutshparser.y" /* yacc.c:1646  */
     {
                                           cmd_table[commandCount].push_back(*(*(std::string**)(&yyvsp[-1])));
                                           cmd_table[commandCount].push_back(*(*(std::string**)(&yyvsp[0])));
@@ -1354,102 +1355,102 @@ yyreduce:
                                           commandCount++;
                                           (*(int*)(&yyval)) = 1;
                                         }
-#line 1358 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1359 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 82 "nutshparser.y" /* yacc.c:1646  */
+#line 83 "nutshparser.y" /* yacc.c:1646  */
     {(*(int*)(&yyval)) = 1;}
-#line 1364 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1365 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 86 "nutshparser.y" /* yacc.c:1646  */
+#line 87 "nutshparser.y" /* yacc.c:1646  */
     {runCD(*(*(std::string**)(&yyvsp[-1])));return 1;}
-#line 1370 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1371 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 87 "nutshparser.y" /* yacc.c:1646  */
+#line 88 "nutshparser.y" /* yacc.c:1646  */
     {runCD("~"); return 1;}
-#line 1376 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1377 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 88 "nutshparser.y" /* yacc.c:1646  */
+#line 89 "nutshparser.y" /* yacc.c:1646  */
     {if(!aliasLoopCheck(*(*(std::string**)(&yyvsp[-2])), *(*(std::string**)(&yyvsp[-1])))){ 
                                   runSetAlias(*(*(std::string**)(&yyvsp[-2])), *(*(std::string**)(&yyvsp[-1])));} return 1;}
-#line 1383 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1384 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 90 "nutshparser.y" /* yacc.c:1646  */
+#line 91 "nutshparser.y" /* yacc.c:1646  */
     { printAlias(); return 1;}
-#line 1389 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1390 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 92 "nutshparser.y" /* yacc.c:1646  */
+#line 93 "nutshparser.y" /* yacc.c:1646  */
     {unsetAlias(*(*(std::string**)(&yyvsp[-1])));return 1;}
-#line 1395 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1396 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 93 "nutshparser.y" /* yacc.c:1646  */
+#line 94 "nutshparser.y" /* yacc.c:1646  */
     {if(!envLoopCheck(*(*(std::string**)(&yyvsp[-2])), *(*(std::string**)(&yyvsp[-1])))){updateEnv(*(*(std::string**)(&yyvsp[-2])),*(*(std::string**)(&yyvsp[-1])));}return 1;}
-#line 1401 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1402 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 95 "nutshparser.y" /* yacc.c:1646  */
+#line 96 "nutshparser.y" /* yacc.c:1646  */
     { printEnv(); return 1;}
-#line 1407 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1408 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 96 "nutshparser.y" /* yacc.c:1646  */
+#line 97 "nutshparser.y" /* yacc.c:1646  */
     {unsetEnv(*(*(std::string**)(&yyvsp[-1])));return 1;}
-#line 1413 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1414 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 101 "nutshparser.y" /* yacc.c:1646  */
+#line 102 "nutshparser.y" /* yacc.c:1646  */
     {string s = ""; (*(std::string**)(&yyval)) = &s;}
-#line 1419 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1420 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 102 "nutshparser.y" /* yacc.c:1646  */
+#line 103 "nutshparser.y" /* yacc.c:1646  */
     {(*(std::string**)(&yyval)) = new std::string(*(*(std::string**)(&yyvsp[0])));}
-#line 1425 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1426 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 103 "nutshparser.y" /* yacc.c:1646  */
+#line 104 "nutshparser.y" /* yacc.c:1646  */
     {(*(std::string**)(&yyval)) = new std::string(*(*(std::string**)(&yyvsp[-1])) + " " + *(*(std::string**)(&yyvsp[0])));}
-#line 1431 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1432 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 106 "nutshparser.y" /* yacc.c:1646  */
+#line 107 "nutshparser.y" /* yacc.c:1646  */
     {(*(std::string**)(&yyval)) = new std::string(*(*(std::string**)(&yyvsp[-3])) + pathInput(*(*(std::string**)(&yyvsp[-2])),*(*(std::string**)(&yyvsp[0]))));}
-#line 1437 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1438 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 107 "nutshparser.y" /* yacc.c:1646  */
+#line 108 "nutshparser.y" /* yacc.c:1646  */
     {(*(std::string**)(&yyval)) = new std::string(pathInput(*(*(std::string**)(&yyvsp[-2])),*(*(std::string**)(&yyvsp[0]))));}
-#line 1443 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1444 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 108 "nutshparser.y" /* yacc.c:1646  */
+#line 109 "nutshparser.y" /* yacc.c:1646  */
     {(*(std::string**)(&yyval)) = new std::string(*(*(std::string**)(&yyvsp[0])));}
-#line 1449 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1450 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1453 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1454 "nutshparser.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1677,7 +1678,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 110 "nutshparser.y" /* yacc.c:1906  */
+#line 111 "nutshparser.y" /* yacc.c:1906  */
 
 
 int yyerror(char *s) {
@@ -2020,38 +2021,26 @@ int runSysCommand(std::vector<std::string> commands){
   return 1;
 }
 
-char** handleCharArr (string s){
-    char* arguments[s.size()+1];
-    
-    char *str = toCharArr(s);
-    char *token = strtok(str, " ");
-    int i = 0;
-    while (token != NULL)
-    {
-        printf("%s\n", token);
-        arguments[i++] = strtok(NULL, " ");
-    }
-    arguments[s.size()] = NULL;
-    return arguments;
-}
-
 
 
 // [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
+// 0 output // 1 input
 int finalCall(std::vector<std::vector<std::string>> cmd_table)
 {
-  int numPipes = commandCount;
+  int status;
+  int i = 0;
   pid_t pid;
+  int numPipes = commandCount;
   int pipefds[2*numPipes];
-  cout << pipefds << endl;
-  for(int i = 0 ; i< numPipes; i++)
+  for(i = 0 ; i< numPipes; i++)
   {
-    if(pipe(pipefds+i*2) < 0)
+    if(pipe(pipefds+i*2) < 0){
       perror("couldn't pipe");
-      return 1;
+       return 1;
+    }
   }
   int j = 0;
-  for(int i = 0; i < numPipes; i++)
+  for(i = 0; i < numPipes; i++)
   {                
     pid = fork();
     if(pid == 0)
@@ -2068,32 +2057,58 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table)
               }
             }
           }
+        char *cc =strdup(toCharArr(cmd_table[i][0]));  
         cmd_table[i][0] = "/" + cmd_table[i][0];
         cmd_table[i][0] = std::string(path) + cmd_table[i][0];
         printf("Executable: %s \n", toCharArr(cmd_table[i][0]));
 
+        /*
+        ls -l | grep nut | more
+
+        1st pass: ls -l (j = 0)) STDOUT -> pipe_input    STDIN -> terminal
+        2nd pass: grep nut (j = 2) STDOUT -> pipe_input, STDIN -> pipe_output 
+        3nd pass: more  (j = 4) STDOUT -> terminal       STDIN -> pipe_output  
+
+        */
+
+        // if it is the only command
+        if(commandCount == 0){
+
+        }
         //if not last command
-        if(stoi(cmd_table[i][4]) != commandCount){
-          if(dup2(pipefds[j+1], 1) < 0){
-            perror("dup 2 error");
-            return 1;
+        else{
+          if(stoi(cmd_table[i][4]) != commandCount-1){
+            cout << "here1" << cmd_table[i][0] << endl;
+            // fd[out] -> pipe_input
+            if(dup2(pipefds[j+1], 1) < 0){   
+              perror("dup 2 error");
+              return 1;
+           }
+          }
+        //if not first command && j != 2*numPipes 
+          if(j != 0){
+            //fd[0] -> pipe_input
+            cout << "here2" << cmd_table[i][0]  << endl;
+            if(dup2(pipefds[j-2], 0) < 0){
+              perror("dup 2 error");
+              return 1;
+            }
           }
         }
-
-        //if not first command && j != 2*numPipes
-        if(j != 0){
-          if(dup2(pipefds[j-2], 0) < 0){
-            perror("dup 2 error");
-            return 1;
-          }
+        for(int q = 0; q > 2*numPipes; q++){
+          close(pipefds[q]);
         }
-
-        for(i = 0; i > 2*numPipes; i++){
-          close(pipefds[i]);
-        }
-
         if(cmd_table[i][1].size() > 0){
-          char** arguments = handleCharArr(cmd_table[i][1]);
+          char* arguments[cmd_table[i][1].size()+2];
+          arguments[0] = strdup(cc);
+          stringstream ss(cmd_table[i][1]);
+          string word;
+          int u = 1;
+          while (ss >> word) {
+            // printf("%s\n", toCharArr(word));
+            arguments[u++] = toCharArr(word);
+          }
+          arguments[u] = NULL;
           if( execv(toCharArr(cmd_table[i][0]), arguments) < 0){
             perror("execl error");
             return 1;
@@ -2115,11 +2130,14 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table)
     j+= 2;
   }
   //parent
-  for(int i = 0; i < 2 * numPipes; i++){
+  for(i = 0; i < 2 * numPipes; i++){
     close(pipefds[i]);
   }
+    cout << "theend1" << endl;
 
-  for(int i = 0; i < numPipes + 1; i++)
-    wait(NULL);
+    for(i = 0; i < numPipes+1; i++){
+        wait(&status);
+  }
+  cout << "theend2" << endl;
 
 }

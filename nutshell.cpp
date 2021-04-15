@@ -139,10 +139,8 @@ int main(){
             vector<string> v;
             cmd_table.push_back(v);
         }
-
         yyparse();
         cmd_table.clear();
-    
     }
 
     return 0;
