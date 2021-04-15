@@ -96,7 +96,6 @@ COMMAND    :
   | PRINTENV    END                { printEnv(); return 1;}  
   | UNSETENV STRING  END           {unsetEnv(*$2);return 1;}
 
-
                                         
 COMBINE_INPUT   :
      %empty                     {string s = ""; $$ = &s;}
@@ -456,12 +455,11 @@ int runSysCommand(std::vector<std::string> commands){
 // 0 output // 1 input
 int finalCall(std::vector<std::vector<std::string>> cmd_table)
 {
-  int status;
-  int i = 0;
+  int numPipes = commandCount -1;
   pid_t pid;
-  int numPipes = commandCount;
+  int status;
   int pipefds[2*numPipes];
-  for(i = 0 ; i< numPipes; i++)
+  for(int i = 0 ; i< numPipes; i++)
   {
     if(pipe(pipefds+i*2) < 0){
       perror("couldn't pipe");
@@ -469,11 +467,12 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table)
     }
   }
   int j = 0;
-  for(i = 0; i < numPipes; i++)
+  for(int i = 0; i < commandCount; i++)
   {                
     pid = fork();
     if(pid == 0)
     {
+        cout << cmd_table[i][0] << " order: " << cmd_table[i][4] << endl;
         char* path;
           for(auto it = executables.begin(); it != executables.end(); it++)
           {
@@ -491,22 +490,21 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table)
         cmd_table[i][0] = std::string(path) + cmd_table[i][0];
         printf("Executable: %s \n", toCharArr(cmd_table[i][0]));
 
-        /*
-        ls -l | grep nut | more
-
+        /* j=0      1              2            3          4
+        ls -l    | grep nut   | more         | less     | whatever
+        out 1   in 0 out 3     in 2 out 5     in4 out 7  in 6 
         1st pass: ls -l (j = 0)) STDOUT -> pipe_input    STDIN -> terminal
         2nd pass: grep nut (j = 2) STDOUT -> pipe_input, STDIN -> pipe_output 
         3nd pass: more  (j = 4) STDOUT -> terminal       STDIN -> pipe_output  
-
         */
 
         // if it is the only command
-        if(commandCount == 0){
+        // if(commandCount == 1){
 
-        }
+        // }
         //if not last command
-        else{
-          if(stoi(cmd_table[i][4]) != commandCount-1){
+        // else{
+          if(stoi(cmd_table[i][4]) < commandCount-1){
             cout << "here1" << cmd_table[i][0] << endl;
             // fd[out] -> pipe_input
             if(dup2(pipefds[j+1], 1) < 0){   
@@ -522,7 +520,25 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table)
               perror("dup 2 error");
               return 1;
             }
-          }
+          // }
+          // //first
+          // if(j == 0){
+          //   //fd[0] -> pipe_input
+          //   cout << "here1" << cmd_table[i][0]  << endl;
+          //   dup(pipefds[2*j + 1]);
+          // }
+
+          // //last
+          // else if(stoi(cmd_table[i][4]) == commandCount-1){
+          //   cout << "here2" << cmd_table[i][0]  << endl;
+          //   dup(pipefds[2*(j-1)]);
+          // }
+      
+          // //middle
+          // else{
+          //     dup2(pipefds[2*(j-1)], 1);
+          //     dup2(pipefds[2*j + 1], 10);
+          // }
         }
         for(int q = 0; q > 2*numPipes; q++){
           close(pipefds[q]);
@@ -556,17 +572,16 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table)
       perror("pipe error");
       return 1;
     }
-    j+= 2;
+    j+=2;
   }
   //parent
-  for(i = 0; i < 2 * numPipes; i++){
+  for(int i = 0; i < 2 * numPipes; i++){
     close(pipefds[i]);
   }
-    cout << "theend1" << endl;
-
-    for(i = 0; i < numPipes+1; i++){
-        wait(&status);
+  cout << "hihi" << endl;
+  for(int i = 0; i < numPipes + 1; i++){
+    cout << "wait" << endl;
+     wait(&status);
   }
-  cout << "theend2" << endl;
-
+  cout << "hello" << endl;
 }

@@ -1043,23 +1043,25 @@ YY_RULE_SETUP
                            }
                         }
                         printf("yytext char_cond: %s\n", yytext);
+                        char* result;
                         if(checkWC(yytext)){
-                           yylval.STRING = new std::string(WCcondition(yytext));
+                           result = strdup(WCcondition(yytext));
+                           yylval.STRING = new std::string(result);
                         }
                         else{
                            yylval.STRING = new std::string(yytext);
                         }
-                        //printf("after WC natching: %s \n", yylval.STRING);
+                        //printf("after WC natching: %s \n", result);
                         return STRING;
                       };
                      }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 178 "nutshscanner.l"
+#line 180 "nutshscanner.l"
 ECHO;
 	YY_BREAK
-#line 1063 "lex.yy.c"
+#line 1065 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(string_condition):
 case YY_STATE_EOF(env_condition):
@@ -2066,5 +2068,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 178 "nutshscanner.l"
+#line 180 "nutshscanner.l"
 

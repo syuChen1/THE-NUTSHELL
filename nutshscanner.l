@@ -165,13 +165,15 @@ unsetenv            { yylval.STRING = new std::string(yytext); return UNSETENV; 
                            }
                         }
                         printf("yytext char_cond: %s\n", yytext);
+                        char* result;
                         if(checkWC(yytext)){
-                           yylval.STRING = new std::string(WCcondition(yytext));
+                           result = strdup(WCcondition(yytext));
+                           yylval.STRING = new std::string(result);
                         }
                         else{
                            yylval.STRING = new std::string(yytext);
                         }
-                        //printf("after WC natching: %s \n", yylval.STRING);
+                        //printf("after WC natching: %s \n", result);
                         return STRING;
                       };
                      }

@@ -114,11 +114,13 @@ string getPrevPath(string cwd){
 int main(){
     //get the curr dir path
     string cwd = getcwd_string();
-
+    getFileNames(&cwdFiles, ".");
     varTable["PWD"] = cwd;
     varTable["HOME"] = "/root";
     varTable["PROMPT"] = "nutshell";
     varTable["PATH"] = ".:/bin:/usr/bin";
+    getPathFiles(toCharArr(varTable["PATH"]));
+
     //set . to curr path
     dot = toCharArr(cwd);
 

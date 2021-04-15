@@ -512,8 +512,8 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyrline[] =
 {
        0,    56,    56,    57,    60,    61,    70,    73,    83,    87,
-      88,    89,    91,    93,    94,    96,    97,   102,   103,   104,
-     107,   108,   109
+      88,    89,    91,    93,    94,    96,    97,   101,   102,   103,
+     106,   107,   108
 };
 #endif
 
@@ -1414,37 +1414,37 @@ yyreduce:
     break;
 
   case 17:
-#line 102 "nutshparser.y" /* yacc.c:1646  */
+#line 101 "nutshparser.y" /* yacc.c:1646  */
     {string s = ""; (*(std::string**)(&yyval)) = &s;}
 #line 1420 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 103 "nutshparser.y" /* yacc.c:1646  */
+#line 102 "nutshparser.y" /* yacc.c:1646  */
     {(*(std::string**)(&yyval)) = new std::string(*(*(std::string**)(&yyvsp[0])));}
 #line 1426 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 104 "nutshparser.y" /* yacc.c:1646  */
+#line 103 "nutshparser.y" /* yacc.c:1646  */
     {(*(std::string**)(&yyval)) = new std::string(*(*(std::string**)(&yyvsp[-1])) + " " + *(*(std::string**)(&yyvsp[0])));}
 #line 1432 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 107 "nutshparser.y" /* yacc.c:1646  */
+#line 106 "nutshparser.y" /* yacc.c:1646  */
     {(*(std::string**)(&yyval)) = new std::string(*(*(std::string**)(&yyvsp[-3])) + pathInput(*(*(std::string**)(&yyvsp[-2])),*(*(std::string**)(&yyvsp[0]))));}
 #line 1438 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 108 "nutshparser.y" /* yacc.c:1646  */
+#line 107 "nutshparser.y" /* yacc.c:1646  */
     {(*(std::string**)(&yyval)) = new std::string(pathInput(*(*(std::string**)(&yyvsp[-2])),*(*(std::string**)(&yyvsp[0]))));}
 #line 1444 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 109 "nutshparser.y" /* yacc.c:1646  */
+#line 108 "nutshparser.y" /* yacc.c:1646  */
     {(*(std::string**)(&yyval)) = new std::string(*(*(std::string**)(&yyvsp[0])));}
 #line 1450 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
@@ -1678,7 +1678,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 111 "nutshparser.y" /* yacc.c:1906  */
+#line 110 "nutshparser.y" /* yacc.c:1906  */
 
 
 int yyerror(char *s) {
@@ -2027,12 +2027,11 @@ int runSysCommand(std::vector<std::string> commands){
 // 0 output // 1 input
 int finalCall(std::vector<std::vector<std::string>> cmd_table)
 {
-  int status;
-  int i = 0;
+  int numPipes = commandCount -1;
   pid_t pid;
-  int numPipes = commandCount;
+  int status;
   int pipefds[2*numPipes];
-  for(i = 0 ; i< numPipes; i++)
+  for(int i = 0 ; i< numPipes; i++)
   {
     if(pipe(pipefds+i*2) < 0){
       perror("couldn't pipe");
@@ -2040,11 +2039,12 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table)
     }
   }
   int j = 0;
-  for(i = 0; i < numPipes; i++)
+  for(int i = 0; i < commandCount; i++)
   {                
     pid = fork();
     if(pid == 0)
     {
+        cout << cmd_table[i][0] << " order: " << cmd_table[i][4] << endl;
         char* path;
           for(auto it = executables.begin(); it != executables.end(); it++)
           {
@@ -2062,22 +2062,21 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table)
         cmd_table[i][0] = std::string(path) + cmd_table[i][0];
         printf("Executable: %s \n", toCharArr(cmd_table[i][0]));
 
-        /*
-        ls -l | grep nut | more
-
+        /* j=0      1              2            3          4
+        ls -l    | grep nut   | more         | less     | whatever
+        out 1   in 0 out 3     in 2 out 5     in4 out 7  in 6 
         1st pass: ls -l (j = 0)) STDOUT -> pipe_input    STDIN -> terminal
         2nd pass: grep nut (j = 2) STDOUT -> pipe_input, STDIN -> pipe_output 
         3nd pass: more  (j = 4) STDOUT -> terminal       STDIN -> pipe_output  
-
         */
 
         // if it is the only command
-        if(commandCount == 0){
+        // if(commandCount == 1){
 
-        }
+        // }
         //if not last command
-        else{
-          if(stoi(cmd_table[i][4]) != commandCount-1){
+        // else{
+          if(stoi(cmd_table[i][4]) < commandCount-1){
             cout << "here1" << cmd_table[i][0] << endl;
             // fd[out] -> pipe_input
             if(dup2(pipefds[j+1], 1) < 0){   
@@ -2093,7 +2092,25 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table)
               perror("dup 2 error");
               return 1;
             }
-          }
+          // }
+          // //first
+          // if(j == 0){
+          //   //fd[0] -> pipe_input
+          //   cout << "here1" << cmd_table[i][0]  << endl;
+          //   dup(pipefds[2*j + 1]);
+          // }
+
+          // //last
+          // else if(stoi(cmd_table[i][4]) == commandCount-1){
+          //   cout << "here2" << cmd_table[i][0]  << endl;
+          //   dup(pipefds[2*(j-1)]);
+          // }
+      
+          // //middle
+          // else{
+          //     dup2(pipefds[2*(j-1)], 1);
+          //     dup2(pipefds[2*j + 1], 10);
+          // }
         }
         for(int q = 0; q > 2*numPipes; q++){
           close(pipefds[q]);
@@ -2127,17 +2144,16 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table)
       perror("pipe error");
       return 1;
     }
-    j+= 2;
+    j+=2;
   }
   //parent
-  for(i = 0; i < 2 * numPipes; i++){
+  for(int i = 0; i < 2 * numPipes; i++){
     close(pipefds[i]);
   }
-    cout << "theend1" << endl;
-
-    for(i = 0; i < numPipes+1; i++){
-        wait(&status);
+  cout << "hihi" << endl;
+  for(int i = 0; i < numPipes + 1; i++){
+    cout << "wait" << endl;
+     wait(&status);
   }
-  cout << "theend2" << endl;
-
+  cout << "hello" << endl;
 }
