@@ -143,7 +143,7 @@ unsetenv            { yylval.STRING = new std::string(yytext); return UNSETENV; 
                               yylval.STRING = new std::string(yytext);
                               return STRING;
                            }
-[\|]                 { firstWord = true; return yytext[0];}
+[\|\>\<]                 { firstWord = true; return yytext[0];}
 
 {CHAR}+             {if(tokenCount == 0 && ifAlias(yytext)) {
                         printf("yytext before alias_sub: %s\n", yytext);

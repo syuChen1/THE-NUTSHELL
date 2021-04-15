@@ -2027,133 +2027,88 @@ int runSysCommand(std::vector<std::string> commands){
 // 0 output // 1 input
 int finalCall(std::vector<std::vector<std::string>> cmd_table)
 {
-  int numPipes = commandCount -1;
-  pid_t pid;
-  int status;
-  int pipefds[2*numPipes];
-  for(int i = 0 ; i< numPipes; i++)
-  {
-    if(pipe(pipefds+i*2) < 0){
-      perror("couldn't pipe");
-       return 1;
+  int new_fds[2];
+  int old_fds[2];
+
+  for(int i = 0 ; i < commandCount; i++){
+    if(i < commandCount -1){
+      pipe(new_fds);
     }
-  }
-  int j = 0;
-  for(int i = 0; i < commandCount; i++)
-  {                
-    pid = fork();
+    pid_t pid = fork();
     if(pid == 0)
     {
-        cout << cmd_table[i][0] << " order: " << cmd_table[i][4] << endl;
-        char* path;
-          for(auto it = executables.begin(); it != executables.end(); it++)
+
+      if(i != 0)
+      {
+        dup2(old_fds[0], 0);
+        close(old_fds[0]);
+        close(old_fds[1]);
+      }
+      if(i < commandCount -1)
+      {
+        close(new_fds[0]);
+        dup2(new_fds[1], 1);
+        close(new_fds[1]);
+      }
+      //execute the command
+      char* path;
+      for(auto it = executables.begin(); it != executables.end(); it++)
+      {
+        for(char* x : it->second)
+        {
+          if(strcmp(x, toCharArr(cmd_table[i][0])) == 0)
           {
-            for(char* x : it->second)
-            {
-              if(strcmp(x, toCharArr(cmd_table[i][0])) == 0)
-              {
-                path = toCharArr(it->first);
-                break;
-              }
-            }
-          }
-        char *cc =strdup(toCharArr(cmd_table[i][0]));  
-        cmd_table[i][0] = "/" + cmd_table[i][0];
-        cmd_table[i][0] = std::string(path) + cmd_table[i][0];
-        printf("Executable: %s \n", toCharArr(cmd_table[i][0]));
-
-        /* j=0      1              2            3          4
-        ls -l    | grep nut   | more         | less     | whatever
-        out 1   in 0 out 3     in 2 out 5     in4 out 7  in 6 
-        1st pass: ls -l (j = 0)) STDOUT -> pipe_input    STDIN -> terminal
-        2nd pass: grep nut (j = 2) STDOUT -> pipe_input, STDIN -> pipe_output 
-        3nd pass: more  (j = 4) STDOUT -> terminal       STDIN -> pipe_output  
-        */
-
-        // if it is the only command
-        // if(commandCount == 1){
-
-        // }
-        //if not last command
-        // else{
-          if(stoi(cmd_table[i][4]) < commandCount-1){
-            cout << "here1" << cmd_table[i][0] << endl;
-            // fd[out] -> pipe_input
-            if(dup2(pipefds[j+1], 1) < 0){   
-              perror("dup 2 error");
-              return 1;
-           }
-          }
-        //if not first command && j != 2*numPipes 
-          if(j != 0){
-            //fd[0] -> pipe_input
-            cout << "here2" << cmd_table[i][0]  << endl;
-            if(dup2(pipefds[j-2], 0) < 0){
-              perror("dup 2 error");
-              return 1;
-            }
-          // }
-          // //first
-          // if(j == 0){
-          //   //fd[0] -> pipe_input
-          //   cout << "here1" << cmd_table[i][0]  << endl;
-          //   dup(pipefds[2*j + 1]);
-          // }
-
-          // //last
-          // else if(stoi(cmd_table[i][4]) == commandCount-1){
-          //   cout << "here2" << cmd_table[i][0]  << endl;
-          //   dup(pipefds[2*(j-1)]);
-          // }
-      
-          // //middle
-          // else{
-          //     dup2(pipefds[2*(j-1)], 1);
-          //     dup2(pipefds[2*j + 1], 10);
-          // }
-        }
-        for(int q = 0; q > 2*numPipes; q++){
-          close(pipefds[q]);
-        }
-        if(cmd_table[i][1].size() > 0){
-          char* arguments[cmd_table[i][1].size()+2];
-          arguments[0] = strdup(cc);
-          stringstream ss(cmd_table[i][1]);
-          string word;
-          int u = 1;
-          while (ss >> word) {
-            // printf("%s\n", toCharArr(word));
-            arguments[u++] = toCharArr(word);
-          }
-          arguments[u] = NULL;
-          if( execv(toCharArr(cmd_table[i][0]), arguments) < 0){
-            perror("execl error");
-            return 1;
+            path = toCharArr(it->first);
+            break;
           }
         }
-        else{
-          if(execl(toCharArr(cmd_table[i][0]), toCharArr(cmd_table[i][0]), NULL) < 0)
+      }
+      char *cc =strdup(toCharArr(cmd_table[i][0]));  
+      cmd_table[i][0] = "/" + cmd_table[i][0];
+      cmd_table[i][0] = std::string(path) + cmd_table[i][0];
+      printf("Executable: %s \n", toCharArr(cmd_table[i][0]));
+      if(cmd_table[i][1].size() > 0)
+      {
+        char* arguments[cmd_table[i][1].size()+2];
+        arguments[0] = strdup(cc);
+        stringstream ss(cmd_table[i][1]);
+        string word;
+        int u = 1;
+        while (ss >> word) {
+        // printf("%s\n", toCharArr(word));
+          arguments[u++] = toCharArr(word);
+        }
+        arguments[u] = NULL;
+        if( execv(toCharArr(cmd_table[i][0]), arguments) < 0)
+        {
+          perror("execl error");
+          return 1;
+        }
+      }
+      else
+      {
+        if(execl(toCharArr(cmd_table[i][0]), toCharArr(cmd_table[i][0]), NULL) < 0)
           {
             perror("execl error");
             return 1;
           }
-        }
+      }
     }
-    else if(pid < 0)
+    else
     {
-      perror("pipe error");
-      return 1;
+      if(i != 0){
+        close(old_fds[0]);
+        close(old_fds[1]);
+      }
+      if(i < commandCount -1){
+        old_fds[0] = new_fds[0];
+        old_fds[1] = new_fds[1];
+      }
+      wait(NULL);
     }
-    j+=2;
   }
-  //parent
-  for(int i = 0; i < 2 * numPipes; i++){
-    close(pipefds[i]);
+  if(cmd_table.size() > 1){
+    close(old_fds[0]);
+    close(old_fds[1]);
   }
-  cout << "hihi" << endl;
-  for(int i = 0; i < numPipes + 1; i++){
-    cout << "wait" << endl;
-     wait(&status);
-  }
-  cout << "hello" << endl;
 }
