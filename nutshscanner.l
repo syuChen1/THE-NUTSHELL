@@ -85,31 +85,30 @@ char* tildeNameExpansion(char* str){
 %array
 %option noyywrap
 
-CHAR               [.A-Za-z0-9!\\><?*/_-][.A-Za-z0-9!\\><?*/_-]*
+CHAR               [.:A-Za-z0-9!\\><?*/_-][.:A-Za-z0-9!\\><?*/_-]*
 STR_ANYCHAR        [)(*&%$#@!`;,\\.a-zA-Z0-9'*/_><|~= -][}{)(*&%$#@!`;,\\.a-zA-Z0-9'*/_><|~= -]*
 ENV_ANYCHAR        [)(*%#@!`;,.a-zA-Z0-9'/*_=~ -][)(*%#@!`;,.a-zA-Z0-9'/*_=~ -]*
 
 %x string_condition env_condition 
 %%
 
-<string_condition>{STR_ANYCHAR}+     { printf("yytext str_cond: %s\n", yytext);
+<string_condition>{STR_ANYCHAR}+     { //printf("yytext str_cond: %s\n", yytext);
                                        yylval.STRING = new std::string(yytext);
                                        return STRING;
                                     }
 <env_condition>{ENV_ANYCHAR}+        { if(isEnv(yytext)){
-                                       printf("yytext before env sub: %s\n", yytext);
+                                       //printf("yytext before env sub: %s\n", yytext);
                                        char *yycopy = strdup(subEnv(yytext) );
                                        for ( int i = strlen(subEnv(yytext)) - 1; i >= 0; --i )
                                           unput( yycopy[i] );
                                        free( yycopy );
                                     } else {
-                                       printf("yytext env_cond: %s\n", yytext);
+                                       //printf("yytext env_cond: %s\n", yytext);
                                        yylval.STRING = new std::string(yytext);
                                        return STRING;
                                     };
                                  }
-<string_condition>[\"]           { if(++quoteCount %2 == 0) {printf("if: count %d \n", quoteCount); BEGIN(INITIAL);}
-                                    else printf("else: count %d \n", quoteCount);
+<string_condition>[\"]           { if(++quoteCount %2 == 0) { BEGIN(INITIAL);}
                                      }
 <env_condition>[\}]              { BEGIN(INITIAL); }
 
@@ -131,8 +130,8 @@ unsetenv            { yylval.STRING = new std::string(yytext); return UNSETENV; 
                       };
                       return STRING; 
                     }
-[.]                 { yylval.STRING = new std::string(dot); std::cout << dot << std::endl; return STRING; }
-[.][.]              { yylval.STRING = new std::string(dotdot); std::cout << dotdot << std::endl; return STRING; }
+[.]                 { yylval.STRING = new std::string(dot); return STRING; }
+[.][.]              { yylval.STRING = new std::string(dotdot); return STRING; }
 "\n"		           { return END; }
 [\"]                { quoteCount = 1; BEGIN(string_condition); }
 [\$][\{]            { BEGIN(env_condition); }
@@ -146,7 +145,7 @@ unsetenv            { yylval.STRING = new std::string(yytext); return UNSETENV; 
 [\|\>\<&]                 { return yytext[0];}
 
 {CHAR}+             {if(tokenCount == 0 && ifAlias(yytext)) {
-                        printf("yytext before alias_sub: %s\n", yytext);
+                        // printf("yytext before alias_sub: %s\n", yytext);
                         // source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
                            char *yycopy = strdup( subAliases(yytext) );
                            for ( int i = strlen(subAliases(yytext)) - 1; i >= 0; --i )
@@ -154,7 +153,7 @@ unsetenv            { yylval.STRING = new std::string(yytext); return UNSETENV; 
                            free( yycopy );
                       } 
                       else {
-                        printf("yytext char_cond: %s\n", yytext);
+                        //printf("yytext char_cond: %s\n", yytext);
                         char* result;
                         if(checkWC(yytext)){
                            result = strdup(WCcondition(yytext));

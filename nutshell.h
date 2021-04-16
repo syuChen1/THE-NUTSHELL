@@ -11,9 +11,7 @@ extern std::unordered_map<std::string, std::string> varTable;
 extern std::unordered_map<std::string, std::string> aliasTable;
 extern std::unordered_map<std::string, std::vector<char*>> executables; 
 
-
 extern std::vector<std::vector<std::string>> cmd_table;
-
 
 extern std::vector<char*> cwdFiles;
 

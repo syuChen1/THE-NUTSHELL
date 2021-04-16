@@ -408,31 +408,31 @@ static const YY_CHAR yy_ec[256] =
 
 static const YY_CHAR yy_meta[32] =
     {   0,
-        1,    1,    2,    3,    1,    2,    4,    4,    3,    1,
-        5,    6,    5,    3,    3,    3,    3,    3,    3,    3,
+        1,    1,    2,    3,    1,    2,    4,    4,    3,    5,
+        6,    5,    6,    3,    3,    3,    3,    3,    3,    3,
         3,    3,    3,    3,    3,    3,    3,    3,    4,    4,
         2
     } ;
 
 static const flex_int16_t yy_base[85] =
     {   0,
-        0,    0,   31,   61,   91,  121,  175,  192,  192,  192,
-      158,  192,  138,  192,   25,  192,  136,  135,   24,   26,
-       29,   27,   34,   32,    0,   19,  192,    0,  192,  134,
-      132,  192,  130,  192,  129,  128,   38,   46,  127,   55,
+        0,    0,   31,   61,   91,  121,  186,  193,  193,  193,
+      168,  193,  146,  193,   25,  158,  154,  136,   24,   26,
+       29,   27,   34,   32,    0,   19,  193,    0,  193,  135,
+      134,  193,  132,  130,  129,  128,   38,   46,  127,   55,
        42,   56,    0,   46,   48,    0,  124,  105,   68,  104,
        66,   70,   45,   71,    0,   73,   81,   87,   92,   82,
       103,   96,   97,   99,  112,  106,  102,  122,  123,  125,
-       72,  126,   59,   43,  192,  153,  159,  163,  167,  171,
-      176,  180,  181,  185
+       72,  126,   59,   43,  193,  153,  159,  163,  167,  171,
+      176,  181,  182,  186
     } ;
 
 static const flex_int16_t yy_def[85] =
     {   0,
        75,    1,   76,   76,   77,   77,   75,   75,   75,   75,
-       78,   75,   75,   75,   78,   75,   78,   79,   78,   78,
+       78,   75,   75,   75,   78,   78,   78,   79,   78,   78,
        78,   78,   78,   78,   80,   81,   75,   82,   75,   78,
-       79,   75,   78,   75,   83,   83,   78,   78,   78,   78,
+       79,   75,   78,   78,   83,   83,   78,   78,   78,   78,
        78,   78,   84,   81,   81,   82,   83,   83,   78,   78,
        78,   78,   78,   78,   84,   78,   78,   78,   78,   78,
        78,   78,   78,   78,   78,   78,   78,   78,   78,   78,
@@ -440,7 +440,7 @@ static const flex_int16_t yy_def[85] =
        75,   75,   75,   75
     } ;
 
-static const flex_int16_t yy_nxt[224] =
+static const flex_int16_t yy_nxt[225] =
     {   0,
         8,    9,   10,   11,   12,    8,   13,   14,   15,   16,
        17,   11,   18,   19,   20,   21,   11,   11,   11,   11,
@@ -457,19 +457,19 @@ static const flex_int16_t yy_nxt[224] =
        64,   31,   68,   66,   31,   31,   31,   48,   31,    8,
        29,    8,    8,   67,   31,    8,   70,    8,    8,   69,
         8,    8,    8,    8,   31,   31,   48,   31,   31,   31,
-       48,   48,   31,   72,   36,   71,   31,   36,   31,    8,
+       48,   48,   31,   72,   31,   71,   36,   31,   36,    8,
        29,   73,   74,   26,   26,   26,   26,   26,   26,   28,
-       28,   28,   28,   28,   28,   30,   32,   30,   30,   35,
-       31,   35,   35,   43,   75,   43,   43,   44,   44,   44,
-       44,   46,   46,   47,   75,   47,   47,   55,   75,   55,
-       55,    7,   75,   75,   75,   75,   75,   75,   75,   75,
+       28,   28,   28,   28,   28,   30,   31,   30,   30,   35,
+       31,   35,   35,   43,   32,   43,   43,   44,   44,   44,
+       31,   44,   46,   46,   47,   75,   47,   47,   55,   75,
+       55,   55,    7,   75,   75,   75,   75,   75,   75,   75,
 
        75,   75,   75,   75,   75,   75,   75,   75,   75,   75,
        75,   75,   75,   75,   75,   75,   75,   75,   75,   75,
-       75,   75,   75
+       75,   75,   75,   75
     } ;
 
-static const flex_int16_t yy_chk[224] =
+static const flex_int16_t yy_chk[225] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -486,16 +486,16 @@ static const flex_int16_t yy_chk[224] =
        59,   64,   64,   62,   67,   61,   50,   48,   66,    5,
         5,    6,    6,   63,   65,    6,   66,    6,    6,   65,
         6,    6,    6,    6,   68,   69,   47,   70,   72,   39,
-       36,   35,   33,   69,   31,   68,   30,   18,   17,    6,
+       36,   35,   34,   69,   33,   68,   31,   30,   18,    6,
         6,   70,   72,   76,   76,   76,   76,   76,   76,   77,
-       77,   77,   77,   77,   77,   78,   13,   78,   78,   79,
-       11,   79,   79,   80,    7,   80,   80,   81,   81,   81,
-       81,   82,   82,   83,    0,   83,   83,   84,    0,   84,
-       84,   75,   75,   75,   75,   75,   75,   75,   75,   75,
+       77,   77,   77,   77,   77,   78,   17,   78,   78,   79,
+       16,   79,   79,   80,   13,   80,   80,   81,   81,   81,
+       11,   81,   82,   82,   83,    7,   83,   83,   84,    0,
+       84,   84,   75,   75,   75,   75,   75,   75,   75,   75,
 
        75,   75,   75,   75,   75,   75,   75,   75,   75,   75,
        75,   75,   75,   75,   75,   75,   75,   75,   75,   75,
-       75,   75,   75
+       75,   75,   75,   75
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -858,7 +858,7 @@ yy_match:
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 192 );
+		while ( yy_base[yy_current_state] != 193 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -885,7 +885,7 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 95 "nutshscanner.l"
-{ printf("yytext str_cond: %s\n", yytext);
+{ //printf("yytext str_cond: %s\n", yytext);
                                        yylval.STRING = new std::string(yytext);
                                        return STRING;
                                     }
@@ -894,13 +894,13 @@ case 2:
 YY_RULE_SETUP
 #line 99 "nutshscanner.l"
 { if(isEnv(yytext)){
-                                       printf("yytext before env sub: %s\n", yytext);
+                                       //printf("yytext before env sub: %s\n", yytext);
                                        char *yycopy = strdup(subEnv(yytext) );
                                        for ( int i = strlen(subEnv(yytext)) - 1; i >= 0; --i )
                                           unput( yycopy[i] );
                                        free( yycopy );
                                     } else {
-                                       printf("yytext env_cond: %s\n", yytext);
+                                       //printf("yytext env_cond: %s\n", yytext);
                                        yylval.STRING = new std::string(yytext);
                                        return STRING;
                                     };
@@ -909,68 +909,67 @@ YY_RULE_SETUP
 case 3:
 YY_RULE_SETUP
 #line 111 "nutshscanner.l"
-{ if(++quoteCount %2 == 0) {printf("if: count %d \n", quoteCount); BEGIN(INITIAL);}
-                                    else printf("else: count %d \n", quoteCount);
+{ if(++quoteCount %2 == 0) { BEGIN(INITIAL);}
                                      }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 114 "nutshscanner.l"
+#line 113 "nutshscanner.l"
 { BEGIN(INITIAL); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 116 "nutshscanner.l"
+#line 115 "nutshscanner.l"
 { tokenCount++;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 117 "nutshscanner.l"
+#line 116 "nutshscanner.l"
 { yylval.STRING = new std::string(yytext); return BYE; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 118 "nutshscanner.l"
+#line 117 "nutshscanner.l"
 { yylval.STRING = new std::string(yytext); return CD;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 119 "nutshscanner.l"
+#line 118 "nutshscanner.l"
 { yylval.STRING = new std::string(yytext); return ALIAS; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 120 "nutshscanner.l"
+#line 119 "nutshscanner.l"
 { yylval.STRING = new std::string(yytext); return UNALIAS; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 121 "nutshscanner.l"
+#line 120 "nutshscanner.l"
 { yylval.STRING = new std::string(yytext); return SETENV; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 122 "nutshscanner.l"
+#line 121 "nutshscanner.l"
 { yylval.STRING = new std::string(yytext); return PRINTENV; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 123 "nutshscanner.l"
+#line 122 "nutshscanner.l"
 { yylval.STRING = new std::string(yytext); return UNSETENV; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 124 "nutshscanner.l"
+#line 123 "nutshscanner.l"
 { yylval.STRING = new std::string(yytext); return PATH;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 125 "nutshscanner.l"
+#line 124 "nutshscanner.l"
 { return yytext[0]; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 126 "nutshscanner.l"
+#line 125 "nutshscanner.l"
 { if(strlen(yytext) > 1 && isalpha(yytext[1]) != 0){
                         yylval.STRING = new std::string(tildeNameExpansion(yytext));
                       }
@@ -982,33 +981,33 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 134 "nutshscanner.l"
-{ yylval.STRING = new std::string(dot); std::cout << dot << std::endl; return STRING; }
+#line 133 "nutshscanner.l"
+{ yylval.STRING = new std::string(dot); return STRING; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 135 "nutshscanner.l"
-{ yylval.STRING = new std::string(dotdot); std::cout << dotdot << std::endl; return STRING; }
+#line 134 "nutshscanner.l"
+{ yylval.STRING = new std::string(dotdot); return STRING; }
 	YY_BREAK
 case 18:
 /* rule 18 can match eol */
 YY_RULE_SETUP
-#line 136 "nutshscanner.l"
+#line 135 "nutshscanner.l"
 { return END; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 137 "nutshscanner.l"
+#line 136 "nutshscanner.l"
 { quoteCount = 1; BEGIN(string_condition); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 138 "nutshscanner.l"
+#line 137 "nutshscanner.l"
 { BEGIN(env_condition); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 141 "nutshscanner.l"
+#line 140 "nutshscanner.l"
 {
                               removeChar(yytext, '\\');
                               yylval.STRING = new std::string(yytext);
@@ -1017,14 +1016,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 146 "nutshscanner.l"
+#line 145 "nutshscanner.l"
 { return yytext[0];}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 148 "nutshscanner.l"
+#line 147 "nutshscanner.l"
 {if(tokenCount == 0 && ifAlias(yytext)) {
-                        printf("yytext before alias_sub: %s\n", yytext);
+                        // printf("yytext before alias_sub: %s\n", yytext);
                         // source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
                            char *yycopy = strdup( subAliases(yytext) );
                            for ( int i = strlen(subAliases(yytext)) - 1; i >= 0; --i )
@@ -1032,7 +1031,7 @@ YY_RULE_SETUP
                            free( yycopy );
                       } 
                       else {
-                        printf("yytext char_cond: %s\n", yytext);
+                        //printf("yytext char_cond: %s\n", yytext);
                         char* result;
                         if(checkWC(yytext)){
                            result = strdup(WCcondition(yytext));
@@ -1048,10 +1047,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 170 "nutshscanner.l"
+#line 169 "nutshscanner.l"
 ECHO;
 	YY_BREAK
-#line 1055 "lex.yy.c"
+#line 1054 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(string_condition):
 case YY_STATE_EOF(env_condition):
@@ -2058,5 +2057,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 170 "nutshscanner.l"
+#line 169 "nutshscanner.l"
 

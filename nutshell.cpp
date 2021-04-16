@@ -129,7 +129,7 @@ int main(){
     system("clear");
     while(1)
     {
-        printf(MAG "[%s]>> " RESET, toCharArr(cwd));
+        printf(MAG "[%s]>> " RESET, toCharArr(dot));
         tokenCount = 0;
         commandCount = 0;
         firstWord = true;
@@ -140,6 +140,8 @@ int main(){
             cmd_table.push_back(v);
         }
         yyparse();
+        executables.clear();
+        cwdFiles.clear();
         background = false;
         cmd_table.clear();
     }

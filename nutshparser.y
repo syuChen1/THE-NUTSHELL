@@ -162,18 +162,18 @@ int runCD(string arg) {
       temp += a.substr(1);
     }
     else {
-      temp = varTable["PWD"];
+      temp = dot;
       temp = temp + '/' + arg;
     }
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
     auto found = temp.find('.');
     if(found != string::npos) temp.erase(found);
-    cout << "path : " << temp << endl;
+   // cout << "path : " << temp << endl;
 		if(chdir(toCharArr(temp)) == 0) {
 			dot = temp;
       dotdot = getPrevPath(toCharArr(temp));
-      varTable["PWD"] = temp;
+      dot = temp;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -184,14 +184,15 @@ int runCD(string arg) {
   }
   // arg is relative path
 	else if (arg[0] != '/') {
-    std::string temp = varTable["PWD"];
+    std::string temp = dot;
     std::string a = arg;
 		temp += "/";
     temp += a;
+    //cout << temp << endl;
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
     auto found = temp.find('.');
-    if(found != string::npos) temp.erase(found);
+    if(found != string::npos) temp.erase(found, 1);
     //cout << "path : " << temp << endl;
 
     // if(t[strlen(t)-2] == ' '){
@@ -200,11 +201,11 @@ int runCD(string arg) {
     // if(t[strlen(t)-1] == ' '){
     //   t[strlen(t)-1] = '\0';
     // }
-    cout << "path relative: " << temp << endl;
+    //cout << "path relative: " << temp << endl;
 		if(chdir(toCharArr(temp)) == 0) {
 			dot = temp;
       dotdot = getPrevPath(toCharArr(temp));
-      varTable["PWD"] = temp;
+      dot = temp;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -220,11 +221,11 @@ int runCD(string arg) {
       removeSubstrs(temp, "/.", 1);
       auto found = temp.find('.');
       if(found != string::npos) temp.erase(found);
-      cout << "path : " << temp << endl;
+      //cout << "path : " << temp << endl;
 			dot = temp;
       dotdot = getPrevPath(toCharArr(temp));
-			varTable["PWD"] = temp;
-			dotdot = getPrevPath(varTable["PWD"]);
+			dot = temp;
+			dotdot = getPrevPath(dot);
 		}
 		else {
 			printf("Directory not found\n");
@@ -309,7 +310,7 @@ int printAlias(){
 int unsetAlias(string name){
   if(aliasTable.count(name)){
     aliasTable.erase(name);
-    std::cout << "earsed " << name << std::endl;
+    //std::cout << "earsed " << name << std::endl;
     return 1;
   }
   else 
@@ -320,7 +321,7 @@ int unsetAlias(string name){
 // Env Variable
 int updateEnv(string variable, string word){
   varTable[variable] = word;
-  std::cout << "set " << variable << " to " << word << std::endl;
+  //std::cout << "set " << variable << " to " << word << std::endl;
   return 1;
 }
 
@@ -471,6 +472,7 @@ int PipeCall(std::vector<std::vector<std::string>> cmd_table)
       }
       //execute the command
       char* path;
+      bool found = false;
       for(auto it = executables.begin(); it != executables.end(); it++)
       {
         for(char* x : it->second)
@@ -478,14 +480,19 @@ int PipeCall(std::vector<std::vector<std::string>> cmd_table)
           if(strcmp(x, toCharArr(cmd_table[i][0])) == 0)
           {
             path = toCharArr(it->first);
+            found = true;
             break;
           }
         }
       }
+      if(!found){
+        cout << cmd_table[i][0] << ": command not found" << endl;
+        return 0;
+      }
       char *cc =strdup(toCharArr(cmd_table[i][0]));  
       cmd_table[i][0] = "/" + cmd_table[i][0];
       cmd_table[i][0] = std::string(path) + cmd_table[i][0];
-      printf("Executable: %s \n", toCharArr(cmd_table[i][0]));
+      //printf("Executable: %s \n", toCharArr(cmd_table[i][0]));
       if(cmd_table[i][1].size() > 0)
       {
         char* arguments[cmd_table[i][1].size()+2];
