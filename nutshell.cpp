@@ -19,11 +19,13 @@ vector<char*> cwdFiles;
 std::unordered_map<std::string, std::string> varTable;
 std::unordered_map<std::string, std::string> aliasTable;
 std::unordered_map<std::string, std::vector<char*>> executables; 
-std::vector<std::string> commands;
-char* dot;
-char* dotdot;
+std::string dot;
+std::string dotdot;
 int tokenCount = 0;
-
+int commandCount =0;
+bool firstWord = true;
+bool background = false;
+std::vector<std::vector<std::string>> cmd_table;
 void removeChar(char* s, char c)
 {
     int j, n = strlen(s);
@@ -113,27 +115,33 @@ string getPrevPath(string cwd){
 int main(){
     //get the curr dir path
     string cwd = getcwd_string();
-
-    varTable["PWD"] = cwd;
-    varTable["HOME"] = "/root";
-    varTable["PROMPT"] = "nutshell";
+    getFileNames(&cwdFiles, ".");
+    varTable["HOME"] = cwd;
     varTable["PATH"] = ".:/bin:/usr/bin";
+    getPathFiles(toCharArr(varTable["PATH"]));
+
     //set . to curr path
     dot = toCharArr(cwd);
 
     //set .. to prev path
-    cwd = getPrevPath(cwd);
-    dotdot = toCharArr(cwd);
-
+    string prev = getPrevPath(cwd);
+    dotdot = toCharArr(prev);
     system("clear");
     while(1)
     {
-        printf(MAG "[%s]>> " RESET, toCharArr(varTable["PWD"]));
+        printf(MAG "[%s]>> " RESET, toCharArr(cwd));
         tokenCount = 0;
+        commandCount = 0;
+        firstWord = true;
         getFileNames(&cwdFiles, ".");
         getPathFiles(toCharArr(varTable["PATH"]));
-        commands.clear();
+        for(int i = 0; i < 100; i++){
+            vector<string> v;
+            cmd_table.push_back(v);
+        }
         yyparse();
+        background = false;
+        cmd_table.clear();
     }
 
     return 0;

@@ -39,6 +39,12 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 45 "nutshparser.y" /* yacc.c:1909  */
+
+#include "nutshell.h"
+
+#line 48 "nutshparser.tab.h" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -54,8 +60,7 @@ extern int yydebug;
     SETENV = 264,
     PRINTENV = 265,
     UNSETENV = 266,
-    META = 267,
-    PATH = 268
+    PATH = 267
   };
 #endif
 
@@ -64,10 +69,40 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 40 "nutshparser.y" /* yacc.c:1909  */
-char *string;
 
-#line 71 "nutshparser.tab.h" /* yacc.c:1909  */
+  /* CMD  */
+  int CMD;
+  /* PIPE  */
+  int PIPE;
+  /* REDIRECT  */
+  int REDIRECT;
+  /* COMMAND  */
+  int COMMAND;
+  /* BYE  */
+  std::string* BYE;
+  /* CD  */
+  std::string* CD;
+  /* STRING  */
+  std::string* STRING;
+  /* ALIAS  */
+  std::string* ALIAS;
+  /* END  */
+  std::string* END;
+  /* UNALIAS  */
+  std::string* UNALIAS;
+  /* SETENV  */
+  std::string* SETENV;
+  /* PRINTENV  */
+  std::string* PRINTENV;
+  /* UNSETENV  */
+  std::string* UNSETENV;
+  /* PATH  */
+  std::string* PATH;
+  /* COMBINE_INPUT  */
+  std::string* COMBINE_INPUT;
+  /* PATH_INPUT  */
+  std::string* PATH_INPUT;
+#line 106 "nutshparser.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

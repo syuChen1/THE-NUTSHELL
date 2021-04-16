@@ -11,6 +11,10 @@ extern std::unordered_map<std::string, std::string> varTable;
 extern std::unordered_map<std::string, std::string> aliasTable;
 extern std::unordered_map<std::string, std::vector<char*>> executables; 
 
+
+extern std::vector<std::vector<std::string>> cmd_table;
+
+
 extern std::vector<char*> cwdFiles;
 
 std::string getPrevPath(std::string cwd);
@@ -18,9 +22,11 @@ char* toCharArr(std::string str);
 char* combineCharArr(char* first, char* second);
 void removeChar(char* s, char c);
 void getFileNames(std::vector<char*> *v, std::string path);
-extern char* getUserHomeDir(char *user);
-extern std::vector<std::string> commands;
+extern std::string getUserHomeDir(std::string user);
 extern int tokenCount;
-extern char* dot;
-extern char* dotdot;
+extern int commandCount;
+extern bool firstWord;
+extern std::string dot;
+extern std::string dotdot;
+extern bool background;
 #endif

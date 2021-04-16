@@ -78,30 +78,35 @@
 #include <dirent.h>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
+#include <fcntl.h>
+using namespace std;
 
 int yylex();
 int yyerror(char *s);
 
-int runCD(char* arg);
+int runCD(string arg);
 
-int runSetAlias(char *name, char *word);
-bool aliasLoopCheck(char* token1, char *token2);
+int runSetAlias(string name, string word);
+bool aliasLoopCheck(string token1, string token2);
 int printAlias();
-int unsetAlias(char *name);
+int unsetAlias(string name);
 void removeSubstrs(std::string &str, const std::string &substr, int dot);
 
-int updateEnv(char *variable, char *word);
-bool envLoopCheck(char* token1, char *token2);
+int updateEnv(string variable, string word);
+bool envLoopCheck(string  token1, string token2);
 int printEnv();
-int unsetEnv(char *variable);
-char *pathInput(char *first, char *second);
-
+int unsetEnv(string variable);
+string pathInput(string first, string second);
 int runSysCommand(std::vector<std::string> commands);
-std::vector<std::vector <std::string>> handleCurrCmd(std::vector<std::string> commands);
+string getUserHomeDir(string user);
 
-char* getUserHomeDir(char *user);
+// [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
+int PipeCall(std::vector<std::vector<std::string>> cmd_table);
 
-#line 105 "nutshparser.tab.c" /* yacc.c:339  */
+int RedirectCall(std::vector<std::vector<std::string>> cmd_table);
+
+#line 110 "nutshparser.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -130,6 +135,12 @@ char* getUserHomeDir(char *user);
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 45 "nutshparser.y" /* yacc.c:355  */
+
+#include "nutshell.h"
+
+#line 144 "nutshparser.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -145,8 +156,7 @@ extern int yydebug;
     SETENV = 264,
     PRINTENV = 265,
     UNSETENV = 266,
-    META = 267,
-    PATH = 268
+    PATH = 267
   };
 #endif
 
@@ -155,10 +165,40 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 40 "nutshparser.y" /* yacc.c:355  */
-char *string;
 
-#line 162 "nutshparser.tab.c" /* yacc.c:355  */
+  /* CMD  */
+  int CMD;
+  /* PIPE  */
+  int PIPE;
+  /* REDIRECT  */
+  int REDIRECT;
+  /* COMMAND  */
+  int COMMAND;
+  /* BYE  */
+  std::string* BYE;
+  /* CD  */
+  std::string* CD;
+  /* STRING  */
+  std::string* STRING;
+  /* ALIAS  */
+  std::string* ALIAS;
+  /* END  */
+  std::string* END;
+  /* UNALIAS  */
+  std::string* UNALIAS;
+  /* SETENV  */
+  std::string* SETENV;
+  /* PRINTENV  */
+  std::string* PRINTENV;
+  /* UNSETENV  */
+  std::string* UNSETENV;
+  /* PATH  */
+  std::string* PATH;
+  /* COMBINE_INPUT  */
+  std::string* COMBINE_INPUT;
+  /* PATH_INPUT  */
+  std::string* PATH_INPUT;
+#line 202 "nutshparser.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -175,7 +215,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 179 "nutshparser.tab.c" /* yacc.c:358  */
+#line 219 "nutshparser.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -415,23 +455,23 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  22
+#define YYFINAL  25
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   41
+#define YYLAST   46
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  15
+#define YYNTOKENS  18
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  4
+#define YYNNTS  8
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  18
+#define YYNRULES  26
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  39
+#define YYNSTATES  52
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   268
+#define YYMAXUTOK   267
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -443,16 +483,16 @@ static const yytype_uint8 yytranslate[] =
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,    13,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    14,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,    17,     2,
+      16,     2,    15,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,    14,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -466,15 +506,16 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11,    12,    13
+       5,     6,     7,     8,     9,    10,    11,    12
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    48,    48,    49,    50,    51,    54,    55,    56,    58,
-      59,    60,    61,    64,    65,    66,    69,    70,    71
+       0,    59,    59,    60,    63,    64,    65,    66,    67,    71,
+      81,    85,   102,   122,   123,   124,   126,   128,   129,   131,
+     132,   136,   137,   138,   141,   142,   143
 };
 #endif
 
@@ -484,8 +525,9 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "BYE", "CD", "STRING", "ALIAS", "END",
-  "UNALIAS", "SETENV", "PRINTENV", "UNSETENV", "META", "PATH", "':'",
-  "$accept", "cmd_line", "COMBINE_INPUT", "PATH_INPUT", YY_NULLPTR
+  "UNALIAS", "SETENV", "PRINTENV", "UNSETENV", "PATH", "'&'", "'|'", "'>'",
+  "'<'", "':'", "$accept", "cmd_line", "CMD", "PIPE", "REDIRECT",
+  "COMMAND", "COMBINE_INPUT", "PATH_INPUT", YY_NULLPTR
 };
 #endif
 
@@ -495,14 +537,14 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,   266,   267,   268,    58
+     265,   266,   267,    38,   124,    62,    60,    58
 };
 # endif
 
-#define YYPACT_NINF -24
+#define YYPACT_NINF -33
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-24)))
+  (!!((Yystate) == (-33)))
 
 #define YYTABLE_NINF -1
 
@@ -513,10 +555,12 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -3,     9,     6,    13,    10,    14,    15,    16,    17,   -24,
-      21,   -24,    18,   -24,    13,    19,    22,   -24,    23,    -1,
-     -24,    24,   -24,   -24,   -24,   -24,    25,   -24,    20,    28,
-      29,   -24,   -24,    -1,    26,   -24,   -24,    -1,   -24
+      -2,    14,     9,    17,    10,    18,    19,    20,    21,    25,
+      22,     6,    15,   -33,   -33,    23,   -33,   -33,    -5,    26,
+     -33,    27,     0,   -33,    28,   -33,   -33,   -33,    31,   -33,
+     -33,   -33,    32,    33,    34,   -33,    16,    35,    36,   -33,
+      17,    30,   -33,   -33,   -33,     0,    29,   -33,    37,   -33,
+       0,   -33
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -524,22 +568,24 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,    15,     0,     0,     0,     0,     0,    12,
-       0,     2,     0,     4,    14,     0,     0,     6,     0,     0,
-       9,     0,     1,     3,    13,    11,     0,     7,    18,     0,
-       0,    10,     5,     0,     0,     8,    17,     0,    16
+       0,     0,     0,    21,     0,     0,     0,     0,     0,     0,
+       0,     6,     8,     4,     2,     0,    14,    22,     9,     0,
+      16,     0,     0,    19,     0,     1,     3,     5,     0,     7,
+      13,    23,     0,     0,     0,    17,    26,     0,     0,    20,
+      21,    10,    11,    12,    15,     0,     0,    18,     9,    25,
+       0,    24
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -24,   -24,    27,   -23
+     -33,   -33,   -33,     4,   -33,   -33,    -1,   -32
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,    10,    15,    30
+      -1,     9,    10,    11,    12,    13,    18,    38
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -547,44 +593,48 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-       1,     2,     3,     4,    28,     5,     6,     7,     8,     9,
-      36,    12,    29,    13,    38,    16,    11,    17,    14,    18,
-      19,    22,    21,    20,     0,    23,    25,    26,     0,     0,
-      27,    31,    32,    34,    33,     0,    35,     0,     0,     0,
-      37,    24
+      31,     1,     2,     3,     4,    36,     5,     6,     7,     8,
+      32,    33,    37,    49,    15,    19,    16,    20,    51,    27,
+      28,    14,    17,    21,    22,    25,    24,    23,    29,    26,
+      30,    34,    41,    45,    35,    39,    40,    42,    43,    48,
+      46,    44,    31,    47,    28,     0,    50
 };
 
 static const yytype_int8 yycheck[] =
 {
-       3,     4,     5,     6,     5,     8,     9,    10,    11,    12,
-      33,     5,    13,     7,    37,     5,     7,     7,     5,     5,
-       5,     0,     5,     7,    -1,     7,     7,     5,    -1,    -1,
-       7,     7,     7,     5,    14,    -1,     7,    -1,    -1,    -1,
-      14,    14
+       5,     3,     4,     5,     6,     5,     8,     9,    10,    11,
+      15,    16,    12,    45,     5,     5,     7,     7,    50,    13,
+      14,     7,     5,     5,     5,     0,     5,     7,    13,     7,
+       7,     5,    28,    17,     7,     7,     5,     5,     5,    40,
+       5,     7,     5,     7,    14,    -1,    17
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,     4,     5,     6,     8,     9,    10,    11,    12,
-      16,     7,     5,     7,     5,    17,     5,     7,     5,     5,
-       7,     5,     0,     7,    17,     7,     5,     7,     5,    13,
-      18,     7,     7,    14,     5,     7,    18,    14,    18
+       0,     3,     4,     5,     6,     8,     9,    10,    11,    19,
+      20,    21,    22,    23,     7,     5,     7,     5,    24,     5,
+       7,     5,     5,     7,     5,     0,     7,    13,    14,    13,
+       7,     5,    15,    16,     5,     7,     5,    12,    25,     7,
+       5,    21,     5,     5,     7,    17,     5,     7,    24,    25,
+      17,    25
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    15,    16,    16,    16,    16,    16,    16,    16,    16,
-      16,    16,    16,    17,    17,    17,    18,    18,    18
+       0,    18,    19,    19,    20,    20,    20,    20,    20,    21,
+      21,    22,    22,    23,    23,    23,    23,    23,    23,    23,
+      23,    24,    24,    24,    25,    25,    25
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     2,     3,     2,     4,     2,     3,     4,     2,
-       3,     3,     1,     2,     1,     0,     4,     3,     1
+       0,     2,     2,     2,     1,     2,     1,     2,     1,     2,
+       3,     4,     4,     3,     2,     4,     2,     3,     4,     2,
+       3,     0,     1,     2,     4,     3,     1
 };
 
 
@@ -730,7 +780,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule)
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr,
                        yystos[yyssp[yyi + 1 - yynrhs]],
-                       &(yyvsp[(yyi + 1) - (yynrhs)])
+                       &yyvsp[(yyi + 1) - (yynrhs)]
                                               );
       YYFPRINTF (stderr, "\n");
     }
@@ -1261,106 +1311,199 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 48 "nutshparser.y" /* yacc.c:1646  */
+#line 59 "nutshparser.y" /* yacc.c:1646  */
     {exit(1); return 1; }
-#line 1267 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1317 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 49 "nutshparser.y" /* yacc.c:1646  */
-    {runCD((yyvsp[-1].string)); return 1; }
-#line 1273 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 60 "nutshparser.y" /* yacc.c:1646  */
+    {return 1;}
+#line 1323 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 50 "nutshparser.y" /* yacc.c:1646  */
-    {runCD(toCharArr("~")); return 1;}
-#line 1279 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 63 "nutshparser.y" /* yacc.c:1646  */
+    {(*(int*)(&yyval)) = 1;}
+#line 1329 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 51 "nutshparser.y" /* yacc.c:1646  */
-    {if(!aliasLoopCheck((yyvsp[-2].string), (yyvsp[-1].string))){ 
-                                runSetAlias((yyvsp[-2].string), (yyvsp[-1].string));}
-                                return 1;}
-#line 1287 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 64 "nutshparser.y" /* yacc.c:1646  */
+    {background = true; PipeCall(cmd_table); (*(int*)(&yyval)) =1; }
+#line 1335 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 54 "nutshparser.y" /* yacc.c:1646  */
-    {printAlias(); return 1;}
-#line 1293 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 65 "nutshparser.y" /* yacc.c:1646  */
+    {PipeCall(cmd_table); (*(int*)(&yyval)) =1; }
+#line 1341 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 55 "nutshparser.y" /* yacc.c:1646  */
-    {unsetAlias((yyvsp[-1].string)); return 1;}
-#line 1299 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 66 "nutshparser.y" /* yacc.c:1646  */
+    {background = true; RedirectCall(cmd_table); (*(int*)(&yyval)) =1;}
+#line 1347 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 56 "nutshparser.y" /* yacc.c:1646  */
-    {if(!envLoopCheck((yyvsp[-2].string), (yyvsp[-1].string))){updateEnv((yyvsp[-2].string),(yyvsp[-1].string));}
-                                       return 1;}
-#line 1306 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 67 "nutshparser.y" /* yacc.c:1646  */
+    {RedirectCall(cmd_table); (*(int*)(&yyval)) =1;}
+#line 1353 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 58 "nutshparser.y" /* yacc.c:1646  */
-    {printEnv(); return 1;}
-#line 1312 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 71 "nutshparser.y" /* yacc.c:1646  */
+    {
+                                          cmd_table[commandCount].push_back(*(*(std::string**)(&yyvsp[-1])));
+                                          cmd_table[commandCount].push_back(*(*(std::string**)(&yyvsp[0])));
+                                          cmd_table[commandCount].push_back("STDIN"); 
+                                          cmd_table[commandCount].push_back("STDOUT"); 
+                                          cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                          cmd_table[commandCount].push_back("NONBI"); 
+                                          commandCount++;
+                                          (*(int*)(&yyval)) = 1;
+                                        }
+#line 1368 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 59 "nutshparser.y" /* yacc.c:1646  */
-    {unsetEnv((yyvsp[-1].string)); return 1;}
-#line 1318 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 81 "nutshparser.y" /* yacc.c:1646  */
+    {(*(int*)(&yyval)) = 1;}
+#line 1374 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 60 "nutshparser.y" /* yacc.c:1646  */
-    {commands.push_back(std::string((yyvsp[-2].string))); runSysCommand(commands);  return 1;}
-#line 1324 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 85 "nutshparser.y" /* yacc.c:1646  */
+    {
+                                                      cmd_table[commandCount].push_back(*(*(std::string**)(&yyvsp[-3])));
+                                                      cmd_table[commandCount].push_back(*(*(std::string**)(&yyvsp[-2])));
+                                                      cmd_table[commandCount].push_back("STDIN"); 
+                                                      cmd_table[commandCount].push_back("STDOUT"); 
+                                                      cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                                      cmd_table[commandCount].push_back("NONBI"); 
+                                                      commandCount++;
+                                                      cmd_table[commandCount].push_back(*(*(std::string**)(&yyvsp[0])));
+                                                      cmd_table[commandCount].push_back("");
+                                                      cmd_table[commandCount].push_back(cmd_table[commandCount-1][0]); 
+                                                      cmd_table[commandCount].push_back("STDOUT"); 
+                                                      cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                                      cmd_table[commandCount].push_back("FILE"); 
+                                                      commandCount++;
+                                                      (*(int*)(&yyval)) = 1;
+                                                    }
+#line 1396 "nutshparser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 12:
+#line 102 "nutshparser.y" /* yacc.c:1646  */
+    {
+                                                      cmd_table[commandCount].push_back(*(*(std::string**)(&yyvsp[0])));
+                                                      cmd_table[commandCount].push_back("");
+                                                      cmd_table[commandCount].push_back("STDIN"); 
+                                                      cmd_table[commandCount].push_back("STDOUT"); 
+                                                      cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                                      cmd_table[commandCount].push_back("FILE"); 
+                                                      commandCount++;
+                                                      cmd_table[commandCount].push_back(*(*(std::string**)(&yyvsp[-3])));
+                                                      cmd_table[commandCount].push_back(*(*(std::string**)(&yyvsp[-2])));
+                                                      cmd_table[commandCount].push_back(cmd_table[commandCount-1][0]); 
+                                                      cmd_table[commandCount].push_back("STDOUT"); 
+                                                      cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                                      cmd_table[commandCount].push_back("NONBI");
+                                                      commandCount++;
+                                                      (*(int*)(&yyval)) = 1;
+                                                    }
+#line 1418 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 64 "nutshparser.y" /* yacc.c:1646  */
-    {commands.push_back(std::string((yyvsp[-1].string)));}
-#line 1330 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 122 "nutshparser.y" /* yacc.c:1646  */
+    {runCD(*(*(std::string**)(&yyvsp[-1])));return 1;}
+#line 1424 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 65 "nutshparser.y" /* yacc.c:1646  */
-    {commands.push_back(std::string((yyvsp[0].string)));}
-#line 1336 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 123 "nutshparser.y" /* yacc.c:1646  */
+    {runCD("~"); return 1;}
+#line 1430 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 66 "nutshparser.y" /* yacc.c:1646  */
-    {}
-#line 1342 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 124 "nutshparser.y" /* yacc.c:1646  */
+    {if(!aliasLoopCheck(*(*(std::string**)(&yyvsp[-2])), *(*(std::string**)(&yyvsp[-1])))){ 
+                                  runSetAlias(*(*(std::string**)(&yyvsp[-2])), *(*(std::string**)(&yyvsp[-1])));} return 1;}
+#line 1437 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 69 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = combineCharArr((yyvsp[-3].string), pathInput((yyvsp[-2].string),(yyvsp[0].string)));}
-#line 1348 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 126 "nutshparser.y" /* yacc.c:1646  */
+    { printAlias(); return 1;}
+#line 1443 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 70 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = pathInput((yyvsp[-2].string),(yyvsp[0].string));}
-#line 1354 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 128 "nutshparser.y" /* yacc.c:1646  */
+    {unsetAlias(*(*(std::string**)(&yyvsp[-1])));return 1;}
+#line 1449 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 71 "nutshparser.y" /* yacc.c:1646  */
-    {(yyval.string) = (yyvsp[0].string);}
-#line 1360 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 129 "nutshparser.y" /* yacc.c:1646  */
+    {if(!envLoopCheck(*(*(std::string**)(&yyvsp[-2])), *(*(std::string**)(&yyvsp[-1])))){updateEnv(*(*(std::string**)(&yyvsp[-2])),*(*(std::string**)(&yyvsp[-1])));}return 1;}
+#line 1455 "nutshparser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 19:
+#line 131 "nutshparser.y" /* yacc.c:1646  */
+    { printEnv(); return 1;}
+#line 1461 "nutshparser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 20:
+#line 132 "nutshparser.y" /* yacc.c:1646  */
+    {unsetEnv(*(*(std::string**)(&yyvsp[-1])));return 1;}
+#line 1467 "nutshparser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 21:
+#line 136 "nutshparser.y" /* yacc.c:1646  */
+    {string s = ""; (*(std::string**)(&yyval)) = &s;}
+#line 1473 "nutshparser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 22:
+#line 137 "nutshparser.y" /* yacc.c:1646  */
+    {(*(std::string**)(&yyval)) = new std::string(*(*(std::string**)(&yyvsp[0])));}
+#line 1479 "nutshparser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 23:
+#line 138 "nutshparser.y" /* yacc.c:1646  */
+    {(*(std::string**)(&yyval)) = new std::string(*(*(std::string**)(&yyvsp[-1])) + " " + *(*(std::string**)(&yyvsp[0])));}
+#line 1485 "nutshparser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 24:
+#line 141 "nutshparser.y" /* yacc.c:1646  */
+    {(*(std::string**)(&yyval)) = new std::string(*(*(std::string**)(&yyvsp[-3])) + pathInput(*(*(std::string**)(&yyvsp[-2])),*(*(std::string**)(&yyvsp[0]))));}
+#line 1491 "nutshparser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 25:
+#line 142 "nutshparser.y" /* yacc.c:1646  */
+    {(*(std::string**)(&yyval)) = new std::string(pathInput(*(*(std::string**)(&yyvsp[-2])),*(*(std::string**)(&yyvsp[0]))));}
+#line 1497 "nutshparser.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 26:
+#line 143 "nutshparser.y" /* yacc.c:1646  */
+    {(*(std::string**)(&yyval)) = new std::string(*(*(std::string**)(&yyvsp[0])));}
+#line 1503 "nutshparser.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1364 "nutshparser.tab.c" /* yacc.c:1646  */
+#line 1507 "nutshparser.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1588,7 +1731,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 73 "nutshparser.y" /* yacc.c:1906  */
+#line 145 "nutshparser.y" /* yacc.c:1906  */
 
 
 int yyerror(char *s) {
@@ -1597,7 +1740,7 @@ int yyerror(char *s) {
   }
 
 // CD
-int runCD(char* arg) {
+int runCD(string arg) {
   //if the first argument is ~
   if (arg[0] == '~'){
     std::string temp;
@@ -1614,19 +1757,20 @@ int runCD(char* arg) {
     }
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-    char* t = toCharArr(temp);
-    removeChar(t, '.');
-    printf("path: %s \n", t);
-		if(chdir(t) == 0) {
-			dot = t;
-      dotdot = toCharArr(getPrevPath(t));
-      varTable["PWD"] = t;
+    auto found = temp.find('.');
+    if(found != string::npos) temp.erase(found);
+    cout << "path : " << temp << endl;
+		if(chdir(toCharArr(temp)) == 0) {
+			dot = temp;
+      dotdot = getPrevPath(toCharArr(temp));
+      varTable["PWD"] = temp;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
 			printf("Directory not found\n");
 			return 1;
 		}
+
   }
   // arg is relative path
 	else if (arg[0] != '/') {
@@ -1636,20 +1780,21 @@ int runCD(char* arg) {
     temp += a;
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-    char* t = toCharArr(temp);
-    removeChar(t, '.');
-    printf("path: %s \n", t);
-    if(t[strlen(t)-2] == ' '){
-      t[strlen(t)-2] = '\0';
-    }
-    if(t[strlen(t)-1] == ' '){
-      t[strlen(t)-1] = '\0';
-    }
-    printf("path relative: %s\n", toCharArr(t));
-		if(chdir(t) == 0) {
-			dot = t;
-      dotdot = toCharArr(getPrevPath(t));
-      varTable["PWD"] = t;
+    auto found = temp.find('.');
+    if(found != string::npos) temp.erase(found);
+    //cout << "path : " << temp << endl;
+
+    // if(t[strlen(t)-2] == ' '){
+    //   t[strlen(t)-2] = '\0';
+    // }
+    // if(t[strlen(t)-1] == ' '){
+    //   t[strlen(t)-1] = '\0';
+    // }
+    cout << "path relative: " << temp << endl;
+		if(chdir(toCharArr(temp)) == 0) {
+			dot = temp;
+      dotdot = getPrevPath(toCharArr(temp));
+      varTable["PWD"] = temp;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -1659,17 +1804,17 @@ int runCD(char* arg) {
 	}
 
 	else { // arg is absolute path
-		if(chdir(arg) == 0){
+		if(chdir(toCharArr(arg)) == 0){
       std::string temp = arg;
       removeSubstrs(temp, "/..", 2);
       removeSubstrs(temp, "/.", 1);
-      char* t = toCharArr(temp);
-      removeChar(t, '.');
-      printf("path: %s \n", t);
-			dot = t;
-      dotdot = toCharArr(temp);
-			varTable["PWD"] = t;
-			dotdot = toCharArr(getPrevPath(varTable["PWD"]));
+      auto found = temp.find('.');
+      if(found != string::npos) temp.erase(found);
+      cout << "path : " << temp << endl;
+			dot = temp;
+      dotdot = getPrevPath(toCharArr(temp));
+			varTable["PWD"] = temp;
+			dotdot = getPrevPath(varTable["PWD"]);
 		}
 		else {
 			printf("Directory not found\n");
@@ -1680,13 +1825,13 @@ int runCD(char* arg) {
 }
 
 // Alias
-int runSetAlias(char *name, char *word) {
-  if(strcmp(name, word) == 0){
-		printf("Error, expansion of \"%s\" would create a loop.\n", name);
+int runSetAlias(string name, string word) {
+  if(name == word){
+    cout << "Error, expansion of" << name << "would create a loop.\n";
 		return 1;
 	}
-  else if((aliasTable.count(name)) && (strcmp(toCharArr(aliasTable[name]), word) == 0)){
-		printf("Error, expansion of \"%s\" would create a loop.\n", name);
+  else if(aliasTable.count(name) && aliasTable[name]== word){
+		cout << "Error, expansion of" << name << "would create a loop.\n";
 		return 1;
 	}
 	aliasTable[name] = word;
@@ -1694,7 +1839,7 @@ int runSetAlias(char *name, char *word) {
 }
 
 //check for infinite loop in alias table
-bool aliasLoopCheck(char* token1, char *token2)
+bool aliasLoopCheck(string token1, string token2)
 {
   bool flag = false;
   //std::cout << aliasTable.size();
@@ -1715,23 +1860,20 @@ bool aliasLoopCheck(char* token1, char *token2)
 
   std::string value;
   if(aliasTable.count(token2))
-    value = aliasTable[toCharArr(token2)];
+    value = aliasTable[token2];
   else
     return false;
   
   while(1)
   {
-    if(strcmp(toCharArr(token1), toCharArr(value)) == 0)
+    if(token1 == value)
     {
       flag = true;
       std::cout << "inifinite alias loop detected!\n";
-      //unsetAlias(toCharArr(value));
       break;
     }
     else if(!aliasTable.count(value))
     {
-      //if(aliasTable[token2] == nullptr)
-        //unsetAlias(toCharArr(token2));
       break;
     }
     else
@@ -1754,7 +1896,7 @@ int printAlias(){
   return 1;
 }
 
-int unsetAlias(char *name){
+int unsetAlias(string name){
   if(aliasTable.count(name)){
     aliasTable.erase(name);
     std::cout << "earsed " << name << std::endl;
@@ -1766,14 +1908,14 @@ int unsetAlias(char *name){
 }
 
 // Env Variable
-int updateEnv(char *variable, char *word){
+int updateEnv(string variable, string word){
   varTable[variable] = word;
   std::cout << "set " << variable << " to " << word << std::endl;
   return 1;
 }
 
 //check for infinite loop in environment variable table
-bool envLoopCheck(char* token1, char *token2)
+bool envLoopCheck(string token1, string token2)
 {
   bool flag = false;
   //std::cout << aliasTable.size();
@@ -1794,13 +1936,13 @@ bool envLoopCheck(char* token1, char *token2)
 
   std::string value;
   if(varTable.count(token2))
-    value = varTable[toCharArr(token2)];
+    value = varTable[token2];
   else
     return false;
   
   while(1)
   {
-    if(strcmp(toCharArr(token1), toCharArr(value)) == 0)
+    if(token1 == value)
     {
       flag = true;
       std::cout << "inifinite env variable loop detected!\n";
@@ -1832,9 +1974,9 @@ int printEnv(){
   return 1;
 }
 
-int unsetEnv(char *variable){
+int unsetEnv(string variable){
   if(varTable.count(variable)){
-    if((strcmp(variable, toCharArr("HOME")) == 0) || (strcmp(variable, toCharArr("PATH")) == 0))
+    if(variable == "HOME" || variable == "PATH")
     {
       std::cout << "unable to erased HOME or PATH directory\n";
       return 1;
@@ -1847,10 +1989,9 @@ int unsetEnv(char *variable){
   return 1;
 }
 
-char *pathInput(char *first, char *second){
-  char *str; 
-  str = combineCharArr(first, toCharArr(":"));
-  str = combineCharArr(str, second);
+string pathInput(string first, string second){
+  string str; 
+  str = first + ":" + second;
   return str;
 }
 
@@ -1881,116 +2022,107 @@ void removeSubstrs(std::string &str, const std::string &substr, int dot){
    }
 }
 
-char* getUserHomeDir(char *user){
+string getUserHomeDir(string user){
   struct passwd* pw;
-  if( ( pw = getpwnam(user)) == NULL ) {
+  if( ( pw = getpwnam(toCharArr(user))) == NULL ) {
     fprintf( stderr, "Unknown user\n");
-    return toCharArr("");
+    return "";
   }
   return pw->pw_dir;
 }
 
-int runSysCommand(std::vector<std::string> commands){
 
-  std::reverse(commands.begin(), commands.end());
-  std::vector<std::vector <std::string>> currCmd = handleCurrCmd(commands);
-  // bool found = false;
-  // char* path;
-  // for(auto it = executables.begin(); it != executables.end(); it++){
-  //    for(char* x : it->second){
-  //      if(strcmp(x, commands[0]) == 0){
-  //         //printf("executable: %s \n", x);
-  //         //printf("path: %s \n", toCharArr(it->first));
-  //       path = toCharArr(it->first);
-  //       found = true;
-  //       break;
-  //     }
-  //   }
-  // }
-  // // char* argument[100];
-  // if(!found) {
-  //    printf("%s: command not found\n", commands[0]);
-  //    return 0;
-  // }
+// [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
+// 0 output // 1 input
+int PipeCall(std::vector<std::vector<std::string>> cmd_table)
+{
+  int new_fds[2];
+  int old_fds[2];
 
-  // commands[0] = strdup(combineCharArr(toCharArr("/"),commands[0]));
-  // commands[0] = strdup(combineCharArr(path, commands[0]));
-  //   //printf("Executable: %s \n", commands[0]);
+  for(int i = 0 ; i < commandCount; i++){
+    if(i < commandCount -1){
+      pipe(new_fds);
+    }
+    pid_t pid = fork();
+    if(pid == 0)
+    {
 
-  // pid_t pid;
-  // pid = fork();
-  // if(pid == -1){      
-  //   printf("error forking! \n");
-  // }
-  // else if (pid == 0){ //child process
-  //   if(commands.size() > 1){
-  //     char* arguments[commands.size()+1];
-  //     for(int i = 0; i< commands.size(); i++)
-  //       arguments[i] = commands[i];
-  //     arguments[commands.size()] = NULL;
-  //     execv(commands[0], arguments);
-  //    }
-  //    else{
-  //       execl(commands[0] , commands[0], NULL);
-  //     }
-  //   }
-  // else{
-  //   wait(NULL);
-  // }
-
-  return 1;
+      if(i != 0)
+      {
+        dup2(old_fds[0], 0);
+        close(old_fds[0]);
+        close(old_fds[1]);
+      }
+      if(i < commandCount -1)
+      {
+        close(new_fds[0]);
+        dup2(new_fds[1], 1);
+        close(new_fds[1]);
+      }
+      //execute the command
+      char* path;
+      for(auto it = executables.begin(); it != executables.end(); it++)
+      {
+        for(char* x : it->second)
+        {
+          if(strcmp(x, toCharArr(cmd_table[i][0])) == 0)
+          {
+            path = toCharArr(it->first);
+            break;
+          }
+        }
+      }
+      char *cc =strdup(toCharArr(cmd_table[i][0]));  
+      cmd_table[i][0] = "/" + cmd_table[i][0];
+      cmd_table[i][0] = std::string(path) + cmd_table[i][0];
+      printf("Executable: %s \n", toCharArr(cmd_table[i][0]));
+      if(cmd_table[i][1].size() > 0)
+      {
+        char* arguments[cmd_table[i][1].size()+2];
+        arguments[0] = strdup(cc);
+        stringstream ss(cmd_table[i][1]);
+        string word;
+        int u = 1;
+        while (ss >> word) {
+        // printf("%s\n", toCharArr(word));
+          arguments[u++] = toCharArr(word);
+        }
+        arguments[u] = NULL;
+        if( execv(toCharArr(cmd_table[i][0]), arguments) < 0)
+        {
+          perror("execl error");
+          return 1;
+        }
+      }
+      else
+      {
+        if(execl(toCharArr(cmd_table[i][0]), toCharArr(cmd_table[i][0]), NULL) < 0)
+          {
+            perror("execl error");
+            return 1;
+          }
+      }
+    }
+    else
+    {
+      if(i != 0){
+        close(old_fds[0]);
+        close(old_fds[1]);
+      }
+      if(i < commandCount -1){
+        old_fds[0] = new_fds[0];
+        old_fds[1] = new_fds[1];
+      }
+        if(!background) wait(NULL);
+    }
+  }
+  if(cmd_table.size() > 1){
+    close(old_fds[0]);
+    close(old_fds[1]);
+  }
 }
 
-std::vector<std::vector <std::string>> handleCurrCmd(std::vector<std::string> commands){
-
-  std::vector<std::vector <std::string>> currCmd;
-  std::vector<std::string> temp;
-  for(int i = 0; i < commands.size(); i++){
-    if(commands[i] != "|" && commands[i] != "<" && commands[i] != ">"  )
-    {
-      if(i > 0 && (commands[i-1] == "|" || commands[i-1] == "<" || commands[i-1] == ">"  ))
-      temp.push_back(commands[i-1]);
-      temp.push_back(commands[i]);
-    }
-    else if(commands[i] == "|"){
-      temp.push_back("|");
-      currCmd.push_back(temp);
-      temp.clear();
-    }
-    else if(commands[i] == "<"){
-      temp.push_back("<");
-      currCmd.push_back(temp);
-      temp.clear();
-    }
-    else if(commands[i] == ">"){
-      temp.push_back(">");
-      currCmd.push_back(temp);
-      temp.clear();
-    }
-  }
-  currCmd.push_back(temp);
-
-  for(int i = 0; i < currCmd.size(); i++){
-    if(currCmd[i][currCmd[i].size()-1] == "|" && currCmd[i][0] == "|"){
-        currCmd[i].erase(currCmd[i].end());
-        currCmd[i].erase(currCmd[i].begin());
-        currCmd[i].push_back("MIDDLE");
-    }
-    else if(currCmd[i][currCmd[i].size()-1] == "|"){
-        currCmd[i].erase(currCmd[i].end());
-        currCmd[i].push_back("FIRST");
-    }
-    else if(currCmd[i][0] == "|"){
-        currCmd[i].erase(currCmd[i].begin());
-        currCmd[i].push_back("LAST");
-    }
-    
-  }
-  for(int i = 0; i < currCmd.size(); i++){
-    for(int j = 0; j < currCmd[i].size(); j++){
-      printf("%s ",toCharArr(currCmd[i][j]));
-    }
-    printf("\n");
-  }
-  return currCmd;
+// [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
+int RedirectCall(std::vector<std::vector<std::string>> cmd_table){
+  return 1;
 }

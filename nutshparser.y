@@ -13,62 +13,134 @@
 #include <dirent.h>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
+#include <fcntl.h>
+using namespace std;
 
 int yylex();
 int yyerror(char *s);
 
-int runCD(char* arg);
+int runCD(string arg);
 
-int runSetAlias(char *name, char *word);
-bool aliasLoopCheck(char* token1, char *token2);
+int runSetAlias(string name, string word);
+bool aliasLoopCheck(string token1, string token2);
 int printAlias();
-int unsetAlias(char *name);
+int unsetAlias(string name);
 void removeSubstrs(std::string &str, const std::string &substr, int dot);
 
-int updateEnv(char *variable, char *word);
-bool envLoopCheck(char* token1, char *token2);
+int updateEnv(string variable, string word);
+bool envLoopCheck(string  token1, string token2);
 int printEnv();
-int unsetEnv(char *variable);
-char *pathInput(char *first, char *second);
-
+int unsetEnv(string variable);
+string pathInput(string first, string second);
 int runSysCommand(std::vector<std::string> commands);
-std::vector<std::vector <std::string>> handleCurrCmd(std::vector<std::string> commands);
+string getUserHomeDir(string user);
 
-char* getUserHomeDir(char *user);
+// [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
+int PipeCall(std::vector<std::vector<std::string>> cmd_table);
+
+int RedirectCall(std::vector<std::vector<std::string>> cmd_table);
 %}
 
-%union {char *string;}
+%code requires {
+#include "nutshell.h"
+}
 
+
+%define api.value.type union
 %start cmd_line
-%token <string> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  META PATH
-%type <string> COMBINE_INPUT PATH_INPUT
+%token <std::string*> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  PATH 
+%type <std::string*> PATH_INPUT COMBINE_INPUT
+%type <int> CMD COMMAND  PIPE REDIRECT
+
 
 %%
 cmd_line    :
-	  BYE END 		              {exit(1); return 1; }
-	| CD STRING END        			{runCD($2); return 1; }
-  | CD END                    {runCD(toCharArr("~")); return 1;}
-	| ALIAS STRING STRING END		{if(!aliasLoopCheck($2, $3)){ 
-                                runSetAlias($2, $3);}
-                                return 1;}
-  | ALIAS END                 {printAlias(); return 1;}
-  | UNALIAS STRING END        {unsetAlias($2); return 1;}
-  | SETENV STRING PATH_INPUT END  {if(!envLoopCheck($2, $3)){updateEnv($2,$3);}
-                                       return 1;}
-  | PRINTENV END              {printEnv(); return 1;}
-  | UNSETENV STRING END       {unsetEnv($2); return 1;}
-  | STRING COMBINE_INPUT END  {commands.push_back(std::string($1)); runSysCommand(commands);  return 1;}
-  | META
+	  BYE END 		                {exit(1); return 1; }
+  | CMD END                     {return 1;}
 
+CMD     :
+    COMMAND                     {$$ = 1;}
+  | PIPE '&'                    {background = true; PipeCall(cmd_table); $$ =1; }
+  | PIPE                        {PipeCall(cmd_table); $$ =1; }
+  | REDIRECT '&'                {background = true; RedirectCall(cmd_table); $$ =1;}
+  | REDIRECT                    {RedirectCall(cmd_table); $$ =1;}
+
+
+PIPE   :
+    STRING COMBINE_INPUT   {
+                                          cmd_table[commandCount].push_back(*$1);
+                                          cmd_table[commandCount].push_back(*$2);
+                                          cmd_table[commandCount].push_back("STDIN"); 
+                                          cmd_table[commandCount].push_back("STDOUT"); 
+                                          cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                          cmd_table[commandCount].push_back("NONBI"); 
+                                          commandCount++;
+                                          $$ = 1;
+                                        }  
+  | PIPE '|' PIPE                       {$$ = 1;}  
+
+
+REDIRECT    : 
+    STRING COMBINE_INPUT '>' STRING    {
+                                                      cmd_table[commandCount].push_back(*$1);
+                                                      cmd_table[commandCount].push_back(*$2);
+                                                      cmd_table[commandCount].push_back("STDIN"); 
+                                                      cmd_table[commandCount].push_back("STDOUT"); 
+                                                      cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                                      cmd_table[commandCount].push_back("NONBI"); 
+                                                      commandCount++;
+                                                      cmd_table[commandCount].push_back(*$4);
+                                                      cmd_table[commandCount].push_back("");
+                                                      cmd_table[commandCount].push_back(cmd_table[commandCount-1][0]); 
+                                                      cmd_table[commandCount].push_back("STDOUT"); 
+                                                      cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                                      cmd_table[commandCount].push_back("FILE"); 
+                                                      commandCount++;
+                                                      $$ = 1;
+                                                    }    
+  | STRING COMBINE_INPUT '<' STRING    {
+                                                      cmd_table[commandCount].push_back(*$4);
+                                                      cmd_table[commandCount].push_back("");
+                                                      cmd_table[commandCount].push_back("STDIN"); 
+                                                      cmd_table[commandCount].push_back("STDOUT"); 
+                                                      cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                                      cmd_table[commandCount].push_back("FILE"); 
+                                                      commandCount++;
+                                                      cmd_table[commandCount].push_back(*$1);
+                                                      cmd_table[commandCount].push_back(*$2);
+                                                      cmd_table[commandCount].push_back(cmd_table[commandCount-1][0]); 
+                                                      cmd_table[commandCount].push_back("STDOUT"); 
+                                                      cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                                      cmd_table[commandCount].push_back("NONBI");
+                                                      commandCount++;
+                                                      $$ = 1;
+                                                    }    
+  
+
+COMMAND    :
+	  CD STRING  END        			    {runCD(*$2);return 1;}
+  | CD   END                       {runCD("~"); return 1;}
+	| ALIAS STRING STRING END		    {if(!aliasLoopCheck(*$2, *$3)){ 
+                                  runSetAlias(*$2, *$3);} return 1;}
+  | ALIAS  END                     { printAlias(); return 1;}  
+
+  | UNALIAS STRING  END            {unsetAlias(*$2);return 1;}
+  | SETENV STRING PATH_INPUT END   {if(!envLoopCheck(*$2, *$3)){updateEnv(*$2,*$3);}return 1;}
+
+  | PRINTENV    END                { printEnv(); return 1;}  
+  | UNSETENV STRING  END           {unsetEnv(*$2);return 1;}
+
+                                        
 COMBINE_INPUT   :
-     STRING COMBINE_INPUT    {commands.push_back(std::string($1));}
-   | STRING                  {commands.push_back(std::string($1));}
-   |                         {}
+     %empty                     {string s = ""; $$ = &s;}
+   | STRING                     {$$ = new std::string(*$1);}
+   | COMBINE_INPUT STRING       {$$ = new std::string(*$1 + " " + *$2);}
 
 PATH_INPUT  :
-    PATH STRING ':' PATH_INPUT   {$$ = combineCharArr($1, pathInput($2,$4));}
-  | STRING ':' PATH_INPUT   {$$ = pathInput($1,$3);}
-  | STRING                  {$$ = $1;}
+    PATH STRING ':' PATH_INPUT   {$$ = new std::string(*$1 + pathInput(*$2,*$4));}
+  | STRING ':' PATH_INPUT        {$$ = new std::string(pathInput(*$1,*$3));}
+  | STRING                       {$$ = new std::string(*$1);}
 
 %%
 
@@ -78,7 +150,7 @@ int yyerror(char *s) {
   }
 
 // CD
-int runCD(char* arg) {
+int runCD(string arg) {
   //if the first argument is ~
   if (arg[0] == '~'){
     std::string temp;
@@ -95,19 +167,20 @@ int runCD(char* arg) {
     }
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-    char* t = toCharArr(temp);
-    removeChar(t, '.');
-    printf("path: %s \n", t);
-		if(chdir(t) == 0) {
-			dot = t;
-      dotdot = toCharArr(getPrevPath(t));
-      varTable["PWD"] = t;
+    auto found = temp.find('.');
+    if(found != string::npos) temp.erase(found);
+    cout << "path : " << temp << endl;
+		if(chdir(toCharArr(temp)) == 0) {
+			dot = temp;
+      dotdot = getPrevPath(toCharArr(temp));
+      varTable["PWD"] = temp;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
 			printf("Directory not found\n");
 			return 1;
 		}
+
   }
   // arg is relative path
 	else if (arg[0] != '/') {
@@ -117,20 +190,21 @@ int runCD(char* arg) {
     temp += a;
     removeSubstrs(temp, "/..", 2);
     removeSubstrs(temp, "/.", 1);
-    char* t = toCharArr(temp);
-    removeChar(t, '.');
-    printf("path: %s \n", t);
-    if(t[strlen(t)-2] == ' '){
-      t[strlen(t)-2] = '\0';
-    }
-    if(t[strlen(t)-1] == ' '){
-      t[strlen(t)-1] = '\0';
-    }
-    printf("path relative: %s\n", toCharArr(t));
-		if(chdir(t) == 0) {
-			dot = t;
-      dotdot = toCharArr(getPrevPath(t));
-      varTable["PWD"] = t;
+    auto found = temp.find('.');
+    if(found != string::npos) temp.erase(found);
+    //cout << "path : " << temp << endl;
+
+    // if(t[strlen(t)-2] == ' '){
+    //   t[strlen(t)-2] = '\0';
+    // }
+    // if(t[strlen(t)-1] == ' '){
+    //   t[strlen(t)-1] = '\0';
+    // }
+    cout << "path relative: " << temp << endl;
+		if(chdir(toCharArr(temp)) == 0) {
+			dot = temp;
+      dotdot = getPrevPath(toCharArr(temp));
+      varTable["PWD"] = temp;
 		}
 		else {
 			//strcpy(varTable.word[0], varTable.word[0]); // fix
@@ -140,17 +214,17 @@ int runCD(char* arg) {
 	}
 
 	else { // arg is absolute path
-		if(chdir(arg) == 0){
+		if(chdir(toCharArr(arg)) == 0){
       std::string temp = arg;
       removeSubstrs(temp, "/..", 2);
       removeSubstrs(temp, "/.", 1);
-      char* t = toCharArr(temp);
-      removeChar(t, '.');
-      printf("path: %s \n", t);
-			dot = t;
-      dotdot = toCharArr(temp);
-			varTable["PWD"] = t;
-			dotdot = toCharArr(getPrevPath(varTable["PWD"]));
+      auto found = temp.find('.');
+      if(found != string::npos) temp.erase(found);
+      cout << "path : " << temp << endl;
+			dot = temp;
+      dotdot = getPrevPath(toCharArr(temp));
+			varTable["PWD"] = temp;
+			dotdot = getPrevPath(varTable["PWD"]);
 		}
 		else {
 			printf("Directory not found\n");
@@ -161,13 +235,13 @@ int runCD(char* arg) {
 }
 
 // Alias
-int runSetAlias(char *name, char *word) {
-  if(strcmp(name, word) == 0){
-		printf("Error, expansion of \"%s\" would create a loop.\n", name);
+int runSetAlias(string name, string word) {
+  if(name == word){
+    cout << "Error, expansion of" << name << "would create a loop.\n";
 		return 1;
 	}
-  else if((aliasTable.count(name)) && (strcmp(toCharArr(aliasTable[name]), word) == 0)){
-		printf("Error, expansion of \"%s\" would create a loop.\n", name);
+  else if(aliasTable.count(name) && aliasTable[name]== word){
+		cout << "Error, expansion of" << name << "would create a loop.\n";
 		return 1;
 	}
 	aliasTable[name] = word;
@@ -175,7 +249,7 @@ int runSetAlias(char *name, char *word) {
 }
 
 //check for infinite loop in alias table
-bool aliasLoopCheck(char* token1, char *token2)
+bool aliasLoopCheck(string token1, string token2)
 {
   bool flag = false;
   //std::cout << aliasTable.size();
@@ -196,23 +270,20 @@ bool aliasLoopCheck(char* token1, char *token2)
 
   std::string value;
   if(aliasTable.count(token2))
-    value = aliasTable[toCharArr(token2)];
+    value = aliasTable[token2];
   else
     return false;
   
   while(1)
   {
-    if(strcmp(toCharArr(token1), toCharArr(value)) == 0)
+    if(token1 == value)
     {
       flag = true;
       std::cout << "inifinite alias loop detected!\n";
-      //unsetAlias(toCharArr(value));
       break;
     }
     else if(!aliasTable.count(value))
     {
-      //if(aliasTable[token2] == nullptr)
-        //unsetAlias(toCharArr(token2));
       break;
     }
     else
@@ -235,7 +306,7 @@ int printAlias(){
   return 1;
 }
 
-int unsetAlias(char *name){
+int unsetAlias(string name){
   if(aliasTable.count(name)){
     aliasTable.erase(name);
     std::cout << "earsed " << name << std::endl;
@@ -247,14 +318,14 @@ int unsetAlias(char *name){
 }
 
 // Env Variable
-int updateEnv(char *variable, char *word){
+int updateEnv(string variable, string word){
   varTable[variable] = word;
   std::cout << "set " << variable << " to " << word << std::endl;
   return 1;
 }
 
 //check for infinite loop in environment variable table
-bool envLoopCheck(char* token1, char *token2)
+bool envLoopCheck(string token1, string token2)
 {
   bool flag = false;
   //std::cout << aliasTable.size();
@@ -275,13 +346,13 @@ bool envLoopCheck(char* token1, char *token2)
 
   std::string value;
   if(varTable.count(token2))
-    value = varTable[toCharArr(token2)];
+    value = varTable[token2];
   else
     return false;
   
   while(1)
   {
-    if(strcmp(toCharArr(token1), toCharArr(value)) == 0)
+    if(token1 == value)
     {
       flag = true;
       std::cout << "inifinite env variable loop detected!\n";
@@ -313,9 +384,9 @@ int printEnv(){
   return 1;
 }
 
-int unsetEnv(char *variable){
+int unsetEnv(string variable){
   if(varTable.count(variable)){
-    if((strcmp(variable, toCharArr("HOME")) == 0) || (strcmp(variable, toCharArr("PATH")) == 0))
+    if(variable == "HOME" || variable == "PATH")
     {
       std::cout << "unable to erased HOME or PATH directory\n";
       return 1;
@@ -328,10 +399,9 @@ int unsetEnv(char *variable){
   return 1;
 }
 
-char *pathInput(char *first, char *second){
-  char *str; 
-  str = combineCharArr(first, toCharArr(":"));
-  str = combineCharArr(str, second);
+string pathInput(string first, string second){
+  string str; 
+  str = first + ":" + second;
   return str;
 }
 
@@ -362,116 +432,107 @@ void removeSubstrs(std::string &str, const std::string &substr, int dot){
    }
 }
 
-char* getUserHomeDir(char *user){
+string getUserHomeDir(string user){
   struct passwd* pw;
-  if( ( pw = getpwnam(user)) == NULL ) {
+  if( ( pw = getpwnam(toCharArr(user))) == NULL ) {
     fprintf( stderr, "Unknown user\n");
-    return toCharArr("");
+    return "";
   }
   return pw->pw_dir;
 }
 
-int runSysCommand(std::vector<std::string> commands){
 
-  std::reverse(commands.begin(), commands.end());
-  std::vector<std::vector <std::string>> currCmd = handleCurrCmd(commands);
-  // bool found = false;
-  // char* path;
-  // for(auto it = executables.begin(); it != executables.end(); it++){
-  //    for(char* x : it->second){
-  //      if(strcmp(x, commands[0]) == 0){
-  //         //printf("executable: %s \n", x);
-  //         //printf("path: %s \n", toCharArr(it->first));
-  //       path = toCharArr(it->first);
-  //       found = true;
-  //       break;
-  //     }
-  //   }
-  // }
-  // // char* argument[100];
-  // if(!found) {
-  //    printf("%s: command not found\n", commands[0]);
-  //    return 0;
-  // }
+// [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
+// 0 output // 1 input
+int PipeCall(std::vector<std::vector<std::string>> cmd_table)
+{
+  int new_fds[2];
+  int old_fds[2];
 
-  // commands[0] = strdup(combineCharArr(toCharArr("/"),commands[0]));
-  // commands[0] = strdup(combineCharArr(path, commands[0]));
-  //   //printf("Executable: %s \n", commands[0]);
+  for(int i = 0 ; i < commandCount; i++){
+    if(i < commandCount -1){
+      pipe(new_fds);
+    }
+    pid_t pid = fork();
+    if(pid == 0)
+    {
 
-  // pid_t pid;
-  // pid = fork();
-  // if(pid == -1){      
-  //   printf("error forking! \n");
-  // }
-  // else if (pid == 0){ //child process
-  //   if(commands.size() > 1){
-  //     char* arguments[commands.size()+1];
-  //     for(int i = 0; i< commands.size(); i++)
-  //       arguments[i] = commands[i];
-  //     arguments[commands.size()] = NULL;
-  //     execv(commands[0], arguments);
-  //    }
-  //    else{
-  //       execl(commands[0] , commands[0], NULL);
-  //     }
-  //   }
-  // else{
-  //   wait(NULL);
-  // }
-
-  return 1;
+      if(i != 0)
+      {
+        dup2(old_fds[0], 0);
+        close(old_fds[0]);
+        close(old_fds[1]);
+      }
+      if(i < commandCount -1)
+      {
+        close(new_fds[0]);
+        dup2(new_fds[1], 1);
+        close(new_fds[1]);
+      }
+      //execute the command
+      char* path;
+      for(auto it = executables.begin(); it != executables.end(); it++)
+      {
+        for(char* x : it->second)
+        {
+          if(strcmp(x, toCharArr(cmd_table[i][0])) == 0)
+          {
+            path = toCharArr(it->first);
+            break;
+          }
+        }
+      }
+      char *cc =strdup(toCharArr(cmd_table[i][0]));  
+      cmd_table[i][0] = "/" + cmd_table[i][0];
+      cmd_table[i][0] = std::string(path) + cmd_table[i][0];
+      printf("Executable: %s \n", toCharArr(cmd_table[i][0]));
+      if(cmd_table[i][1].size() > 0)
+      {
+        char* arguments[cmd_table[i][1].size()+2];
+        arguments[0] = strdup(cc);
+        stringstream ss(cmd_table[i][1]);
+        string word;
+        int u = 1;
+        while (ss >> word) {
+        // printf("%s\n", toCharArr(word));
+          arguments[u++] = toCharArr(word);
+        }
+        arguments[u] = NULL;
+        if( execv(toCharArr(cmd_table[i][0]), arguments) < 0)
+        {
+          perror("execl error");
+          return 1;
+        }
+      }
+      else
+      {
+        if(execl(toCharArr(cmd_table[i][0]), toCharArr(cmd_table[i][0]), NULL) < 0)
+          {
+            perror("execl error");
+            return 1;
+          }
+      }
+    }
+    else
+    {
+      if(i != 0){
+        close(old_fds[0]);
+        close(old_fds[1]);
+      }
+      if(i < commandCount -1){
+        old_fds[0] = new_fds[0];
+        old_fds[1] = new_fds[1];
+      }
+        if(!background) wait(NULL);
+    }
+  }
+  if(cmd_table.size() > 1){
+    close(old_fds[0]);
+    close(old_fds[1]);
+  }
 }
 
-std::vector<std::vector <std::string>> handleCurrCmd(std::vector<std::string> commands){
-
-  std::vector<std::vector <std::string>> currCmd;
-  std::vector<std::string> temp;
-  for(int i = 0; i < commands.size(); i++){
-    if(commands[i] != "|" && commands[i] != "<" && commands[i] != ">"  )
-    {
-      if(i > 0 && (commands[i-1] == "|" || commands[i-1] == "<" || commands[i-1] == ">"  ))
-      temp.push_back(commands[i-1]);
-      temp.push_back(commands[i]);
-    }
-    else if(commands[i] == "|"){
-      temp.push_back("|");
-      currCmd.push_back(temp);
-      temp.clear();
-    }
-    else if(commands[i] == "<"){
-      temp.push_back("<");
-      currCmd.push_back(temp);
-      temp.clear();
-    }
-    else if(commands[i] == ">"){
-      temp.push_back(">");
-      currCmd.push_back(temp);
-      temp.clear();
-    }
-  }
-  currCmd.push_back(temp);
-
-  for(int i = 0; i < currCmd.size(); i++){
-    if(currCmd[i][currCmd[i].size()-1] == "|" && currCmd[i][0] == "|"){
-        currCmd[i].erase(currCmd[i].end());
-        currCmd[i].erase(currCmd[i].begin());
-        currCmd[i].push_back("MIDDLE");
-    }
-    else if(currCmd[i][currCmd[i].size()-1] == "|"){
-        currCmd[i].erase(currCmd[i].end());
-        currCmd[i].push_back("FIRST");
-    }
-    else if(currCmd[i][0] == "|"){
-        currCmd[i].erase(currCmd[i].begin());
-        currCmd[i].push_back("LAST");
-    }
-    
-  }
-  for(int i = 0; i < currCmd.size(); i++){
-    for(int j = 0; j < currCmd[i].size(); j++){
-      printf("%s ",toCharArr(currCmd[i][j]));
-    }
-    printf("\n");
-  }
-  return currCmd;
+// [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
+int RedirectCall(std::vector<std::vector<std::string>> cmd_table){
+  return 1;
 }

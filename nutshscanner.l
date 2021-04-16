@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "nutshell.h"
+#include <iostream>
 
 char* subAliases(char* name){
    if(aliasTable.count(name))
@@ -76,47 +77,23 @@ char* tildeNameExpansion(char* str){
    name[i] = '\0';
    //printf("name after search: %s \n", name);
    //printf("path after search: %s \n", pointer);
-   char* dir = getUserHomeDir(name);
+   char* dir = toCharArr(getUserHomeDir(name));
    return combineCharArr(dir, pointer);
 }
 
-/*
-char checkMeta(char* str){
-    for ( int i = strlen(str) - 1; i >= 0; --i ){
-       if(str[i] == '|' || str[i] == '&' || str[i] == '<' || str[i] == '>' ){
-          printf("found meta1 \n");
-          if(i-1 > 0 && str[i-1] != '\\'){
-            printf("found meta \n");
-            return str[i];
-          }
-       }
-    }
-    return '1';
-}
-char* reverseCharArr(char *str){
-   char* r = (char*)malloc((strlen(str) + 1) * sizeof(char));
-   r[strlen(str)] = '\0';
-   int i;
-   for(i = 0; i < strlen(str); i++) {
-      r[i] = str[strlen(str) - 1 - i];
-  }
-  return r;
-}
-*/
 %}
 %array
 %option noyywrap
 
-CHAR               [.A-Za-z0-9!\\><|?*&/_-][.A-Za-z0-9!\\><|?*&/_-]*
+CHAR               [.A-Za-z0-9!\\><?*/_-][.A-Za-z0-9!\\><?*/_-]*
 STR_ANYCHAR        [)(*&%$#@!`;,\\.a-zA-Z0-9'*/_><|~= -][}{)(*&%$#@!`;,\\.a-zA-Z0-9'*/_><|~= -]*
 ENV_ANYCHAR        [)(*%#@!`;,.a-zA-Z0-9'/*_=~ -][)(*%#@!`;,.a-zA-Z0-9'/*_=~ -]*
-META               [><|\\&"]*
 
 %x string_condition env_condition 
 %%
 
 <string_condition>{STR_ANYCHAR}+     { printf("yytext str_cond: %s\n", yytext);
-                                       yylval.string = strdup(yytext);
+                                       yylval.STRING = new std::string(yytext);
                                        return STRING;
                                     }
 <env_condition>{ENV_ANYCHAR}+        { if(isEnv(yytext)){
@@ -127,7 +104,7 @@ META               [><|\\&"]*
                                        free( yycopy );
                                     } else {
                                        printf("yytext env_cond: %s\n", yytext);
-                                       yylval.string = strdup(yytext);
+                                       yylval.STRING = new std::string(yytext);
                                        return STRING;
                                     };
                                  }
@@ -137,70 +114,56 @@ META               [><|\\&"]*
 <env_condition>[\}]              { BEGIN(INITIAL); }
 
 [ ]		           { tokenCount++;}
-bye                 { return BYE; }
-cd		              { return CD;}
-alias		           { return ALIAS; }
-unalias             { return UNALIAS; }
-setenv              { return SETENV; }
-printenv            { return PRINTENV; }
-unsetenv            { return UNSETENV; }
-[.][:]                { yylval.string = strdup(yytext); return PATH;}
+bye                 { yylval.STRING = new std::string(yytext); return BYE; }
+cd		              { yylval.STRING = new std::string(yytext); return CD;}
+alias		           { yylval.STRING = new std::string(yytext); return ALIAS; }
+unalias             { yylval.STRING = new std::string(yytext); return UNALIAS; }
+setenv              { yylval.STRING = new std::string(yytext); return SETENV; }
+printenv            { yylval.STRING = new std::string(yytext); return PRINTENV; }
+unsetenv            { yylval.STRING = new std::string(yytext); return UNSETENV; }
+[.][:]               { yylval.STRING = new std::string(yytext); return PATH;}
 [:]           	     { return yytext[0]; }
 [~]{CHAR}*          { if(strlen(yytext) > 1 && isalpha(yytext[1]) != 0){
-                        yylval.string = tildeNameExpansion(yytext);
+                        yylval.STRING = new std::string(tildeNameExpansion(yytext));
                       }
                       else{
-                        yylval.string = tildeExpansion(yytext); 
+                        yylval.STRING = new std::string(tildeNameExpansion(yytext)); 
                       };
                       return STRING; 
                     }
-[.]                 { yylval.string = strdup(dot); printf("%s\n", dot); return STRING; }
-[.][.]              { yylval.string = strdup(dotdot); printf("%s\n", dotdot); return STRING; }
+[.]                 { yylval.STRING = new std::string(dot); std::cout << dot << std::endl; return STRING; }
+[.][.]              { yylval.STRING = new std::string(dotdot); std::cout << dotdot << std::endl; return STRING; }
 "\n"		           { return END; }
 [\"]                { quoteCount = 1; BEGIN(string_condition); }
 [\$][\{]            { BEGIN(env_condition); }
 
 
-{CHAR}*[\\]{META}{CHAR}*   {
+{CHAR}*[\\]{CHAR}*   {
                               removeChar(yytext, '\\');
-                              yylval.string = strdup(yytext);
+                              yylval.STRING = new std::string(yytext);
                               return STRING;
                            }
-{META}              { yylval.string = strdup(yytext);
-                        return STRING;
-                    }
+[\|\>\<&]                 { return yytext[0];}
 
-{CHAR}+             {/*char meta = checkMeta(yytext);
-                     printf("yytext to be checked %s \n", yytext);
-                     printf("checkmeta %c \n", meta);
-                     if(meta != '1'){
-                        char *ret = strchr(yytext, meta);
-                        printf("printing %s \n", ret);
-                        for ( int i = strlen(ret); i > 0; --i ){
-                           unput(ret[i] );
-                        }
-                         int length = strlen(yytext) - strlen(ret);
-                         for ( int i = length -1; i >= 0; --i ){
-                            unput( yytext[i] );
-                         }
-                        return META;
-                     }*/
-                     if(tokenCount == 0 && ifAlias(yytext)) {
+{CHAR}+             {if(tokenCount == 0 && ifAlias(yytext)) {
                         printf("yytext before alias_sub: %s\n", yytext);
                         // source: https://www.cs.princeton.edu/~appel/modern/c/software/flex/flex.html
                            char *yycopy = strdup( subAliases(yytext) );
                            for ( int i = strlen(subAliases(yytext)) - 1; i >= 0; --i )
                                unput( yycopy[i] );
                            free( yycopy );
-                      } else {
+                      } 
+                      else {
                         printf("yytext char_cond: %s\n", yytext);
+                        char* result;
                         if(checkWC(yytext)){
-                           yylval.string = strdup(WCcondition(yytext));
+                           result = strdup(WCcondition(yytext));
+                           yylval.STRING = new std::string(result);
                         }
                         else{
-                           yylval.string = strdup((yytext));
+                           yylval.STRING = new std::string(yytext);
                         }
-                        //printf("after WC natching: %s \n", yylval.string);
+                        //printf("after WC natching: %s \n", result);
                         return STRING;
                       };
                      }
