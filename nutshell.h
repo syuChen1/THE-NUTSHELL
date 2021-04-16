@@ -28,4 +28,5 @@ extern int commandCount;
 extern bool firstWord;
 extern std::string dot;
 extern std::string dotdot;
+extern bool background;
 #endif

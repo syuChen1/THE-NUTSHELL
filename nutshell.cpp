@@ -24,6 +24,7 @@ std::string dotdot;
 int tokenCount = 0;
 int commandCount =0;
 bool firstWord = true;
+bool background = false;
 std::vector<std::vector<std::string>> cmd_table;
 void removeChar(char* s, char c)
 {
@@ -115,9 +116,7 @@ int main(){
     //get the curr dir path
     string cwd = getcwd_string();
     getFileNames(&cwdFiles, ".");
-    varTable["PWD"] = cwd;
-    varTable["HOME"] = "/root";
-    varTable["PROMPT"] = "nutshell";
+    varTable["HOME"] = cwd;
     varTable["PATH"] = ".:/bin:/usr/bin";
     getPathFiles(toCharArr(varTable["PATH"]));
 
@@ -125,13 +124,12 @@ int main(){
     dot = toCharArr(cwd);
 
     //set .. to prev path
-    cwd = getPrevPath(cwd);
-    dotdot = toCharArr(cwd);
-
+    string prev = getPrevPath(cwd);
+    dotdot = toCharArr(prev);
     system("clear");
     while(1)
     {
-        printf(MAG "[%s]>> " RESET, toCharArr(varTable["PWD"]));
+        printf(MAG "[%s]>> " RESET, toCharArr(cwd));
         tokenCount = 0;
         commandCount = 0;
         firstWord = true;
@@ -142,6 +140,7 @@ int main(){
             cmd_table.push_back(v);
         }
         yyparse();
+        background = false;
         cmd_table.clear();
     }
 

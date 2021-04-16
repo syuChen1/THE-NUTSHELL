@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <fcntl.h>
 using namespace std;
 
 int yylex();
@@ -36,7 +37,9 @@ int runSysCommand(std::vector<std::string> commands);
 string getUserHomeDir(string user);
 
 // [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
-int finalCall(std::vector<std::vector<std::string>> cmd_table);
+int PipeCall(std::vector<std::vector<std::string>> cmd_table);
+
+int RedirectCall(std::vector<std::vector<std::string>> cmd_table);
 %}
 
 %code requires {
@@ -46,31 +49,26 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table);
 
 %define api.value.type union
 %start cmd_line
-%token <std::string*> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  PATH NON_BUILD_IN_COMMAND
+%token <std::string*> BYE CD STRING ALIAS END UNALIAS SETENV PRINTENV UNSETENV  PATH 
 %type <std::string*> PATH_INPUT COMBINE_INPUT
-%type <int> CMD COMMAND NON_BUILTIN
+%type <int> CMD COMMAND  PIPE REDIRECT
 
 
 %%
 cmd_line    :
 	  BYE END 		                {exit(1); return 1; }
-  | CMD END                     {finalCall(cmd_table); return 1;}
+  | CMD END                     {return 1;}
 
 CMD     :
     COMMAND                     {$$ = 1;}
-  | STRING                      { cmd_table[commandCount].push_back(*$1);
-                                  cmd_table[commandCount].push_back("");
-                                  cmd_table[commandCount].push_back("STDIN"); 
-                                  cmd_table[commandCount].push_back("STDOUT"); 
-                                  cmd_table[commandCount].push_back(to_string(commandCount)); 
-                                  cmd_table[commandCount].push_back("FILE"); 
-                                  commandCount++;
-                                  $$ = 1;
-                                }
-  | NON_BUILTIN                  {$$ =1; }
+  | PIPE '&'                    {background = true; PipeCall(cmd_table); $$ =1; }
+  | PIPE                        {PipeCall(cmd_table); $$ =1; }
+  | REDIRECT '&'                {background = true; RedirectCall(cmd_table); $$ =1;}
+  | REDIRECT                    {RedirectCall(cmd_table); $$ =1;}
 
-NON_BUILTIN   :
-    NON_BUILD_IN_COMMAND COMBINE_INPUT   {
+
+PIPE   :
+    STRING COMBINE_INPUT   {
                                           cmd_table[commandCount].push_back(*$1);
                                           cmd_table[commandCount].push_back(*$2);
                                           cmd_table[commandCount].push_back("STDIN"); 
@@ -80,8 +78,44 @@ NON_BUILTIN   :
                                           commandCount++;
                                           $$ = 1;
                                         }  
-  | NON_BUILTIN '|' NON_BUILTIN     {$$ = 1;}
-  | NON_BUILTIN '>' STRING
+  | PIPE '|' PIPE                       {$$ = 1;}  
+
+
+REDIRECT    : 
+    STRING COMBINE_INPUT '>' STRING    {
+                                                      cmd_table[commandCount].push_back(*$1);
+                                                      cmd_table[commandCount].push_back(*$2);
+                                                      cmd_table[commandCount].push_back("STDIN"); 
+                                                      cmd_table[commandCount].push_back("STDOUT"); 
+                                                      cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                                      cmd_table[commandCount].push_back("NONBI"); 
+                                                      commandCount++;
+                                                      cmd_table[commandCount].push_back(*$4);
+                                                      cmd_table[commandCount].push_back("");
+                                                      cmd_table[commandCount].push_back(cmd_table[commandCount-1][0]); 
+                                                      cmd_table[commandCount].push_back("STDOUT"); 
+                                                      cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                                      cmd_table[commandCount].push_back("FILE"); 
+                                                      commandCount++;
+                                                      $$ = 1;
+                                                    }    
+  | STRING COMBINE_INPUT '<' STRING    {
+                                                      cmd_table[commandCount].push_back(*$4);
+                                                      cmd_table[commandCount].push_back("");
+                                                      cmd_table[commandCount].push_back("STDIN"); 
+                                                      cmd_table[commandCount].push_back("STDOUT"); 
+                                                      cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                                      cmd_table[commandCount].push_back("FILE"); 
+                                                      commandCount++;
+                                                      cmd_table[commandCount].push_back(*$1);
+                                                      cmd_table[commandCount].push_back(*$2);
+                                                      cmd_table[commandCount].push_back(cmd_table[commandCount-1][0]); 
+                                                      cmd_table[commandCount].push_back("STDOUT"); 
+                                                      cmd_table[commandCount].push_back(to_string(commandCount)); 
+                                                      cmd_table[commandCount].push_back("NONBI");
+                                                      commandCount++;
+                                                      $$ = 1;
+                                                    }    
   
 
 COMMAND    :
@@ -407,54 +441,10 @@ string getUserHomeDir(string user){
   return pw->pw_dir;
 }
 
-int runSysCommand(std::vector<std::string> commands){
-
-  std::reverse(commands.begin(), commands.end());
-  char* path;
-  for(auto it = executables.begin(); it != executables.end(); it++){
-     for(char* x : it->second){
-       if(strcmp(x, toCharArr(commands[0])) == 0){
-          //printf("executable: %s \n", x);
-          //printf("path: %s \n", toCharArr(it->first));
-        path = toCharArr(it->first);
-        break;
-      }
-    }
-  }
-
-  commands[0] = "/" + commands[0];
-  commands[0] = std::string(path) + commands[0];
-  printf("Executable: %s \n", toCharArr(commands[0]));
-
-  pid_t pid;
-  pid = fork();
-  if(pid == -1){      
-    printf("error forking! \n");
-  }
-  else if (pid == 0){ //child process
-    if(commands.size() > 1){
-      char* arguments[commands.size()+1];
-      for(int i = 0; i< commands.size(); i++)
-        arguments[i] = toCharArr(commands[i]);
-      arguments[commands.size()] = NULL;
-      execv(toCharArr(commands[0]), arguments);
-     }
-     else{
-        execl(toCharArr(commands[0]), toCharArr(commands[0]), NULL);
-      }
-    }
-  else{
-    wait(NULL);
-  }
-
-  return 1;
-}
-
-
 
 // [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
 // 0 output // 1 input
-int finalCall(std::vector<std::vector<std::string>> cmd_table)
+int PipeCall(std::vector<std::vector<std::string>> cmd_table)
 {
   int new_fds[2];
   int old_fds[2];
@@ -533,11 +523,16 @@ int finalCall(std::vector<std::vector<std::string>> cmd_table)
         old_fds[0] = new_fds[0];
         old_fds[1] = new_fds[1];
       }
-      wait(NULL);
+        if(!background) wait(NULL);
     }
   }
   if(cmd_table.size() > 1){
     close(old_fds[0]);
     close(old_fds[1]);
   }
+}
+
+// [0]fileName [1]Args [2]STDIN [3]STDOUT [4]ORDER [5]TYPE
+int RedirectCall(std::vector<std::vector<std::string>> cmd_table){
+  return 1;
 }
