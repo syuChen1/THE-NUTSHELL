@@ -85,7 +85,7 @@ char* tildeNameExpansion(char* str){
 %array
 %option noyywrap
 
-CHAR               [.A-Za-z0-9!\\><?*&/_-][.A-Za-z0-9!\\><?*&/_-]*
+CHAR               [.A-Za-z0-9!\\><?*/_-][.A-Za-z0-9!\\><?*/_-]*
 STR_ANYCHAR        [)(*&%$#@!`;,\\.a-zA-Z0-9'*/_><|~= -][}{)(*&%$#@!`;,\\.a-zA-Z0-9'*/_><|~= -]*
 ENV_ANYCHAR        [)(*%#@!`;,.a-zA-Z0-9'/*_=~ -][)(*%#@!`;,.a-zA-Z0-9'/*_=~ -]*
 
@@ -143,7 +143,7 @@ unsetenv            { yylval.STRING = new std::string(yytext); return UNSETENV; 
                               yylval.STRING = new std::string(yytext);
                               return STRING;
                            }
-[\|\>\<]                 { firstWord = true; return yytext[0];}
+[\|\>\<\&]                 { return yytext[0];}
 
 {CHAR}+             {if(tokenCount == 0 && ifAlias(yytext)) {
                         printf("yytext before alias_sub: %s\n", yytext);
@@ -154,16 +154,6 @@ unsetenv            { yylval.STRING = new std::string(yytext); return UNSETENV; 
                            free( yycopy );
                       } 
                       else {
-                        for(auto it = executables.begin(); it != executables.end(); it++){
-                           for(char* x : it->second){
-                              if(strcmp(x, yytext) == 0 && firstWord == true){
-                                 firstWord == false;
-                                 printf("non build-in command: %s\n", yytext);
-                                 yylval.STRING = new std::string(yytext);
-                                 return NON_BUILD_IN_COMMAND;
-                              }
-                           }
-                        }
                         printf("yytext char_cond: %s\n", yytext);
                         char* result;
                         if(checkWC(yytext)){
